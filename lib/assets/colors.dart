@@ -1,4 +1,45 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:flutter/material.dart';
+
+// Primary Color
+const Color primaryColor = Color(0xFF4E73DF);
+
+// Secondary Color
+const Color secondaryColor = Color(0xFFDF734E);
+
+// Light Theme
+ThemeData lightTheme = ThemeData.from(
+  colorScheme: ColorScheme.light(
+    primary: primaryColor,
+    secondary: secondaryColor,
+  ),
+  // Configure other properties as needed
+);
+
+// Dark Theme
+ThemeData darkTheme = ThemeData.from(
+  colorScheme: ColorScheme.dark(
+    primary: primaryColor,
+    secondary: secondaryColor,
+  ),
+  // Configure other properties as needed
+);
+
+//////////////////////////////////
+///
+var transparent = Colors.transparent;
+
+// var primary = Color(0xFF4E73DF);
+var primary = Color(0xFF007BFF);
+var secondary = Color(0xFF858796);
+var success = Color(0xFF1CC88A);
+var info = Color(0xFF36B9CC);
+var warning = Color(0xFFF6C23E);
+var danger = Color(0xFFE74A3B);
+var light = Color(0xFFF8F9FC);
+var dark = Color(0xFF5A5C69);
+var grayDark = Color(0xFF5A5C69);
 
 //////////////////////////////////
 ///

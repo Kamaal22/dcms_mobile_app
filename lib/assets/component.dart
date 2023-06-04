@@ -1,7 +1,7 @@
 // ignore_for_file: unused_local_variable, prefer_const_constructors, non_constant_identifier_names
-
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
-import 'colors.dart';
+// import 'colors.dart';
 
 /////////////////////////////////////////////////////
 ///Margin and Padding => MP
@@ -15,18 +15,18 @@ MP_all(double number) {
 
 ////////////////////////////////////////////////
 ///
-/*ToastListener
-void SToast(String message, var bgcolor, var Textcolor) {
+// ToastListener
+SToast(String message, var bgcolor, var Textcolor) {
   Fluttertoast.showToast(
       msg: message,
       toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.CENTER,
+      gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 1,
       backgroundColor: bgcolor,
       textColor: Textcolor,
       fontSize: 16.0);
 }
-*/
+
 ////////////////////////////////////////////////
 ///Fonts
 ///
@@ -67,9 +67,10 @@ var vertical = Axis.vertical;
 var horizontal = Axis.horizontal;
 /////////////////////////////////////////////
 ///CORNER RADIUS
-radius(double rad, var color) {
+radius(double rad, var bgcolor, var color) {
   return BoxDecoration(
-    color: color,
+    color: bgcolor,
+    border: Border.all(color: color),
     borderRadius: BorderRadius.all(Radius.circular(rad)),
   );
 }
