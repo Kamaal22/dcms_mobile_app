@@ -46,11 +46,6 @@ class _IndexPageState extends State<IndexPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   backgroundColor: primary,
-      //   elevation: 0,
-      //   title: Text(""),
-      // ),
       body: IndexedStack(children: _pages, index: _currentIndex),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: white,
