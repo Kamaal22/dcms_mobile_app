@@ -2,6 +2,7 @@
 
 // import 'package:dcms_mobile_app/Model/mysql.dart';
 // import 'package:dcms_mobile_app/assets/component.dart';
+import 'package:dcms_mobile_app/appt_modal.dart';
 import 'package:dcms_mobile_app/assets/colors.dart';
 import 'package:dcms_mobile_app/assets/component.dart';
 import 'package:flutter/material.dart';
@@ -17,14 +18,12 @@ class AppointmentPage extends StatefulWidget {
 
 class _AppointmentPageState extends State<AppointmentPage> {
   String? username;
-  List<Appointment> appointments =
-      []; // Assuming you have a list of Appointment objects
+  List<Appointment> appointments = [];
 
   Future<void> loadData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       username = prefs.getString('username');
-      // Simulating the data retrieval from the database
       appointments = [
         Appointment(
           appointmentId: 1,
@@ -35,17 +34,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
           patientId: 1,
           employeeId: 6,
           serviceId: 1,
-        ),
-        Appointment(
-          appointmentId: 3,
-          type: 'Walk-in',
-          status: 'Arrived',
-          startDate: '2023-05-29 07:34:00',
-          endDate: '2023-05-31 23:38:00',
-          patientId: 1,
-          employeeId: 6,
-          serviceId: 1,
-        ),
+        )
       ];
     });
   }
@@ -60,25 +49,24 @@ class _AppointmentPageState extends State<AppointmentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: Text(
-            'Appointment Page',
-            style: GoogleFonts.nunito(
-              fontSize: 25,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+        title: Text(
+          'Appointment Page',
+          style: TextStyle(
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
         elevation: 0,
         backgroundColor: Colors.blue,
+        centerTitle: true,
       ),
       body: ListView.builder(
         itemCount: appointments.length,
         itemBuilder: (context, index) {
           Appointment appointment = appointments[index];
           return AppointmentItem(
-            name: 'Abdi', // Pass the appropriate patient name here
+            name: 'Abdi',
             startTime: DateFormat('hh:mm a').format(
               DateTime.parse(appointment.startDate),
             ),
@@ -88,12 +76,22 @@ class _AppointmentPageState extends State<AppointmentPage> {
             endDate: DateFormat('dd-MM-yyyy').format(
               DateTime.parse(appointment.endDate),
             ),
-            serviceName:
-                'Tooth Extraction', // Pass the appropriate service name here
-            dentistName:
-                'Mohamed Ali', // Pass the appropriate dentist name here
+            serviceName: 'Tooth Extraction',
+            dentistName: 'Mohamed Ali',
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        elevation: 0.0,
+        backgroundColor: primary,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14.0),
+        ),
+        onPressed: () {
+          // Handle the floating action button press
+          toPage(context, AppointmentModel());
+        },
+        child: icon(Icons.add_rounded, white, 50),
       ),
     );
   }
@@ -134,119 +132,82 @@ class AppointmentItem extends StatelessWidget {
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: spaceBetween,
-                      children: [
-                        Container(
-                          padding: MP_all(2),
-                          decoration: radius(10, green, transparent),
-                          child: Text(
-                            '$startDate',
-                            style: GoogleFonts.nunito(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: white,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: MP_all(2),
-                          decoration: radius(10, blue, transparent),
-                          child: Text(
-                            startTime,
-                            style: GoogleFonts.nunito(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: white,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: MP_all(2),
-                          decoration: radius(10, red, transparent),
-                          child: Text(
-                            '$endDate',
-                            style: GoogleFonts.nunito(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10.0),
-                    Row(
-                      children: [
-                        Text(
-                          'Appointer: ',
-                          style: GoogleFonts.nunito(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        Text(
-                          ' $name',
-                          style: GoogleFonts.nunito(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          'Service: ',
-                          style: GoogleFonts.nunito(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        Text(
-                          ' $serviceName',
-                          style: GoogleFonts.nunito(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          'Dentist:',
-                          style: GoogleFonts.nunito(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        Text(
-                          ' $dentistName',
-                          style: GoogleFonts.nunito(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+              Container(
+                padding: EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.green,
+                ),
+                child: Text(
+                  startDate,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.blue,
+                ),
+                child: Text(
+                  startTime,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.red,
+                ),
+                child: Text(
+                  endDate,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ],
+          ),
+          SizedBox(height: 10.0),
+          Text(
+            'Appointer: $name',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+            ),
+          ),
+          Text(
+            'Service: $serviceName',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+            ),
+          ),
+          Text(
+            'Dentist: $dentistName',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+            ),
           ),
         ],
       ),

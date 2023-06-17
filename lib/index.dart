@@ -1,12 +1,14 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:dcms_mobile_app/appointments.dart';
+import 'package:dcms_mobile_app/appt_modal.dart';
 import 'package:dcms_mobile_app/assets/colors.dart';
 import 'package:dcms_mobile_app/dental_record.dart';
 import 'package:dcms_mobile_app/profile.dart';
 import 'package:dcms_mobile_app/home.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class IndexPage extends StatefulWidget {
   const IndexPage({Key? key}) : super(key: key);
@@ -39,6 +41,7 @@ class _IndexPageState extends State<IndexPage> {
   final List<Widget> _pages = [
     HomePage(),
     AppointmentPage(),
+    AppointmentModel(),
     DentalRecord(),
     ProfilePage(),
   ];
@@ -64,22 +67,27 @@ class _IndexPageState extends State<IndexPage> {
         items: [
           BottomNavigationBarItem(
             tooltip: "Home",
-            icon: Icon(Icons.home_filled),
+            icon: FaIcon(FontAwesomeIcons.house, size: 22),
             label: 'Home',
           ),
           BottomNavigationBarItem(
+            tooltip: "Apppoinments",
+            icon: FaIcon(FontAwesomeIcons.calendar, size: 22),
+            label: 'Apppoinments',
+          ),
+          BottomNavigationBarItem(
             tooltip: "Apppoinment",
-            icon: Icon(Icons.date_range),
-            label: 'Apppoinment',
+            icon: FaIcon(FontAwesomeIcons.plus, size: 22),
+            label: 'Add Apppoinment',
           ),
           BottomNavigationBarItem(
             tooltip: "Medical Record",
-            icon: Icon(Icons.receipt_long_rounded),
+            icon: FaIcon(FontAwesomeIcons.fileMedical, size: 22),
             label: 'Medical records',
           ),
           BottomNavigationBarItem(
             tooltip: "Profile",
-            icon: Icon(Icons.account_circle),
+            icon: FaIcon(FontAwesomeIcons.circleUser, size: 22),
             label: 'Profile',
           ),
         ],

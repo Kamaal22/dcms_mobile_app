@@ -1,11 +1,12 @@
 import 'dart:convert';
-
 import 'package:dcms_mobile_app/assets/colors.dart';
 import 'package:dcms_mobile_app/assets/component.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
 
 import '../index.dart';
 
@@ -19,6 +20,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final String apiUrl = 'http://192.168.1.10/DCMS/app/mobile/login/login.php';
 
   @override
   void initState() {
@@ -27,93 +29,62 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void checkAuth() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString('user_id');
-    final username = prefs.getString('username');
-    final password = prefs.getString('password');
-
-    if (userId != null && username != null && password != null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => IndexPage()),
-      );
+    final userData = await DatabaseManager.getUserData();
+    if (userData != null) {
+      navigateToIndexPage();
     }
   }
 
   Future<void> login() async {
-    final url =
-        Uri.parse('http://192.168.1.10/DCMS/app/mobile/login/login.php');
-    try {
-      final response = await http.post(url, body: {
-        'username': usernameController.text,
-        'password': passwordController.text,
-      });
+    final response = await http.post(Uri.parse(apiUrl), body: {
+      'username': usernameController.text,
+      'password': passwordController.text,
+    });
 
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-        final message = jsonData['message'];
-        final data = jsonData['data'];
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      final message = jsonData['message'];
+      final data = jsonData['data'];
 
-        if (message == 'success' && data != null) {
-          final prefs = await SharedPreferences.getInstance();
-          prefs.setString('user_id', data['user_id']);
-          prefs.setString('username', data['username']);
-          prefs.setString('password', data['password']);
+      if (message == 'success' && data != null) {
+        final userId = data['user_id'];
+        final username = data['username'];
+        final password = data['password'];
 
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => IndexPage()),
-          );
-        } else {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text('Login Error',
-                  style: GoogleFonts.nunito(fontWeight: bold)),
-              content: Text('Invalid username or password.',
-                  style: GoogleFonts.nunito()),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child:
-                      Text('OK', style: GoogleFonts.nunito(fontWeight: bold)),
-                ),
-              ],
-            ),
-          );
-        }
+        await DatabaseManager.saveUserData(userId, username, password);
+
+        navigateToIndexPage();
       } else {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Login Error'),
-            content: Text('An error occurred during login.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('OK'),
-              ),
-            ],
-          ),
-        );
+        showAlertDialog('Login Error', 'Invalid username or password.');
       }
-    } catch (e) {
-      // Handle the exception
-      print('Error occurred during login: $e');
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Login Error'),
-          content: Text('An error occurred during login.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('OK'),
-            ),
-          ],
-        ),
-      );
+    } else {
+      showAlertDialog('Login Error', 'An error occurred during login.');
     }
+  }
+
+  void navigateToIndexPage() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => IndexPage()),
+    );
+  }
+
+  void showAlertDialog(String title, String content) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title:
+            Text(title, style: GoogleFonts.nunito(fontWeight: FontWeight.bold)),
+        content: Text(content, style: GoogleFonts.nunito()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('OK',
+                style: GoogleFonts.nunito(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -188,20 +159,25 @@ class _LoginPageState extends State<LoginPage> {
               ),
               SizedBox(height: 20),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                child: Container(
-                  padding: MP_all(20),
-                  decoration: radius(12, primary, transparent),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 25.0, vertical: 5.0),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          20.0), // Set the border radius here
+                    ),
+                    elevation: 0.0, // Set the elevation here
+                  ),
+                  onPressed: login,
                   child: Center(
-                    child: ElevatedButton(
-                      onPressed: login,
-                      child: Text(
-                        "Sign In",
-                        style: GoogleFonts.nunito(
-                          fontSize: 24,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    child: Text(
+                      "Sign In",
+                      style: GoogleFonts.nunito(
+                        fontSize: 28,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -212,5 +188,52 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+}
+
+class DatabaseManager {
+  static const String dbName = 'your_database.db';
+  static const String tableName = 'user';
+  static const String columnUserId = 'user_id';
+  static const String columnUsername = 'username';
+  static const String columnPassword = 'password';
+
+  static Future<Database> openDatabase() async {
+    final databasesPath = await getDatabasesPath();
+    final path = join(databasesPath, dbName);
+
+    return openDatabase(
+      path,
+      version: 1,
+      onCreate: (db, version) {
+        db.execute('''
+          CREATE TABLE $tableName (
+            $columnUserId TEXT PRIMARY KEY,
+            $columnUsername TEXT,
+            $columnPassword TEXT
+          )
+        ''');
+      },
+    );
+  }
+
+  static Future<void> saveUserData(
+      String userId, String username, String password) async {
+    final db = await openDatabase();
+    await db.insert(
+      tableName,
+      {
+        columnUserId: userId,
+        columnUsername: username,
+        columnPassword: password,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  static Future<Map<String, dynamic>?> getUserData() async {
+    final db = await openDatabase();
+    final data = await db.query(tableName);
+    return data.isNotEmpty ? data.first : null;
   }
 }
