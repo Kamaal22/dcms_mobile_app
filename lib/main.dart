@@ -3,6 +3,7 @@
 // import 'package:dcms_mobile_app/settings.dart';
 import 'package:dcms_mobile_app/assets/colors.dart';
 import 'package:dcms_mobile_app/login/login.dart';
+import 'package:dcms_mobile_app/one.dart';
 import 'package:dcms_mobile_app/test.dart';
 import 'package:flutter/material.dart';
 
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'DCMS Mobile App',
       theme: lightTheme,
-      home: LoginPage(),
+      home: Index(),
       // initialRoute: '/',
       // routes: {
       //   '/': (context) => HomePage(),

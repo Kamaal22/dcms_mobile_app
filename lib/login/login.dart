@@ -1,12 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:dcms_mobile_app/assets/colors.dart';
 import 'package:dcms_mobile_app/assets/component.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
+import 'package:sqlite3/sqlite3.dart';
+import 'package:path/path.dart' as path;
 
 import '../index.dart';
 
@@ -20,7 +21,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final String apiUrl = 'http://192.168.1.10/DCMS/app/mobile/login/login.php';
+  final String apiUrl = 'http://192.168.1.5/DCMS/app/mobile/login/login.php';
 
   @override
   void initState() {
@@ -40,6 +41,7 @@ class _LoginPageState extends State<LoginPage> {
       'username': usernameController.text,
       'password': passwordController.text,
     });
+    final prefs = await SharedPreferences.getInstance();
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
@@ -47,11 +49,9 @@ class _LoginPageState extends State<LoginPage> {
       final data = jsonData['data'];
 
       if (message == 'success' && data != null) {
-        final userId = data['user_id'];
-        final username = data['username'];
-        final password = data['password'];
-
-        await DatabaseManager.saveUserData(userId, username, password);
+        prefs.setString('user_id', data['user_id']);
+        prefs.setString('username', data['username']);
+        prefs.setString('password', data['password']);
 
         navigateToIndexPage();
       } else {
@@ -96,7 +96,8 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Row(
+              Container(
+                  child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
@@ -116,7 +117,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ],
-              ),
+              )),
               SizedBox(height: 20),
               Text(
                 "Best Dental in Somalia",
@@ -199,41 +200,33 @@ class DatabaseManager {
   static const String columnPassword = 'password';
 
   static Future<Database> openDatabase() async {
-    final databasesPath = await getDatabasesPath();
-    final path = join(databasesPath, dbName);
+    final dbPath = path.join(await Directory.systemTemp.path, dbName);
+    final db = sqlite3.open(dbPath);
 
-    return openDatabase(
-      path,
-      version: 1,
-      onCreate: (db, version) {
-        db.execute('''
-          CREATE TABLE $tableName (
-            $columnUserId TEXT PRIMARY KEY,
-            $columnUsername TEXT,
-            $columnPassword TEXT
-          )
-        ''');
-      },
-    );
+    db.execute('''
+      CREATE TABLE IF NOT EXISTS $tableName (
+        $columnUserId TEXT PRIMARY KEY,
+        $columnUsername TEXT,
+        $columnPassword TEXT
+      )
+    ''');
+
+    return db;
   }
 
   static Future<void> saveUserData(
       String userId, String username, String password) async {
     final db = await openDatabase();
-    await db.insert(
-      tableName,
-      {
-        columnUserId: userId,
-        columnUsername: username,
-        columnPassword: password,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    db.execute('''
+      INSERT OR REPLACE INTO $tableName ($columnUserId, $columnUsername, $columnPassword)
+      VALUES ('$userId', '$username', '$password')
+    ''');
   }
 
   static Future<Map<String, dynamic>?> getUserData() async {
     final db = await openDatabase();
-    final data = await db.query(tableName);
-    return data.isNotEmpty ? data.first : null;
+    final result = db.select('SELECT * FROM $tableName');
+    final data = result.isNotEmpty ? result.first : null;
+    return data;
   }
 }

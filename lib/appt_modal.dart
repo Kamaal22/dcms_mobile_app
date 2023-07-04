@@ -1,143 +1,140 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 
 class AppointmentModel extends StatefulWidget {
-  const AppointmentModel({super.key});
-
   @override
-  State<AppointmentModel> createState() => _AppointmentModelState();
+  _AppointmentModelState createState() => _AppointmentModelState();
 }
 
 class _AppointmentModelState extends State<AppointmentModel> {
-  List<Appointment> appointments = [];
-  List<String> serviceOptions = [];
-
-  @override
-  void initState() {
-    super.initState();
-    fetchDataFromApi();
-  }
-
-  Future<void> fetchDataFromApi() async {
-    try {
-      final response = await http.get(
-          Uri.parse('https://192.168.1.9/DCMS/app/mobile/appointment/api.php'));
-
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-
-        appointments.clear();
-
-        final database = await openDatabase(
-          join(await getDatabasesPath(), 'appointment_database.db'),
-          onCreate: (db, version) {
-            return db.execute(
-              'CREATE TABLE appointments(id INTEGER PRIMARY KEY, patientName TEXT, appointmentDate TEXT, appointmentTime TEXT, service TEXT)',
-            );
-          },
-          version: 1,
-        );
-
-        for (var appointment in jsonData) {
-          await database.insert(
-            'appointments',
-            {
-              'id': appointment['id'],
-              'patientName': appointment['patientName'],
-              'appointmentDate': appointment['appointmentDate'],
-              'appointmentTime': appointment['appointmentTime'],
-              'service': appointment['service'],
-            },
-            conflictAlgorithm: ConflictAlgorithm.replace,
-          );
-
-          appointments.add(Appointment.fromJson(appointment));
-        }
-
-        final serviceResponse = await http.get(Uri.parse(
-            'https://192.168.1.9/DCMS/app/mobile/appointment/api.php'));
-
-        if (serviceResponse.statusCode == 200) {
-          final serviceData = json.decode(serviceResponse.body);
-
-          serviceOptions.clear();
-
-          for (var service in serviceData) {
-            serviceOptions.add(service['name']);
-          }
-        }
-
-        await database.close();
-
-        setState(() {});
-      } else {
-        throw Exception('Failed to fetch data');
-      }
-    } catch (e) {
-      print('Error: $e');
-    }
-  }
+  final _formKey = GlobalKey<FormState>();
+  final List<String> dentists = ['Dr. Smith', 'Dr. Johnson', 'Dr. Brown'];
+  String? selectedDentist; // Changed to nullable type
+  DateTime? selectedDateTime;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Appointments'),
+        title: Text('Add Appointment'),
       ),
-      body: ListView.builder(
-        itemCount: appointments.length,
-        itemBuilder: (context, index) {
-          final appointment = appointments[index];
-          return ListTile(
-            title: Text(appointment.patientName),
-            subtitle: Text(
-                '${appointment.appointmentDate}, ${appointment.appointmentTime}'),
-            trailing: DropdownButton<String>(
-              value: appointment.service,
-              items: serviceOptions.map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (newValue) {
-                setState(() {
-                  appointment.service = newValue!;
-                });
-              },
-            ),
-          );
-        },
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Patient Name'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter patient name';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 16.0),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      readOnly: true,
+                      onTap: _selectDateTime,
+                      decoration: InputDecoration(
+                        labelText: 'Preferred Date and Time',
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please select preferred date and time';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: _selectDateTime,
+                    icon: Icon(Icons.calendar_today),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16.0),
+              DropdownButtonFormField<String>(
+                value: selectedDentist,
+                onChanged: (value) {
+                  setState(() {
+                    selectedDentist = value;
+                  });
+                },
+                items: dentists.map((dentist) {
+                  return DropdownMenuItem<String>(
+                    value: dentist,
+                    child: Text(dentist),
+                  );
+                }).toList(),
+                decoration: InputDecoration(
+                  labelText: 'Select Dentist',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please select a dentist';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 16.0),
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Services Required'),
+                maxLines: 3,
+              ),
+              SizedBox(height: 16.0),
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Additional Notes'),
+                maxLines: 3,
+              ),
+              SizedBox(height: 32.0),
+              ElevatedButton(
+                onPressed: _submitForm,
+                child: Text('Submit'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
-}
 
-class Appointment {
-  final int id;
-  final String patientName;
-  final String appointmentDate;
-  final String appointmentTime;
-  String service;
-
-  Appointment({
-    required this.id,
-    required this.patientName,
-    required this.appointmentDate,
-    required this.appointmentTime,
-    required this.service,
-  });
-
-  factory Appointment.fromJson(Map<String, dynamic> json) {
-    return Appointment(
-      id: json['id'],
-      patientName: json['patientName'],
-      appointmentDate: json['appointmentDate'],
-      appointmentTime: json['appointmentTime'],
-      service: json['service'],
+  void _selectDateTime() async {
+    final DateTime? pickedDateTime = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
     );
+
+    if (pickedDateTime != null) {
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+      if (pickedTime != null) {
+        setState(() {
+          selectedDateTime = DateTime(
+            pickedDateTime.year,
+            pickedDateTime.month,
+            pickedDateTime.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+        });
+      }
+    }
+  }
+
+  void _submitForm() {
+    if (_formKey.currentState?.validate() == true) {
+      // Process the form data and schedule the appointment
+      // Add your logic here for handling the form submission
+    }
   }
 }

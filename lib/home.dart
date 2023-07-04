@@ -2,151 +2,201 @@ import 'package:dcms_mobile_app/assets/colors.dart';
 import 'package:dcms_mobile_app/assets/component.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class HomePage extends StatefulWidget {
-  HomePage({Key? key}) : super(key: key);
-
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  String? username;
-
-  Future<void> loadData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      username = prefs.getString('username');
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    loadData();
-  }
-
+class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        title: Container(
-          padding: EdgeInsets.symmetric(horizontal: 15),
-          child: Row(
-            mainAxisAlignment: spaceBetween,
-            children: [
-              Text("Welcome, $username",
-                  style: GoogleFonts.nunito(
-                      fontSize: 30, fontWeight: bold, color: white)),
-              Container(
-                  width: 40,
-                  height: 40,
-                  decoration: radius(15, white, white24),
-                  child: icon(Icons.notifications_none_rounded, primary, 30))
-            ],
-          ),
+        backgroundColor: primary,
+        title: Text(
+          'Welcome, Abdi Abdirasak',
+          style: GoogleFonts.nunito(fontWeight: FontWeight.bold, fontSize: 24),
         ),
       ),
-      body: Column(
-        children: [
-          SizedBox(
-            height: 150,
-          ),
-          Row(
-            mainAxisAlignment: spaceAround,
-            children: [
-              Container(
-                decoration: radius(10, white30, primary),
-                width: 180,
-                height: 180,
-                child: Center(
-                    child: icon(Icons.photo_library_outlined, primary, 100)),
+      body: Padding(
+        padding: MP_all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // SizedBox(height: 40),
+            // Upcoming Appointments Card /////////////////////////////////////////////////////////////////////////////
+            Container(
+              height: MediaQuery.of(context).size.height * 0.25,
+              color: red200,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Upcoming Appointments:',
+                          style: GoogleFonts.nunito(
+                              fontSize: 20,
+                              color: blueGrey,
+                              fontWeight: FontWeight.w800),
+                        ),
+                        Container(
+                          alignment: Alignment.center,
+                          width: 60,
+                          padding: MP_all(2),
+                          decoration: radius(5, lightBlue300, transparent),
+                          height: 20,
+                          // color: blue50,
+                          child: Text("Show All",
+                              style: GoogleFonts.nunito(
+                                  color: blueGrey,
+                                  fontWeight: FontWeight.bold)),
+                        )
+                      ]),
+                  SizedBox(height: 8),
+                  AppointmentCard('July 5, 2023', '10:00 AM', 'Dr. Smith'),
+                  AppointmentCard('July 10, 2023', '2:30 PM', 'Dr. Johnson'),
+                  AppointmentCard('July 15, 2023', '1:30 PM', 'Drs. Mary'),
+                ],
               ),
-              Container(
-                decoration: radius(10, white30, primary),
-                width: 180,
-                height: 180,
-                child: Center(child: icon(Icons.android_rounded, primary, 100)),
-              )
-            ],
-          ),
-          SizedBox(
-            height: 50,
-          ),
-          Row(
-            mainAxisAlignment: center,
-            children: [
-              Container(
-                decoration: radius(10, white30, primary),
-                width: 380,
-                height: 50,
-                padding: EdgeInsets.only(left: 20),
-                child: Row(
-                  mainAxisAlignment: spaceBetween,
+            ),
+
+            // Recent Activity Card /////////////////////////////////////////////////////////////////////////////
+            // SizedBox(height: 20),
+            Container(
+              height: MediaQuery.of(context).size.height * 0.25,
+              color: red100,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Appointments",
-                        style: GoogleFonts.nunito(
-                            fontWeight: bold, fontSize: 18, color: primary)),
-                    Container(
-                        height: 50,
-                        width: 50,
-                        decoration: radiusLTRB(0, 0, 8, 8, primary),
-                        child: icon(Icons.arrow_forward_ios_rounded, white, 30))
-                  ],
-                ),
-              )
-            ],
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Row(
-            mainAxisAlignment: center,
-            children: [
-              Container(
-                decoration: radius(10, white30, primary),
-                width: 380,
-                height: 50,
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: spaceBetween,
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Recent Activity:',
+                            style: GoogleFonts.nunito(
+                                fontSize: 20,
+                                color: blueGrey,
+                                fontWeight: FontWeight.w800),
+                          ),
+                          Container(
+                            alignment: Alignment.center,
+                            width: 60,
+                            padding: MP_all(2),
+                            decoration: radius(5, lightGreen300, transparent),
+                            height: 20,
+                            // color: blue50,
+                            child: Text("Show All",
+                                style: GoogleFonts.nunito(
+                                    color: blueGrey,
+                                    fontWeight: FontWeight.bold)),
+                          )
+                        ]),
+                    SizedBox(height: 8),
+                    ActivityCard('June 30, 2023', 'Payment received: \$50'),
+                    ActivityCard('June 29, 2023', 'Appointment rescheduled'),
+                    ActivityCard('June 29, 2023', 'Appointment rescheduled'),
+                  ]),
+            ),
+            // SizedBox(height: 20),
+
+            // Quick Access Card /////////////////////////////////////////////////////////////////////////////
+            Container(
+              height: MediaQuery.of(context).size.height * 0.3,
+              width: MediaQuery.of(context).size.width,
+              color: red300,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Dental Records",
-                        style: GoogleFonts.nunito(
-                            fontWeight: bold, fontSize: 18, color: primary)),
-                    icon(Icons.arrow_forward_ios_rounded, primary, 30)
-                  ],
-                ),
-              )
-            ],
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Row(
-            mainAxisAlignment: center,
-            children: [
-              Container(
-                decoration: radius(10, white30, primary),
-                width: 380,
-                height: 50,
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: spaceBetween,
-                  children: [
-                    Text("Profile",
-                        style: GoogleFonts.nunito(
-                            fontWeight: bold, fontSize: 18, color: primary)),
-                    icon(Icons.arrow_forward_ios_rounded, primary, 30)
-                  ],
-                ),
-              )
-            ],
-          ),
-        ],
+                    Text(
+                      'Quick Access:',
+                      style: GoogleFonts.nunito(
+                          fontSize: 20,
+                          color: blueGrey,
+                          fontWeight: FontWeight.w800),
+                    ),
+                    SizedBox(height: 8),
+                    QuickAccessButton('Appointments', Icons.event, () {
+                      // Add your logic for navigating to the appointments page
+                    }),
+                    QuickAccessButton('Add Appointment', Icons.add, () {
+                      // Add your logic for navigating to the add appointment page
+                    }),
+                    QuickAccessButton('Dental Record', Icons.description, () {
+                      // Add your logic for navigating to the dental record page
+                    }),
+                    QuickAccessButton('Profile', Icons.person, () {
+                      // Add your logic for navigating to the profile page
+                    }),
+                  ]),
+            ),
+          ],
+          ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        ),
       ),
+    );
+  }
+
+  Widget AppointmentCard(String date, String time, String dentist) {
+    return Card(
+      elevation: 0,
+      color: lightBlue200,
+      child: Padding(
+        padding: EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Date: $date',
+                  style: GoogleFonts.nunito(
+                      fontWeight: FontWeight.bold, color: blue700),
+                ),
+                Text('Time: $time',
+                    style: GoogleFonts.nunito(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 18,
+                        color: blue900)),
+                Text('Dentist: $dentist',
+                    style: GoogleFonts.nunito(
+                        fontWeight: FontWeight.bold, color: blue700)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget ActivityCard(String date, String activity) {
+    return Card(
+      color: lightGreen200,
+      elevation: 0,
+      child: Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              Text(
+                'Date: $date',
+                style: GoogleFonts.nunito(
+                    fontWeight: FontWeight.bold, color: green900),
+              ),
+              Text(activity, style: GoogleFonts.nunito(color: green900)),
+            ]),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget QuickAccessButton(String title, IconData icon, Function onPressed) {
+    return ElevatedButton.icon(
+      onPressed: () {},
+      icon: Icon(icon),
+      label: Text(title),
     );
   }
 }
