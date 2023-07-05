@@ -15,8 +15,7 @@ class HomePage extends StatelessWidget {
           style: GoogleFonts.nunito(fontWeight: FontWeight.bold, fontSize: 24),
         ),
       ),
-      body: Padding(
-        padding: MP_all(10),
+      body: SingleChildScrollView(padding: MP_LTRB(10, 50, 10, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -24,8 +23,9 @@ class HomePage extends StatelessWidget {
             // SizedBox(height: 40),
             // Upcoming Appointments Card /////////////////////////////////////////////////////////////////////////////
             Container(
-              height: MediaQuery.of(context).size.height * 0.25,
-              color: red200,
+              // height: MediaQuery.of(context).size.height * 0.25,
+              width: MediaQuery.of(context).size.width,
+              // color: red200,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -59,12 +59,13 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
-
+      
             // Recent Activity Card /////////////////////////////////////////////////////////////////////////////
             // SizedBox(height: 20),
             Container(
-              height: MediaQuery.of(context).size.height * 0.25,
-              color: red100,
+              // height: MediaQuery.of(context).size.height * 0.25,
+              width: MediaQuery.of(context).size.width,
+              // color: red100,
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -98,12 +99,12 @@ class HomePage extends StatelessWidget {
                   ]),
             ),
             // SizedBox(height: 20),
-
+      
             // Quick Access Card /////////////////////////////////////////////////////////////////////////////
             Container(
-              height: MediaQuery.of(context).size.height * 0.3,
+              // height: MediaQuery.of(context).size.height * 0.3,
               width: MediaQuery.of(context).size.width,
-              color: red300,
+              // color: transparent,
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

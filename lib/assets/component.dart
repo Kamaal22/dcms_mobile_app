@@ -130,3 +130,19 @@ cancel(var context) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
+///
+void modal(
+    BuildContext context, List<Widget> title, List<Widget> content, List<Widget> actions) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        scrollable: true,
+        elevation: 0,
+        title: Column(children: title),
+        content: Column(children: content),
+        actions: actions,
+      );
+    },
+  );
+}

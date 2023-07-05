@@ -1,4 +1,6 @@
+import 'package:dcms_mobile_app/assets/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppointmentModel extends StatefulWidget {
   @override
@@ -17,86 +19,110 @@ class _AppointmentModelState extends State<AppointmentModel> {
       appBar: AppBar(
         title: Text('Add Appointment'),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Patient Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter patient name';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16.0),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      readOnly: true,
-                      onTap: _selectDateTime,
-                      decoration: InputDecoration(
-                        labelText: 'Preferred Date and Time',
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please select preferred date and time';
-                        }
-                        return null;
-                      },
-                    ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  decoration: InputDecoration(
+                    hintText: 'Patient Name',
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
                   ),
-                  IconButton(
-                    onPressed: _selectDateTime,
-                    icon: Icon(Icons.calendar_today),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16.0),
-              DropdownButtonFormField<String>(
-                value: selectedDentist,
-                onChanged: (value) {
-                  setState(() {
-                    selectedDentist = value;
-                  });
-                },
-                items: dentists.map((dentist) {
-                  return DropdownMenuItem<String>(
-                    value: dentist,
-                    child: Text(dentist),
-                  );
-                }).toList(),
-                decoration: InputDecoration(
-                  labelText: 'Select Dentist',
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter patient name';
+                    }
+                    return null;
+                  },
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select a dentist';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16.0),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Services Required'),
-                maxLines: 3,
-              ),
-              SizedBox(height: 16.0),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Additional Notes'),
-                maxLines: 3,
-              ),
-              SizedBox(height: 32.0),
-              ElevatedButton(
-                onPressed: _submitForm,
-                child: Text('Submit'),
-              ),
-            ],
+                SizedBox(height: 16.0),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        readOnly: true,
+                        onTap: _selectDateTime,
+                        decoration: InputDecoration(
+                            hintText: 'Preferred Date and Time',
+                            border: OutlineInputBorder(),
+                            contentPadding:
+                                EdgeInsets.symmetric(horizontal: 10),
+                            suffixIcon: Icon(Icons.calendar_today)),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please select preferred date and time';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    // IconButton(
+                    //   onPressed: _selectDateTime,
+                    //   icon: Icon(Icons.calendar_today),
+                    // ),
+                  ],
+                ),
+                SizedBox(height: 16.0),
+                DropdownButtonFormField<String>(
+                  value: selectedDentist,
+                  onChanged: (value) {
+                    setState(() {
+                      selectedDentist = value;
+                    });
+                  },
+                  items: dentists.map((dentist) {
+                    return DropdownMenuItem<String>(
+                      value: dentist,
+                      child: Text(dentist),
+                    );
+                  }).toList(),
+                  decoration: InputDecoration(
+                      hintText: 'Select Dentist',
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10)),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select a dentist';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16.0),
+                TextField(
+                  textAlign: TextAlign.left,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    suffixIcon: Icon(Icons.medical_services_rounded),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 4),
+                  ),
+                  maxLines: 3,
+                ),
+                SizedBox(height: 16.0),
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Additional Notes',
+                    border: OutlineInputBorder(),
+                    // suffixIcon: Icon(Icons.note_alt_rounded),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                  maxLines: 3,
+                ),
+                SizedBox(height: 32.0),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: blue800,
+                      elevation: 0.0,
+                      textStyle: GoogleFonts.nunito()),
+                  onPressed: _submitForm,
+                  child: Text('Submit'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

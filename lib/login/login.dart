@@ -21,7 +21,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final String apiUrl = 'http://192.168.1.5/DCMS/app/mobile/login/login.php';
+  final String apiUrl = 'http://192.168.93.163/DCMS/app/mobile/login/login.php';
 
   @override
   void initState() {
