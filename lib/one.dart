@@ -1,7 +1,9 @@
-import 'package:dcms_mobile_app/index.dart';
-import 'package:dcms_mobile_app/login/login.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'index.dart';
+import 'login/login.dart';
 
 class Index extends StatefulWidget {
   Index({Key? key}) : super(key: key);
@@ -14,7 +16,10 @@ class _IndexState extends State<Index> {
   @override
   void initState() {
     super.initState();
-    checkLoginStatus();
+    // Timer to show the splash screen for 2 seconds.
+    Timer(Duration(seconds: 2), () {
+      checkLoginStatus();
+    });
   }
 
   void checkLoginStatus() async {
@@ -47,7 +52,7 @@ class _IndexState extends State<Index> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: CircularProgressIndicator(),
+        child: Image.asset('assets/ic_launcher.png'),
       ),
     );
   }

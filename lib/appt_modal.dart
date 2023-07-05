@@ -2,6 +2,8 @@ import 'package:dcms_mobile_app/assets/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'assets/component.dart';
+
 class AppointmentModel extends StatefulWidget {
   @override
   _AppointmentModelState createState() => _AppointmentModelState();
@@ -28,11 +30,12 @@ class _AppointmentModelState extends State<AppointmentModel> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextFormField(
+                  readOnly: true,
                   decoration: InputDecoration(
-                    hintText: 'Patient Name',
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                  ),
+                      hintText: 'Patient Name',
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10)),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter patient name';
@@ -49,10 +52,15 @@ class _AppointmentModelState extends State<AppointmentModel> {
                         onTap: _selectDateTime,
                         decoration: InputDecoration(
                             hintText: 'Preferred Date and Time',
-                            border: OutlineInputBorder(),
+                            hintTextDirection: TextDirection.ltr,
+                            hintStyle: GoogleFonts.nunito(),
+                            border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                            ),
+                            suffixIcon: Icon(Icons.calendar_today),
                             contentPadding:
-                                EdgeInsets.symmetric(horizontal: 10),
-                            suffixIcon: Icon(Icons.calendar_today)),
+                                EdgeInsets.symmetric(horizontal: 10)),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please select preferred date and time';
@@ -61,10 +69,6 @@ class _AppointmentModelState extends State<AppointmentModel> {
                         },
                       ),
                     ),
-                    // IconButton(
-                    //   onPressed: _selectDateTime,
-                    //   icon: Icon(Icons.calendar_today),
-                    // ),
                   ],
                 ),
                 SizedBox(height: 16.0),
@@ -83,7 +87,8 @@ class _AppointmentModelState extends State<AppointmentModel> {
                   }).toList(),
                   decoration: InputDecoration(
                       hintText: 'Select Dentist',
-                      border: OutlineInputBorder(),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
                       contentPadding: EdgeInsets.symmetric(horizontal: 10)),
                   validator: (value) {
                     if (value == null || value.isEmpty) {

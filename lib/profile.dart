@@ -1,4 +1,7 @@
+import 'package:dcms_mobile_app/assets/component.dart';
+import 'package:dcms_mobile_app/login/login.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -196,8 +199,11 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  void _performLogout() {
+  Future _performLogout() async {
     // Implement logout logic here
     // Clear user session, navigate to login screen, etc.
+    final pref = await SharedPreferences.getInstance();
+    await pref.clear();
+    toPage(context, LoginPage());
   }
 }

@@ -2,8 +2,43 @@ import 'package:dcms_mobile_app/assets/colors.dart';
 import 'package:dcms_mobile_app/assets/component.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  String firstname = ''; // Declare firstname variable
+  String lastname = ''; // Declare lastname variable
+
+  Future<void> getInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    String? storedFirstname = prefs.getString('firstname');
+    String? storedLastname = prefs.getString('lastname');
+
+    if (storedFirstname != null && storedLastname != null) {
+      // Data is available in shared preferences
+      setState(() {
+        firstname = storedFirstname; // Assign value to firstname variable
+        lastname = storedLastname; // Assign value to lastname variable
+      });
+      print('First Name: $firstname');
+      print('Last Name: $lastname');
+    } else {
+      // Data is not available in shared preferences
+      print('No data found in shared preferences.');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getInfo();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -11,11 +46,12 @@ class HomePage extends StatelessWidget {
         elevation: 0,
         backgroundColor: primary,
         title: Text(
-          'Welcome, Abdi Abdirasak',
+          'Welcome, $firstname $lastname', // Display the firstname and lastname
           style: GoogleFonts.nunito(fontWeight: FontWeight.bold, fontSize: 24),
         ),
       ),
-      body: SingleChildScrollView(padding: MP_LTRB(10, 50, 10, 0),
+      body: SingleChildScrollView(
+        padding: MP_LTRB(10, 50, 10, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -59,7 +95,7 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
-      
+
             // Recent Activity Card /////////////////////////////////////////////////////////////////////////////
             // SizedBox(height: 20),
             Container(
@@ -99,7 +135,7 @@ class HomePage extends StatelessWidget {
                   ]),
             ),
             // SizedBox(height: 20),
-      
+
             // Quick Access Card /////////////////////////////////////////////////////////////////////////////
             Container(
               // height: MediaQuery.of(context).size.height * 0.3,

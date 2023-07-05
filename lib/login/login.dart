@@ -21,7 +21,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final String apiUrl = 'http://192.168.93.163/DCMS/app/mobile/login/login.php';
+  final String apiUrl =
+      'http://192.168.222.163/DCMS/app/mobile/login/login.php';
 
   @override
   void initState() {
@@ -52,6 +53,8 @@ class _LoginPageState extends State<LoginPage> {
         prefs.setString('user_id', data['user_id']);
         prefs.setString('username', data['username']);
         prefs.setString('password', data['password']);
+        prefs.setString('firstname', data['firstname']);
+        prefs.setString('lastname', data['lastname']);
 
         navigateToIndexPage();
       } else {

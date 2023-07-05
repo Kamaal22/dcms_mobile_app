@@ -1,3 +1,4 @@
+import 'package:dcms_mobile_app/assets/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -29,6 +30,13 @@ class AppointmentPage extends StatelessWidget {
       time: '2:30 PM',
       dentist: 'Dr. Johnson',
       notes: 'Bring your insurance card.',
+      status: 'approved', // Add status value here
+    ),
+    Appointment(
+      date: 'July 10, 2023',
+      time: '2:30 PM',
+      dentist: 'Dr. Johnson',
+      notes: 'Bring your insurance card.',
       status: 'cancelled', // Add status value here
     ),
     // Add more appointments as needed
@@ -38,7 +46,8 @@ class AppointmentPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Appointments'),
+        backgroundColor: transparent,
+        elevation: 0,
       ),
       body: ListView.builder(
         itemCount: appointments.length,
@@ -51,35 +60,32 @@ class AppointmentPage extends StatelessWidget {
 
   Widget buildAppointmentCard(BuildContext context, Appointment appointment) {
     Color statusColor;
-    String statusText;
+    // String statusText;
 
     switch (appointment.status) {
-      case 'arrived':
-        statusColor = Colors.blue[800]!;
-        statusText = 'In room';
-        break;
       case 'pending':
-        statusColor = Colors.blueGrey;
-        statusText = 'Pending';
+        statusColor = Colors.blue[800]!;
+        // statusText = 'Pending';
         break;
       case 'approved':
         statusColor = Colors.green[800]!;
-        statusText = 'Approved';
+        // statusText = 'Approved';
         break;
       case 'cancelled':
         statusColor = Colors.red[800]!;
-        statusText = 'Cancelled';
+        // statusText = 'Cancelled';
         break;
       default:
-        statusColor = Colors.grey[100]!;
-        statusText = '';
+        statusColor = Colors.grey[800]!;
+      // statusText = '';
     }
 
     return Card(
-      elevation: 1,
+      shape: RoundedRectangleBorder(side: BorderSide(width: 0.10)),
+      elevation: 0,
       child: ListTile(
         title: Text(
-          appointment.date,
+          appointment.date + '          ' + appointment.time,
           style: GoogleFonts.nunito(
             color: Colors.grey[800],
             fontWeight: FontWeight.bold,
@@ -88,13 +94,6 @@ class AppointmentPage extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Time: ${appointment.time}',
-              style: GoogleFonts.nunito(
-                color: Colors.blueGrey,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
             Text('Dentist: ${appointment.dentist}'),
             if (appointment.notes.isNotEmpty)
               Text(
@@ -119,7 +118,7 @@ class AppointmentPage extends StatelessWidget {
                   width: MediaQuery.of(context).size.width * 0.15,
                   color: statusColor,
                   child: Text(
-                    statusText,
+                    appointment.status,
                     style: GoogleFonts.nunito(
                       color: Colors.grey[100],
                       fontWeight: FontWeight.bold,
