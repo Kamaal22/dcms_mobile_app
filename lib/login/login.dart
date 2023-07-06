@@ -22,7 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final String apiUrl =
-      'http://192.168.222.163/DCMS/app/mobile/login/login.php';
+      'http://192.168.190.163/DCMS/app/mobile/login/login.php';
 
   @override
   void initState() {
