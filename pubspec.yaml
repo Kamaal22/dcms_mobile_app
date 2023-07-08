@@ -48,7 +48,8 @@ dependencies:
   sqflite: ^2.2.8+4
   font_awesome_flutter: ^10.4.0
   sqlite3: ^1.11.2
-
+  connectivity_plus: ^4.0.1
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

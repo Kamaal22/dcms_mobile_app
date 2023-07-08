@@ -1,4 +1,5 @@
 // ignore_for_file: unused_local_variable, prefer_const_constructors, non_constant_identifier_names
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 // import 'colors.dart';
@@ -145,4 +146,16 @@ void modal(
       );
     },
   );
+}
+
+Future<bool> checkNetConn() async {
+  var connectivityResult = await (Connectivity().checkConnectivity());
+
+  if (connectivityResult == ConnectivityResult.none) {
+    // No network connection
+    return false;
+  } else {
+    // Network connection available
+    return true;
+  }
 }

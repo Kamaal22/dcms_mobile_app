@@ -22,20 +22,9 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final String apiUrl =
-      'http://192.168.190.163/DCMS/app/mobile/login/login.php';
+      'http://192.168.211.163/DCMS/app/mobile/login/login.php';
 
-  @override
-  void initState() {
-    super.initState();
-    checkAuth();
-  }
-
-  void checkAuth() async {
-    final userData = await DatabaseManager.getUserData();
-    if (userData != null) {
-      navigateToIndexPage();
-    }
-  }
+  
 
   Future<void> login() async {
     final response = await http.post(Uri.parse(apiUrl), body: {
@@ -48,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
       final jsonData = json.decode(response.body);
       final message = jsonData['message'];
       final data = jsonData['data'];
-
+      print(jsonData);
       if (message == 'success' && data != null) {
         prefs.setString('user_id', data['user_id']);
         prefs.setString('username', data['username']);
@@ -195,41 +184,3 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-class DatabaseManager {
-  static const String dbName = 'your_database.db';
-  static const String tableName = 'user';
-  static const String columnUserId = 'user_id';
-  static const String columnUsername = 'username';
-  static const String columnPassword = 'password';
-
-  static Future<Database> openDatabase() async {
-    final dbPath = path.join(await Directory.systemTemp.path, dbName);
-    final db = sqlite3.open(dbPath);
-
-    db.execute('''
-      CREATE TABLE IF NOT EXISTS $tableName (
-        $columnUserId TEXT PRIMARY KEY,
-        $columnUsername TEXT,
-        $columnPassword TEXT
-      )
-    ''');
-
-    return db;
-  }
-
-  static Future<void> saveUserData(
-      String userId, String username, String password) async {
-    final db = await openDatabase();
-    db.execute('''
-      INSERT OR REPLACE INTO $tableName ($columnUserId, $columnUsername, $columnPassword)
-      VALUES ('$userId', '$username', '$password')
-    ''');
-  }
-
-  static Future<Map<String, dynamic>?> getUserData() async {
-    final db = await openDatabase();
-    final result = db.select('SELECT * FROM $tableName');
-    final data = result.isNotEmpty ? result.first : null;
-    return data;
-  }
-}

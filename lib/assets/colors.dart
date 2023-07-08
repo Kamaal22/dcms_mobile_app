@@ -11,9 +11,9 @@ const Color secondaryColor = Color(0xFFDF734E);
 // Light Theme
 ThemeData lightTheme = ThemeData.from(
   colorScheme: ColorScheme.light(
-    primary: primaryColor,
-    secondary: secondaryColor,
-  ),
+      primary: primaryColor,
+      secondary: secondaryColor,
+      error: Color.fromARGB(255, 250, 28, 87)),
   // Configure other properties as needed
 );
 
