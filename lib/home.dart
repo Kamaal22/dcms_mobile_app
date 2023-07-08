@@ -89,9 +89,12 @@ class _HomePageState extends State<HomePage> {
                         )
                       ]),
                   SizedBox(height: 8),
-                  AppointmentCard('July 5, 2023', '10:00 AM', 'Dr. Smith'),
-                  AppointmentCard('July 10, 2023', '2:30 PM', 'Dr. Johnson'),
-                  AppointmentCard('July 15, 2023', '1:30 PM', 'Drs. Mary'),
+                  AppointmentCard('', 'July 5, 2023', '10:00 AM', 'Mohamed',
+                      'Afrax', 'Abdulaah', 'Cali'),
+                  AppointmentCard('', 'July 5, 2023', '11:00 AM', 'Kim', 'Yong',
+                      'Jama', 'Yasin'),
+                  AppointmentCard('', 'July 5, 2023', '01:00 PM', 'Smith',
+                      'John', 'Mary', 'Johnson'),
                 ],
               ),
             ),
@@ -173,33 +176,71 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget AppointmentCard(String date, String time, String dentist) {
+  Widget AppointmentCard(
+    String appointmentId,
+    String date,
+    String time,
+    String patientFirstName,
+    String patientLastName,
+    String dentistFirstName,
+    String dentistLastName,
+  ) {
     return Card(
       elevation: 0,
-      color: lightBlue200,
+      color: Colors.blueGrey[50],
       child: Padding(
-        padding: EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // Text(
+                //   'Appointment ID: $appointmentId',
+                //   style: GoogleFonts.nunito(
+                //     fontWeight: FontWeight.bold,
+                //     color: Colors.blue[700],
+                //   ),
+                // ),
                 Text(
                   'Date: $date',
                   style: GoogleFonts.nunito(
-                      fontWeight: FontWeight.bold, color: blue700),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue[700],
+                  ),
                 ),
-                Text('Time: $time',
-                    style: GoogleFonts.nunito(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 18,
-                        color: blue900)),
-                Text('Dentist: $dentist',
-                    style: GoogleFonts.nunito(
-                        fontWeight: FontWeight.bold, color: blue700)),
+                Text(
+                  'Time: $time',
+                  style: GoogleFonts.nunito(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 18,
+                    color: Colors.blue[900],
+                  ),
+                ),
               ],
             ),
+            SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Patient: $patientFirstName $patientLastName',
+                  style: GoogleFonts.nunito(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue[700],
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'Dentist: $dentistFirstName $dentistLastName',
+                  style: GoogleFonts.nunito(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue[700],
+                  ),
+                ),
+              ],
+            )
           ],
         ),
       ),

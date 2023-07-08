@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS `employees` (
 CREATE TABLE IF NOT EXISTS `patients` (
   `patient_id` INT PRIMARY KEY AUTO_INCREMENT,
   `first_name` VARCHAR(50) DEFAULT NULL,
+  `middle_name` VARCHAR(50) DEFAULT NULL,
   `last_name` VARCHAR(50) DEFAULT NULL,
   `phone_number` VARCHAR(20) DEFAULT NULL,
   `gender` ENUM('Male', 'Female') DEFAULT NULL,
@@ -54,7 +55,9 @@ CREATE TABLE IF NOT EXISTS `appointments` (
 CREATE TABLE IF NOT EXISTS `appointment_services` (
   `appointment_id` INT,
   `service` VARCHAR(50),
-  FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`appointment_id`)
+  FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`appointment_id`),
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 -- Table structure for `drugs`
@@ -202,7 +205,21 @@ CREATE TABLE IF NOT EXISTS `users` (
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS `notifications` (
+  `notification_id` INT PRIMARY KEY AUTO_INCREMENT,
+  `recipient_id` INT,
+  `recipient_type` ENUM('patient', 'employee') DEFAULT NULL,
+  `message` TEXT NOT NULL,
+  `is_read` TINYINT(1) DEFAULT 0,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (`recipient_id`) REFERENCES `patients` (`patient_id`) ON DELETE CASCADE,
+  FOREIGN KEY (`recipient_id`) REFERENCES `employees` (`employee_id`) ON DELETE CASCADE
+);
 
+-- ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-- ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-- ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 -- Insertion for addresses
 INSERT INTO addresses (street, city, state, country, zip)
@@ -276,7 +293,7 @@ VALUES ('user@example.com', 'password123', 'abcdef123456');
 -- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 -- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 -- //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
--- ////////////////////////////////////////////// APPOINTMENT REALTED VIEWS ////////////////////////////////////////////////////////////////////////////////////
+-- ////////////////////////////////////////////// APPOINTMENT RELATED VIEWS ////////////////////////////////////////////////////////////////////////////////////
 
 
 CREATE VIEW `appointment_details` AS

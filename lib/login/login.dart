@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dcms_mobile_app/assets/colors.dart';
 import 'package:dcms_mobile_app/assets/component.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -22,9 +23,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final String apiUrl =
-      'http://192.168.211.163/DCMS/app/mobile/login/login.php';
-
-  
+      'http://192.168.170.163/DCMS/app/mobile/login/login.php';
 
   Future<void> login() async {
     final response = await http.post(Uri.parse(apiUrl), body: {
@@ -42,8 +41,8 @@ class _LoginPageState extends State<LoginPage> {
         prefs.setString('user_id', data['user_id']);
         prefs.setString('username', data['username']);
         prefs.setString('password', data['password']);
-        prefs.setString('firstname', data['firstname']);
-        prefs.setString('lastname', data['lastname']);
+        prefs.setString('firstname', data['firstname'] ?? "");
+        prefs.setString('lastname', data['lastname'] ?? "");
 
         navigateToIndexPage();
       } else {
@@ -64,18 +63,29 @@ class _LoginPageState extends State<LoginPage> {
   void showAlertDialog(String title, String content) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title:
-            Text(title, style: GoogleFonts.nunito(fontWeight: FontWeight.bold)),
-        content: Text(content, style: GoogleFonts.nunito()),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('OK',
-                style: GoogleFonts.nunito(fontWeight: FontWeight.bold)),
+      builder: (context) {
+        return Theme(
+          data: ThemeData(
+            dialogBackgroundColor: Colors.lightBlue[900],
           ),
-        ],
-      ),
+          child: CupertinoAlertDialog(
+            title: Text(
+              title,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            content: Text(content),
+            actions: [
+              CupertinoDialogAction(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'OK',
+                  style: GoogleFonts.nunito(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -183,4 +193,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-

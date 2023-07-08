@@ -132,8 +132,8 @@ cancel(var context) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 ///
-void modal(
-    BuildContext context, List<Widget> title, List<Widget> content, List<Widget> actions) {
+void modal(BuildContext context, List<Widget> title, List<Widget> content,
+    List<Widget> actions) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -158,4 +158,97 @@ Future<bool> checkNetConn() async {
     // Network connection available
     return true;
   }
+}
+
+Future<TimeOfDay?> _showCustomTimePicker(BuildContext context) async {
+  TimeOfDay? selectedTime;
+
+  await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Select Time'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+                  return Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: 24,
+                              itemBuilder:
+                                  (BuildContext context, int hourIndex) {
+                                final hour = hourIndex + 1;
+                                return Column(
+                                  children: [
+                                    ListTile(
+                                      title: Text('$hour:00'),
+                                      onTap: () {
+                                        setState(() {
+                                          selectedTime =
+                                              TimeOfDay(hour: hour, minute: 0);
+                                        });
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                    Divider(),
+                                    ListTile(
+                                      title: Text('$hour:15'),
+                                      onTap: () {
+                                        setState(() {
+                                          selectedTime =
+                                              TimeOfDay(hour: hour, minute: 15);
+                                        });
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                    Divider(),
+                                    ListTile(
+                                      title: Text('$hour:30'),
+                                      onTap: () {
+                                        setState(() {
+                                          selectedTime =
+                                              TimeOfDay(hour: hour, minute: 30);
+                                        });
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                    Divider(),
+                                    ListTile(
+                                      title: Text('$hour:45'),
+                                      onTap: () {
+                                        setState(() {
+                                          selectedTime =
+                                              TimeOfDay(hour: hour, minute: 45);
+                                        });
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                    Divider(),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+
+  return selectedTime;
 }

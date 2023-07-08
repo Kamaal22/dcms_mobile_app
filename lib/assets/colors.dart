@@ -20,7 +20,7 @@ ThemeData lightTheme = ThemeData.from(
 // Dark Theme
 ThemeData darkTheme = ThemeData.from(
   colorScheme: ColorScheme.dark(
-    primary: primaryColor,
+    primary: primary,
     secondary: secondaryColor,
   ),
   // Configure other properties as needed
