@@ -102,8 +102,10 @@ class _AppointmentModelState extends State<AppointmentModel> {
                 ListTile(
                   title: TextFormField(
                     decoration: InputDecoration(
+                        labelStyle: GoogleFonts.nunito(color: blueGrey),
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(0))),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(10))),
                         labelText: 'Time',
                         contentPadding: EdgeInsets.symmetric(horizontal: 10)),
                     validator: (value) {
@@ -274,7 +276,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
       // Send the appointment data to the server
       try {
         var response = await http.post(
-          Uri.parse('http://192.168.150.163/appt/submit_appt.php'),
+          Uri.parse('http://192.168.129.163/appt/submit_appt.php'),
           body: appointment,
         );
 
@@ -331,9 +333,10 @@ class _AppointmentModelState extends State<AppointmentModel> {
                 child: Text(
                   'SELECT TIME',
                   style: GoogleFonts.nunito(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24,
-                      color: Colors.blueGrey),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                    color: Colors.blueGrey,
+                  ),
                 ),
               ),
               content: Container(
@@ -357,9 +360,19 @@ class _AppointmentModelState extends State<AppointmentModel> {
                                     selectedPeriod = 'AM';
                                   });
                                 },
-                                child: Text('AM',
-                                    style: GoogleFonts.nunito(
-                                        color: Colors.blueGrey[800])),
+                                style: TextButton.styleFrom(
+                                  backgroundColor: selectedPeriod == 'AM'
+                                      ? Colors.blueAccent
+                                      : null,
+                                ),
+                                child: Text(
+                                  'AM',
+                                  style: GoogleFonts.nunito(
+                                    color: selectedPeriod == 'AM'
+                                        ? Colors.white
+                                        : Colors.blueGrey[800],
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -373,15 +386,22 @@ class _AppointmentModelState extends State<AppointmentModel> {
                                     selectedPeriod = 'PM';
                                   });
                                 },
-                                child: Text('PM',
-                                    style: GoogleFonts.nunito(
-                                        color: Colors.blueGrey[800])),
+                                style: TextButton.styleFrom(
+                                  backgroundColor: selectedPeriod == 'PM'
+                                      ? Colors.blueAccent
+                                      : null,
+                                ),
+                                child: Text(
+                                  'PM',
+                                  style: GoogleFonts.nunito(
+                                    color: selectedPeriod == 'PM'
+                                        ? Colors.white
+                                        : Colors.blueGrey[800],
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                          Divider(
-                            thickness: 2,
-                          )
                         ],
                       ),
                     ),
@@ -402,9 +422,21 @@ class _AppointmentModelState extends State<AppointmentModel> {
                               ListTile(
                                 contentPadding: EdgeInsets.symmetric(
                                     vertical: 0, horizontal: 10),
-                                title: Text(formattedTime,
-                                    style: GoogleFonts.nunito(
-                                        color: Colors.blueGrey[700])),
+                                title: Text(
+                                  formattedTime,
+                                  style: GoogleFonts.nunito(
+                                    color: selectedTime != null &&
+                                            selectedTime!.hour == hour &&
+                                            selectedTime!.minute == minute
+                                        ? Colors.blueAccent
+                                        : Colors.blueGrey[700],
+                                    fontWeight: selectedTime != null &&
+                                            selectedTime!.hour == hour &&
+                                            selectedTime!.minute == minute
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
                                 onTap: () {
                                   setState(() {
                                     selectedTime =
@@ -412,7 +444,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
                                   });
                                 },
                               ),
-                              Divider(),
+                              Divider(indent: 0, endIndent: 0, height: 0),
                             ],
                           );
                         },
@@ -420,13 +452,22 @@ class _AppointmentModelState extends State<AppointmentModel> {
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                          elevation: 0,
-                          fixedSize:
-                              Size(MediaQuery.of(context).size.width, 30)),
+                        elevation: 0,
+                        backgroundColor: Colors.blueAccent,
+                        fixedSize: Size(
+                          MediaQuery.of(context).size.width,
+                          30,
+                        ),
+                      ),
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: Text('OK', style: GoogleFonts.nunito()),
+                      child: Text(
+                        'OK',
+                        style: GoogleFonts.nunito(
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
                   ],
                 ),

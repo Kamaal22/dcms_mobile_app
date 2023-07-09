@@ -23,7 +23,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final String apiUrl =
-      'http://192.168.170.163/DCMS/app/mobile/login/login.php';
+      'http://192.168.129.163/DCMS/app/mobile/login/login.php';
 
   Future<void> login() async {
     final response = await http.post(Uri.parse(apiUrl), body: {
