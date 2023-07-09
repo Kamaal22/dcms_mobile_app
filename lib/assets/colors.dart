@@ -1,29 +1,46 @@
 // ignore_for_file: unused_local_variable
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 // Primary Color
-const Color primaryColor = Color(0xFF4E73DF);
+const Color primaryColor = Color.fromARGB(255, 33, 33, 34);
 
 // Secondary Color
 const Color secondaryColor = Color(0xFFDF734E);
 
 // Light Theme
-ThemeData lightTheme = ThemeData.from(
-  colorScheme: ColorScheme.light(
-      primary: primaryColor,
-      secondary: secondaryColor,
-      error: Color.fromARGB(255, 250, 28, 87)),
-  // Configure other properties as needed
+ThemeData lightTheme = ThemeData(
+  appBarTheme: AppBarTheme(backgroundColor: Colors.blueGrey[100]),
+  scaffoldBackgroundColor: Colors.blueGrey[800],
+  elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ButtonStyle(
+          elevation: MaterialStateProperty.all(0),
+          textStyle:
+              MaterialStateProperty.all<TextStyle?>(GoogleFonts.nunito()))),
 );
 
-// Dark Theme
-ThemeData darkTheme = ThemeData.from(
-  colorScheme: ColorScheme.dark(
-    primary: primary,
-    secondary: secondaryColor,
-  ),
-  // Configure other properties as needed
+ThemeData darkTheme = ThemeData(
+  appBarTheme: AppBarTheme(backgroundColor: Colors.blueGrey[100]),
+  scaffoldBackgroundColor: Colors.blueGrey[800],
+  elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ButtonStyle(
+    elevation: MaterialStateProperty.all(0),
+    textStyle: MaterialStateProperty.all<TextStyle?>(GoogleFonts.nunito()),
+    backgroundColor: MaterialStateProperty.all<Color?>(Colors.transparent),
+    foregroundColor: MaterialStateProperty.all<Color?>(Colors.blueGrey),
+    padding: MaterialStateProperty.all<EdgeInsetsGeometry?>(
+        EdgeInsets.symmetric(horizontal: 5)),
+    side: MaterialStateProperty.all<BorderSide?>(
+      BorderSide(width: 1, color: Colors.blueGrey),
+    ),
+    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+      RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+    ),
+    alignment: Alignment.center,
+  )),
 );
 
 //////////////////////////////////

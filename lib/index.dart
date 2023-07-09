@@ -21,6 +21,13 @@ class IndexPage extends StatefulWidget {
 }
 
 class _IndexPageState extends State<IndexPage> {
+// Color variables
+  final Color gradientStartColor = Color.fromRGBO(236, 239, 241, 1);
+  final Color gradientEndColor = Color.fromRGBO(207, 216, 220, 1);
+  final Color? selectedIconColor = Colors.blue[700];
+  final Color? unselectedIconColor = Colors.blue[300];
+  final Color? selectedIconBackgroundColor = Colors.blue[50];
+
   void checkLoginStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getString('user_id');
@@ -79,24 +86,14 @@ class _IndexPageState extends State<IndexPage> {
     return Scaffold(
       body: IndexedStack(children: _pages, index: _currentIndex),
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color.fromARGB(255, 52, 124, 183),
-              Color.fromARGB(255, 79, 92, 195),
-            ],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
-        ),
+        color: Colors.transparent,
         child: BottomNavigationBar(
-          backgroundColor:
-              Colors.transparent, // Set the background color to transparent
+          backgroundColor: Colors.transparent,
           elevation: 0,
           type: BottomNavigationBarType.fixed,
           currentIndex: _currentIndex,
-          selectedItemColor: white,
-          unselectedItemColor: white70,
+          selectedItemColor: selectedIconColor,
+          unselectedItemColor: unselectedIconColor,
           showUnselectedLabels: false,
           showSelectedLabels: false,
           onTap: (index) {
@@ -107,27 +104,132 @@ class _IndexPageState extends State<IndexPage> {
           items: [
             BottomNavigationBarItem(
               tooltip: "Home",
-              icon: FaIcon(FontAwesomeIcons.house, size: 22),
+              icon: _currentIndex == 0
+                  ? Ink(
+                      height: 40,
+                      width: 40,
+                      decoration: ShapeDecoration(
+                        color: selectedIconBackgroundColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                      child: Center(
+                        child: FaIcon(
+                          FontAwesomeIcons.house,
+                          size: 22,
+                          color: selectedIconColor,
+                        ),
+                      ),
+                    )
+                  : FaIcon(
+                      FontAwesomeIcons.house,
+                      size: 22,
+                    ),
               label: 'Home',
             ),
             BottomNavigationBarItem(
               tooltip: "Appointments",
-              icon: FaIcon(FontAwesomeIcons.calendar, size: 22),
+              icon: _currentIndex == 1
+                  ? Ink(
+                      height: 40,
+                      width: 40,
+                      decoration: ShapeDecoration(
+                        color: selectedIconBackgroundColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                      child: Center(
+                        child: FaIcon(
+                          FontAwesomeIcons.calendar,
+                          size: 22,
+                          color: selectedIconColor,
+                        ),
+                      ),
+                    )
+                  : FaIcon(
+                      FontAwesomeIcons.calendar,
+                      size: 22,
+                    ),
               label: 'Appointments',
             ),
             BottomNavigationBarItem(
               tooltip: "Appointment",
-              icon: FaIcon(FontAwesomeIcons.plus, size: 22),
+              icon: _currentIndex == 2
+                  ? Ink(
+                      height: 40,
+                      width: 40,
+                      decoration: ShapeDecoration(
+                        color: selectedIconBackgroundColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                      child: Center(
+                        child: FaIcon(
+                          FontAwesomeIcons.plus,
+                          size: 22,
+                          color: selectedIconColor,
+                        ),
+                      ),
+                    )
+                  : FaIcon(
+                      FontAwesomeIcons.plus,
+                      size: 22,
+                    ),
               label: 'Add Appointment',
             ),
             BottomNavigationBarItem(
               tooltip: "Medical Record",
-              icon: FaIcon(FontAwesomeIcons.fileMedical, size: 22),
+              icon: _currentIndex == 3
+                  ? Ink(
+                      height: 40,
+                      width: 40,
+                      decoration: ShapeDecoration(
+                        color: selectedIconBackgroundColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                      child: Center(
+                        child: FaIcon(
+                          FontAwesomeIcons.fileMedical,
+                          size: 22,
+                          color: selectedIconColor,
+                        ),
+                      ),
+                    )
+                  : FaIcon(
+                      FontAwesomeIcons.fileMedical,
+                      size: 22,
+                    ),
               label: 'Medical records',
             ),
             BottomNavigationBarItem(
               tooltip: "Profile",
-              icon: FaIcon(FontAwesomeIcons.circleUser, size: 22),
+              icon: _currentIndex == 4
+                  ? Ink(
+                      height: 40,
+                      width: 40,
+                      decoration: ShapeDecoration(
+                        color: selectedIconBackgroundColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                      child: Center(
+                        child: FaIcon(
+                          FontAwesomeIcons.circleUser,
+                          size: 22,
+                          color: selectedIconColor,
+                        ),
+                      ),
+                    )
+                  : FaIcon(
+                      FontAwesomeIcons.circleUser,
+                      size: 22,
+                    ),
               label: 'Profile',
             ),
           ],

@@ -44,10 +44,24 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: primary,
-        title: Text(
-          'Welcome, $firstname $lastname', // Display the firstname and lastname
-          style: GoogleFonts.nunito(fontWeight: FontWeight.bold, fontSize: 24),
+        backgroundColor: Colors.transparent,
+        title: Column(
+          // mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  textAlign: TextAlign.right,
+                  'Welcome, $firstname $lastname', // Display the firstname and lastname
+                  style: GoogleFonts.nunito(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24,
+                      color: Colors.blue[700]),
+                ),
+              ],
+            ),
+            Divider()
+          ],
         ),
       ),
       body: SingleChildScrollView(
@@ -155,16 +169,18 @@ class _HomePageState extends State<HomePage> {
                           fontWeight: FontWeight.w800),
                     ),
                     SizedBox(height: 8),
-                    QuickAccessButton('Appointments', Icons.event, () {
+                    QuickAccessButton('Appointments', Icons.event_rounded, () {
                       // Add your logic for navigating to the appointments page
                     }),
-                    QuickAccessButton('Add Appointment', Icons.add, () {
+                    QuickAccessButton('Add Appointment', Icons.add_rounded, () {
                       // Add your logic for navigating to the add appointment page
                     }),
-                    QuickAccessButton('Dental Record', Icons.description, () {
+                    QuickAccessButton(
+                        'Dental Record', Icons.description_rounded, () {
                       // Add your logic for navigating to the dental record page
                     }),
-                    QuickAccessButton('Profile', Icons.person, () {
+                    QuickAccessButton('Profile', Icons.account_circle_rounded,
+                        () {
                       // Add your logic for navigating to the profile page
                     }),
                   ]),
@@ -272,9 +288,28 @@ class _HomePageState extends State<HomePage> {
 
   Widget QuickAccessButton(String title, IconData icon, Function onPressed) {
     return ElevatedButton.icon(
-      onPressed: () {},
-      icon: Icon(icon),
+      onPressed: onPressed as void Function()?,
       label: Text(title),
+      icon: Icon(icon),
+      style: ButtonStyle(
+        elevation: MaterialStateProperty.all(0),
+        textStyle: MaterialStateProperty.all<TextStyle?>(GoogleFonts.nunito()),
+        backgroundColor: MaterialStateProperty.all<Color?>(Colors.transparent),
+        foregroundColor: MaterialStateProperty.all<Color?>(Colors.blueGrey),
+        padding: MaterialStateProperty.all<EdgeInsetsGeometry?>(null),
+        fixedSize: MaterialStateProperty.all<Size?>(
+          Size(MediaQuery.of(context).size.width, 30),
+        ),
+        side: MaterialStateProperty.all<BorderSide?>(
+          BorderSide(width: 1, color: Colors.blueGrey),
+        ),
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+        ),
+        alignment: Alignment.centerLeft,
+      ),
     );
   }
 }

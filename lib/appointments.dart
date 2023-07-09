@@ -1,6 +1,14 @@
-import 'package:dcms_mobile_app/assets/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+Color kAppBarTitleColor = Colors.blue[700]!;
+Color kRefreshIconColor = Colors.blueGrey;
+Color kStatusPendingColor = Colors.blue[800]!;
+Color kStatusApprovedColor = Colors.green[800]!;
+Color kStatusCancelledColor = Colors.red[800]!;
+Color kStatusDefaultColor = Colors.grey[800]!;
+Color? kCardBackgroundColor = Colors.blueGrey[50];
+double kCardBorderWidth = 0.010;
 
 class AppointmentPage extends StatelessWidget {
   final List<Appointment> appointments = [
@@ -9,79 +17,109 @@ class AppointmentPage extends StatelessWidget {
       time: '10:00 AM',
       dentist: 'Dr. Smith',
       notes: 'Please arrive 10 minutes early.',
-      status: 'arrived', // Add status value here
+      status: 'arrived',
     ),
     Appointment(
       date: 'July 10, 2023',
       time: '2:30 PM',
       dentist: 'Dr. Johnson',
       notes: 'Bring your insurance card.',
-      status: 'pending', // Add status value here
+      status: 'pending',
     ),
     Appointment(
       date: 'July 10, 2023',
       time: '2:30 PM',
       dentist: 'Dr. Johnson',
       notes: 'Bring your insurance card.',
-      status: 'approved', // Add status value here
+      status: 'approved',
     ),
     Appointment(
       date: 'July 10, 2023',
       time: '2:30 PM',
       dentist: 'Dr. Johnson',
       notes: 'Bring your insurance card.',
-      status: 'approved', // Add status value here
+      status: 'approved',
     ),
     Appointment(
       date: 'July 10, 2023',
       time: '2:30 PM',
       dentist: 'Dr. Johnson',
       notes: 'Bring your insurance card.',
-      status: 'cancelled', // Add status value here
+      status: 'cancelled',
     ),
     // Add more appointments as needed
   ];
+
+  Future<void> jl() async {}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: transparent,
+        // backgroundColor: Colors.transparent,
+        title: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "List of Your Appointments",
+                style: GoogleFonts.nunito(
+                  fontWeight: FontWeight.bold,
+                  color: kAppBarTitleColor,
+                ),
+              ),
+              RefreshIndicator(
+                child: IconButton(
+                  onPressed: () {},
+                  color: kRefreshIconColor,
+                  icon: Icon(Icons.refresh_rounded),
+                ),
+                onRefresh: jl,
+              ),
+            ],
+          ),
+        ),
         elevation: 0,
       ),
-      body: ListView.builder(
-        itemCount: appointments.length,
-        itemBuilder: (context, index) {
-          return buildAppointmentCard(context, appointments[index]);
-        },
+      body: Column(
+        children: [
+          SizedBox(height: 30),
+          Expanded(
+            child: ListView.builder(
+              itemCount: appointments.length,
+              itemBuilder: (context, index) {
+                return buildAppointmentCard(context, appointments[index]);
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget buildAppointmentCard(BuildContext context, Appointment appointment) {
     Color statusColor;
-    // String statusText;
 
     switch (appointment.status) {
       case 'pending':
-        statusColor = Colors.blue[800]!;
-        // statusText = 'Pending';
+        statusColor = kStatusPendingColor;
         break;
       case 'approved':
-        statusColor = Colors.green[800]!;
-        // statusText = 'Approved';
+        statusColor = kStatusApprovedColor;
         break;
       case 'cancelled':
-        statusColor = Colors.red[800]!;
-        // statusText = 'Cancelled';
+        statusColor = kStatusCancelledColor;
         break;
       default:
-        statusColor = Colors.grey[800]!;
-      // statusText = '';
+        statusColor = kStatusDefaultColor;
     }
 
     return Card(
-      shape: RoundedRectangleBorder(side: BorderSide(width: 0.10)),
+      color: kCardBackgroundColor,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(width: kCardBorderWidth),
+      ),
       elevation: 0,
       child: ListTile(
         title: Text(
@@ -225,15 +263,14 @@ void cancelAppointment(BuildContext context, Appointment appointment) {
             ),
           ),
           TextButton(
-            onPressed: () {
-              // Cancel appointment logic here
-              Navigator.pop(context);
-            },
-            child: Text(
-              'Yes',
-              style: GoogleFonts.nunito(color: Colors.red[300]),
-            ),
-          ),
+              onPressed: () {
+                // Cancel appointment logic here
+                Navigator.pop(context);
+              },
+              child: Text(
+                'Yes',
+                style: GoogleFonts.nunito(color: Colors.red[300]),
+              )),
         ],
       );
     },

@@ -7,6 +7,16 @@ import 'assets/colors.dart';
 import 'assets/component.dart';
 import 'package:http/http.dart' as http;
 
+Color kAppBarTitleColor = Colors.blueGrey[900]!;
+Color kRefreshIndicatorColor = Colors.blueGrey;
+Color kLabelTextColor = Colors.blueGrey;
+Color kInputBorderRadiusColor = Colors.blueGrey;
+Color kCalendarIconColor = Colors.blue[800]!;
+Color kTimePickerIconColor = Colors.blue[800]!;
+Color kSubmitButtonColor = Colors.blue[900]!;
+bool maleSelected = false;
+bool femaleSelected = false;
+
 class AppointmentModel extends StatefulWidget {
   @override
   _AppointmentModelState createState() => _AppointmentModelState();
@@ -18,6 +28,9 @@ class _AppointmentModelState extends State<AppointmentModel> {
   // Form fields
   DateTime? date;
   TimeOfDay? time;
+  String? firstName;
+  String? middleName;
+  String? lastName;
   int? patientId;
   int? employeeId;
   List<String> services = [];
@@ -50,23 +63,179 @@ class _AppointmentModelState extends State<AppointmentModel> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Appointment Form'),
+        title: Text('Make an appointment',
+            style: GoogleFonts.nunito(color: kAppBarTitleColor)),
+        // backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       body: RefreshIndicator(
         backgroundColor: Colors.blueGrey[50],
         strokeWidth: 2,
-        color: Colors.blueGrey,
+        color: kRefreshIndicatorColor,
         onRefresh: _refreshData,
         child: Padding(
-          padding: EdgeInsets.all(10.0),
+          padding: EdgeInsets.only(top: 100, left: 10, right: 10),
           child: Form(
             key: _formKey,
             child: ListView(
+              padding: EdgeInsets.symmetric(horizontal: 10),
               children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text("Enter personal info:",
+                        style: GoogleFonts.nunito(
+                            fontSize: 18, color: Colors.blueGrey))
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(children: [
+                  Expanded(
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'First Name',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(0)),
+                          borderSide: BorderSide(
+                            color: kInputBorderRadiusColor,
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                      ),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter the first name';
+                        } else if (value.contains(RegExp(r'[0-9]'))) {
+                          return 'Please don\'t add numbers';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        firstName = value;
+                      },
+                      style: GoogleFonts.nunito(),
+                      keyboardType: TextInputType.name,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Expanded(
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Middle Name',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(0)),
+                          borderSide: BorderSide(
+                            color: kInputBorderRadiusColor,
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                      ),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter the middle name';
+                        } else if (value.contains(RegExp(r'[0-9]'))) {
+                          return 'Please don\'t add numbers';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        middleName = value;
+                      },
+                      style: GoogleFonts.nunito(),
+                      keyboardType: TextInputType.name,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Expanded(
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Last Name',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(0)),
+                          borderSide: BorderSide(
+                            color: kInputBorderRadiusColor,
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                      ),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter the last name';
+                        } else if (value.contains(RegExp(r'[0-9]'))) {
+                          return 'Please don\'t add numbers';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        lastName = value;
+                      },
+                      style: GoogleFonts.nunito(),
+                      keyboardType: TextInputType.name,
+                    ),
+                  )
+                ]),
+                SizedBox(height: 10),
+                Container(
+                  decoration: radius(0, transparent, blueGrey),
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Row(
+                    children: [
+                      Text("Choose Gender:",
+                          style: GoogleFonts.nunito(fontSize: 16)),
+                      Checkbox(
+                        value: maleSelected,
+                        onChanged: (bool? newValue) {
+                          setState(() {
+                            maleSelected = newValue ?? false;
+                            if (maleSelected) {
+                              femaleSelected = false;
+                            }
+                          });
+                        },
+                      ),
+                      Text("Male", style: GoogleFonts.nunito()),
+                      Checkbox(
+                        value: femaleSelected,
+                        onChanged: (bool? newValue) {
+                          setState(() {
+                            femaleSelected = newValue ?? false;
+                            if (femaleSelected) {
+                              maleSelected = false;
+                            }
+                          });
+                        },
+                      ),
+                      Text("Female", style: GoogleFonts.nunito()),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 50),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text("Choose date and time:",
+                        style: GoogleFonts.nunito(
+                            fontSize: 18, color: Colors.blueGrey))
+                  ],
+                ),
+
+                SizedBox(height: 10),
+                // //////////////////////////////////////////////////////////////////////////////////////////////////
+                // //////////////////////////////////////////////////////////////////////////////////////////////////
+                // //////////////////////////////////////////////////////////////////////////////////////////////////
+                // //////////////////////////////////////////////////////////////////////////////////////////////////
                 ListTile(
+                  contentPadding: EdgeInsets.zero,
                   title: TextFormField(
                     decoration: InputDecoration(
                       labelText: 'Date',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(0)),
+                        borderSide: BorderSide(
+                          color: kInputBorderRadiusColor,
+                        ),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
                     ),
                     validator: (value) {
                       if (value!.isEmpty) {
@@ -79,7 +248,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
                         context: context,
                         initialDate: DateTime.now(),
                         firstDate: DateTime.now(),
-                        lastDate: DateTime(2100),
+                        lastDate: DateTime(2030),
                       ).then((selectedDate) {
                         if (selectedDate != null) {
                           setState(() {
@@ -90,6 +259,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
                         }
                       });
                     },
+                    style: GoogleFonts.nunito(fontWeight: FontWeight.bold),
                     readOnly: true,
                     controller: TextEditingController(
                       text: date != null
@@ -97,17 +267,29 @@ class _AppointmentModelState extends State<AppointmentModel> {
                           : '',
                     ),
                   ),
-                  trailing: Icon(Icons.calendar_today),
+                  trailing: Ink(
+                    color: Colors.blue[50],
+                    child: IconButton(
+                      onPressed: () {},
+                      icon: Icon(Icons.calendar_today_rounded),
+                      color: kCalendarIconColor,
+                      iconSize: 30,
+                    ),
+                  ),
                 ),
                 ListTile(
+                  contentPadding: EdgeInsets.zero,
                   title: TextFormField(
                     decoration: InputDecoration(
-                        labelStyle: GoogleFonts.nunito(color: blueGrey),
-                        border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10))),
-                        labelText: 'Time',
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10)),
+                      labelText: 'Time',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(0)),
+                        borderSide: BorderSide(
+                          color: kInputBorderRadiusColor,
+                        ),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    ),
                     validator: (value) {
                       if (value!.isEmpty) {
                         return 'Please enter the appointment time';
@@ -115,7 +297,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
                       return null;
                     },
                     onTap: () {
-                      _showCustomTimePicker(context).then((selectedTime) {
+                      showCustomTimePicker(context).then((selectedTime) {
                         if (selectedTime != null) {
                           setState(() {
                             // Handle the selected time
@@ -126,131 +308,63 @@ class _AppointmentModelState extends State<AppointmentModel> {
                       });
                     },
                     readOnly: true,
+                    style: GoogleFonts.nunito(fontWeight: FontWeight.bold),
                     controller: TextEditingController(
                       text: time != null ? time!.format(context) : '',
                     ),
                   ),
-                  // trailing: GestureDetector(
-                  //     onTap: () {
-                  //       _showCustomTimePicker(context).then((selectedTime) {
-                  //         if (selectedTime != null) {
-                  //           setState(() {
-                  //             // Handle the selected time
-                  //             // For example, you can store it in a variable or update a text field
-                  //             time = selectedTime;
-                  //           });
-                  //         }
-                  //       });
-                  //     },
-                  //     child: Icon(Icons.access_time)),
-                ),
-                SizedBox(height: 10),
-                TextFormField(
-                  readOnly: true,
-                  decoration: InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                      labelText: 'Patient ID',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)))),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter the patient ID';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    patientId = int.parse(value!);
-                  },
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                FutureBuilder<List<Employee>>(
-                  future: fetchEmployeesFromDatabase(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    } else if (snapshot.hasData) {
-                      final employees = snapshot.data!;
-                      return DropdownButtonFormField<int>(
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(horizontal: 5),
-                            hintText: 'Employee ID',
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)))),
-                        validator: (value) {
-                          if (value == null) {
-                            return 'Please select an employee';
+                  trailing: Ink(
+                    color: Colors.blue[50],
+                    child: IconButton(
+                      onPressed: () {
+                        showCustomTimePicker(context).then((selectedTime) {
+                          if (selectedTime != null) {
+                            setState(() {
+                              // Handle the selected time
+                              // For example, you can store it in a variable or update a text field
+                              time = selectedTime;
+                            });
                           }
-                          return null;
-                        },
-                        onChanged: (value) {
-                          setState(() {
-                            employeeId = value;
-                          });
-                        },
-                        items: employees.map((employee) {
-                          return DropdownMenuItem<int>(
-                            value: employee.id,
-                            child: Text(
-                              employee.name,
-                              style: GoogleFonts.nunito(color: red),
-                            ),
-                          );
-                        }).toList(),
-                      );
-                    } else {
-                      return Text('No employees found');
-                    }
-                  },
-                ),
-                SizedBox(height: 10),
-                Container(
-                  decoration: radius(10, transparent, blueGrey),
-                  child: FutureBuilder<List<Service>>(
-                    future: fetchServicesFromDatabase(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
-                      } else if (snapshot.hasError) {
-                        return Text('Error: ${snapshot.error}');
-                      } else if (snapshot.hasData) {
-                        final servicesList = snapshot.data!;
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: servicesList.map((service) {
-                            return CheckboxListTile(
-                              activeColor: blue900,
-                              title: Text(service.name,
-                                  style: GoogleFonts.nunito()),
-                              value: services.contains(service.id.toString()),
-                              onChanged: (value) {
-                                setState(() {
-                                  if (value!) {
-                                    services.add(service.id.toString());
-                                  } else {
-                                    services.remove(service.id.toString());
-                                  }
-                                });
-                              },
-                            );
-                          }).toList(),
-                        );
-                      } else {
-                        return Text('No services found');
-                      }
-                    },
+                        });
+                      },
+                      icon: Icon(Icons.access_time_rounded),
+                      color: kTimePickerIconColor,
+                      iconSize: 30,
+                    ),
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: submitForm,
-                  style: ElevatedButton.styleFrom(elevation: 0),
-                  child: Text('Submit'),
-                ),
+                TextFormField(
+                  maxLines: 5,
+                  decoration: InputDecoration(
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      labelText: "Add note",
+                      labelStyle: GoogleFonts.nunito(),
+                      alignLabelWithHint: true,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(0)))),
+                )
               ],
+            ),
+          ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        elevation: 0,
+        onPressed: submitForm,
+        highlightElevation: 0.5,
+        backgroundColor: Colors.blue[700],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Center(
+          child: Transform.rotate(
+            angle: -45,
+            child: Icon(
+              Icons.send_rounded,
+              size: 30,
+              semanticLabel: "submit appointment",
+              color: Colors.white,
             ),
           ),
         ),
@@ -271,6 +385,9 @@ class _AppointmentModelState extends State<AppointmentModel> {
         'patient_id': patientId.toString(),
         'employee_id': employeeId.toString(),
         'services': services.join(','),
+        'first_name': firstName!,
+        'middle_name': middleName!,
+        'last_name': lastName!,
       };
 
       // Send the appointment data to the server
@@ -310,174 +427,5 @@ class _AppointmentModelState extends State<AppointmentModel> {
         );
       }
     }
-  }
-
-  Future<TimeOfDay?> _showCustomTimePicker(BuildContext context) async {
-    TimeOfDay? selectedTime;
-    String? selectedPeriod;
-
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
-              elevation: 0,
-              titlePadding: EdgeInsets.all(0),
-              contentPadding: EdgeInsets.symmetric(horizontal: 2),
-              title: Container(
-                alignment: Alignment.center,
-                color: Colors.blueGrey[100],
-                height: 50,
-                padding: EdgeInsets.all(5),
-                child: Text(
-                  'SELECT TIME',
-                  style: GoogleFonts.nunito(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24,
-                    color: Colors.blueGrey,
-                  ),
-                ),
-              ),
-              content: Container(
-                width: 200,
-                height: 300,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      color: Colors.blueGrey[50],
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(
-                            child: Container(
-                              width: double.infinity,
-                              height: 50,
-                              child: TextButton(
-                                onPressed: () {
-                                  setState(() {
-                                    selectedPeriod = 'AM';
-                                  });
-                                },
-                                style: TextButton.styleFrom(
-                                  backgroundColor: selectedPeriod == 'AM'
-                                      ? Colors.blueAccent
-                                      : null,
-                                ),
-                                child: Text(
-                                  'AM',
-                                  style: GoogleFonts.nunito(
-                                    color: selectedPeriod == 'AM'
-                                        ? Colors.white
-                                        : Colors.blueGrey[800],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              width: double.infinity,
-                              height: 50,
-                              child: TextButton(
-                                onPressed: () {
-                                  setState(() {
-                                    selectedPeriod = 'PM';
-                                  });
-                                },
-                                style: TextButton.styleFrom(
-                                  backgroundColor: selectedPeriod == 'PM'
-                                      ? Colors.blueAccent
-                                      : null,
-                                ),
-                                child: Text(
-                                  'PM',
-                                  style: GoogleFonts.nunito(
-                                    color: selectedPeriod == 'PM'
-                                        ? Colors.white
-                                        : Colors.blueGrey[800],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        physics: ClampingScrollPhysics(),
-                        itemCount: 48,
-                        itemBuilder: (BuildContext context, int index) {
-                          final hour =
-                              index ~/ 2 % 12 == 0 ? 12 : index ~/ 2 % 12;
-                          final minute = (index % 2) * 30;
-                          final isAM = selectedPeriod == 'AM';
-                          final formattedTime =
-                              '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} ${isAM ? 'AM' : 'PM'}';
-                          return Column(
-                            children: [
-                              ListTile(
-                                contentPadding: EdgeInsets.symmetric(
-                                    vertical: 0, horizontal: 10),
-                                title: Text(
-                                  formattedTime,
-                                  style: GoogleFonts.nunito(
-                                    color: selectedTime != null &&
-                                            selectedTime!.hour == hour &&
-                                            selectedTime!.minute == minute
-                                        ? Colors.blueAccent
-                                        : Colors.blueGrey[700],
-                                    fontWeight: selectedTime != null &&
-                                            selectedTime!.hour == hour &&
-                                            selectedTime!.minute == minute
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
-                                  ),
-                                ),
-                                onTap: () {
-                                  setState(() {
-                                    selectedTime =
-                                        TimeOfDay(hour: hour, minute: minute);
-                                  });
-                                },
-                              ),
-                              Divider(indent: 0, endIndent: 0, height: 0),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        elevation: 0,
-                        backgroundColor: Colors.blueAccent,
-                        fixedSize: Size(
-                          MediaQuery.of(context).size.width,
-                          30,
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: Text(
-                        'OK',
-                        style: GoogleFonts.nunito(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-
-    return selectedTime;
   }
 }

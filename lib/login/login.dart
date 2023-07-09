@@ -1,14 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
-import 'package:dcms_mobile_app/assets/colors.dart';
-import 'package:dcms_mobile_app/assets/component.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqlite3/sqlite3.dart';
-import 'package:path/path.dart' as path;
 
 import '../index.dart';
 
@@ -22,11 +16,11 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final String apiUrl =
-      'http://192.168.129.163/DCMS/app/mobile/login/login.php';
+  late String ipAddress;
+  final String apiUrl = '/DCMS/app/mobile/login/login.php';
 
   Future<void> login() async {
-    final response = await http.post(Uri.parse(apiUrl), body: {
+    final response = await http.post(Uri.http(ipAddress, apiUrl), body: {
       'username': usernameController.text,
       'password': passwordController.text,
     });
@@ -79,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: () => Navigator.pop(context),
                 child: Text(
                   'OK',
-                  style: GoogleFonts.nunito(fontWeight: FontWeight.bold),
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -90,48 +84,64 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    ipAddress = '192.168.209.163'; // Set the initial IP address here
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: grey300,
+      backgroundColor: Colors.grey[300],
       body: SafeArea(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                  child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Welcome to ",
-                    style: GoogleFonts.nunito(
-                        fontSize: 35, fontWeight: FontWeight.bold),
-                  ),
-                  Container(
-                    padding: MP_all(4),
-                    decoration: radius(4, lightBlueAccent200, transparent),
-                    child: Text(
-                      "Denta",
-                      style: GoogleFonts.nunito(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Welcome to ",
+                      style: TextStyle(
+                        fontSize: 35,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: Colors.lightBlueAccent[200],
+                      ),
+                      child: Text(
+                        "Denta",
+                        style: TextStyle(
                           fontSize: 35,
                           fontWeight: FontWeight.bold,
-                          color: white),
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
-              )),
+                  ],
+                ),
+              ),
               SizedBox(height: 20),
               Text(
                 "Best Dental in Somalia",
-                style: GoogleFonts.nunito(fontSize: 24),
+                style: TextStyle(fontSize: 24),
               ),
               SizedBox(height: 50),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                padding: EdgeInsets.symmetric(horizontal: 25),
                 child: Container(
-                  decoration: radius(14, grey200, white),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    color: Colors.grey[200],
+                  ),
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 20.0),
+                    padding: EdgeInsets.only(left: 20),
                     child: TextField(
                       controller: usernameController,
                       decoration: InputDecoration(
@@ -144,11 +154,14 @@ class _LoginPageState extends State<LoginPage> {
               ),
               SizedBox(height: 20),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                padding: EdgeInsets.symmetric(horizontal: 25),
                 child: Container(
-                  decoration: radius(14, grey200, white),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    color: Colors.grey[200],
+                  ),
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 20.0),
+                    padding: EdgeInsets.only(left: 20),
                     child: TextField(
                       controller: passwordController,
                       obscureText: true,
@@ -162,22 +175,19 @@ class _LoginPageState extends State<LoginPage> {
               ),
               SizedBox(height: 20),
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 25.0, vertical: 5.0),
+                padding: EdgeInsets.symmetric(horizontal: 25, vertical: 5),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primary,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          20.0), // Set the border radius here
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    elevation: 0.0, // Set the elevation here
+                    elevation: 0,
                   ),
                   onPressed: login,
                   child: Center(
                     child: Text(
                       "Sign In",
-                      style: GoogleFonts.nunito(
+                      style: TextStyle(
                         fontSize: 28,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

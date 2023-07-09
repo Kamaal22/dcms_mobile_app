@@ -49,6 +49,7 @@ dependencies:
   font_awesome_flutter: ^10.4.0
   sqlite3: ^1.11.2
   connectivity_plus: ^4.0.1
+  sliver_app_bar_builder: ^1.0.5
   
 dev_dependencies:
   flutter_test:
