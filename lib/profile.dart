@@ -1,177 +1,137 @@
+import 'package:dcms_mobile_app/assets/colors.dart';
 import 'package:dcms_mobile_app/assets/component.dart';
-import 'package:dcms_mobile_app/login/login.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _addressController = TextEditingController();
-  TextEditingController _insuranceController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Profile'),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _nameController,
-              decoration: InputDecoration(labelText: 'Name'),
-            ),
-            TextField(
-              controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
-            ),
-            TextField(
-              controller: _addressController,
-              decoration: InputDecoration(labelText: 'Address'),
-            ),
-            TextField(
-              controller: _insuranceController,
-              decoration: InputDecoration(labelText: 'Insurance Information'),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                // Save profile information logic here
-                _showSaveConfirmationDialog();
-              },
-              child: Text('Save'),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                // Change password logic here
-                _showChangePasswordDialog();
-              },
-              child: Text('Change Password'),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                // Manage notifications logic here
-                _showNotificationSettings();
-              },
-              child: Text('Manage Notifications'),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                // Customize app settings logic here
-                _showAppSettings();
-              },
-              child: Text('App Settings'),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                // Logout logic here
-                _showLogoutConfirmationDialog();
-              },
-              child: Text('Logout'),
-            ),
-          ],
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 50),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                CircleAvatar(
+                  radius: 100,
+                  backgroundImage: AssetImage('assets/profile.jpg'),
+                )
+              ]),
+              SizedBox(height: 50),
+              Text(
+                'Profile Content',
+                style: GoogleFonts.nunito(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 16.0),
+
+              // ///////////////////////////////////////////////////////////////////////////////////////////
+              // ///////////////////////////////////////////////////////////////////////////////////////////
+              // ///////////////////////////////////////////////////////////////////////////////////////////
+              Container(
+                decoration: radius(10, transparent, Colors.blueGrey),
+                child: Column(children: [
+                  ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PersonalInfoPage()),
+                      );
+                    },
+                    title: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Personal Info',
+                            style: GoogleFonts.nunito(fontSize: 16),
+                          ),
+                        ),
+                        Icon(Icons.arrow_forward_ios_rounded),
+                      ],
+                    ),
+                  ),
+                  ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => AboutAppPage()),
+                      );
+                    },
+                    title: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'About App',
+                            style: GoogleFonts.nunito(fontSize: 16),
+                          ),
+                        ),
+                        Icon(Icons.arrow_forward_ios_rounded),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 30),
+                  Divider(),
+                  ListTile(
+                    // tileColor: Colors.grey[900],
+                    onTap: () {
+                      _showLogoutConfirmationDialog(context);
+                    },
+                    title: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Logout',
+                            style: GoogleFonts.nunito(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                                color: Colors.red[700]),
+                          ),
+                        ),
+                        Icon(
+                          Icons.logout_rounded,
+                          color: Colors.red[700],
+                        ),
+                      ],
+                    ),
+                  ),
+                ]),
+              ),
+
+              ///////////////////////////////////////////////////////////////////////////////////////////////////
+              ///////////////////////////////////////////////////////////////////////////////////////////////////
+              ///////////////////////////////////////////////////////////////////////////////////////////////////
+              ///////////////////////////////////////////////////////////////////////////////////////////////////
+              SizedBox(height: 30),
+              Container(
+                decoration: radius(10, transparent, Colors.blueGrey),
+                child: SwitchListTile(
+                  // selected: true,
+                  title: Text('Dark Mode'),
+                  value: false, // Replace with actual value for dark mode
+                  onChanged: (value) {
+                    // Toggle dark mode logic here
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  void _showSaveConfirmationDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Confirmation'),
-          content: Text('Profile information saved.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showChangePasswordDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Change Password'),
-          content: TextField(
-            obscureText: true,
-            decoration: InputDecoration(
-              labelText: 'New Password',
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                // Change password logic here
-                _showPasswordChangedDialog();
-                Navigator.pop(context);
-              },
-              child: Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showPasswordChangedDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Confirmation'),
-          content: Text('Password changed successfully.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showNotificationSettings() {
-    // Implement notification settings UI
-    // This can be a separate page or dialog
-    // Use appropriate UI components and logic for managing notifications
-  }
-
-  void _showAppSettings() {
-    // Implement app settings UI
-    // This can be a separate page or dialog
-    // Use appropriate UI components and logic for customizing app settings
-  }
-
-  void _showLogoutConfirmationDialog() {
+  void _showLogoutConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -187,9 +147,9 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             TextButton(
               onPressed: () {
-                // Logout logic here
-                _performLogout();
                 Navigator.pop(context);
+                Navigator.pop(context); // Pop ProfilePage from the stack
+                // Perform logout logic here
               },
               child: Text('Yes'),
             ),
@@ -198,12 +158,32 @@ class _ProfilePageState extends State<ProfilePage> {
       },
     );
   }
+}
 
-  Future _performLogout() async {
-    // Implement logout logic here
-    // Clear user session, navigate to login screen, etc.
-    final pref = await SharedPreferences.getInstance();
-    await pref.clear();
-    toPage(context, LoginPage());
+class PersonalInfoPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Personal Info'),
+      ),
+      body: Center(
+        child: Text('Personal Info Page'),
+      ),
+    );
+  }
+}
+
+class AboutAppPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('About App'),
+      ),
+      body: Center(
+        child: Text('About App Page'),
+      ),
+    );
   }
 }

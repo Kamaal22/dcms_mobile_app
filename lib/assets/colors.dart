@@ -10,38 +10,38 @@ const Color primaryColor = Color.fromARGB(255, 33, 33, 34);
 const Color secondaryColor = Color(0xFFDF734E);
 
 // Light Theme
-ThemeData lightTheme = ThemeData(
-  appBarTheme: AppBarTheme(backgroundColor: Colors.blueGrey[100]),
-  scaffoldBackgroundColor: Colors.blueGrey[800],
-  elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ButtonStyle(
-          elevation: MaterialStateProperty.all(0),
-          textStyle:
-              MaterialStateProperty.all<TextStyle?>(GoogleFonts.nunito()))),
-);
+// ThemeData lightTheme = ThemeData(
+//   appBarTheme: AppBarTheme(backgroundColor: Colors.blueGrey[100]),
+//   scaffoldBackgroundColor: Colors.blueGrey[800],
+//   elevatedButtonTheme: ElevatedButtonThemeData(
+//       style: ButtonStyle(
+//           elevation: MaterialStateProperty.all(0),
+//           textStyle:
+//               MaterialStateProperty.all<TextStyle?>(GoogleFonts.nunito()))),
+// );
 
-ThemeData darkTheme = ThemeData(
-  appBarTheme: AppBarTheme(backgroundColor: Colors.blueGrey[100]),
-  scaffoldBackgroundColor: Colors.blueGrey[800],
-  elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ButtonStyle(
-    elevation: MaterialStateProperty.all(0),
-    textStyle: MaterialStateProperty.all<TextStyle?>(GoogleFonts.nunito()),
-    backgroundColor: MaterialStateProperty.all<Color?>(Colors.transparent),
-    foregroundColor: MaterialStateProperty.all<Color?>(Colors.blueGrey),
-    padding: MaterialStateProperty.all<EdgeInsetsGeometry?>(
-        EdgeInsets.symmetric(horizontal: 5)),
-    side: MaterialStateProperty.all<BorderSide?>(
-      BorderSide(width: 1, color: Colors.blueGrey),
-    ),
-    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-      RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-    ),
-    alignment: Alignment.center,
-  )),
-);
+// ThemeData darkTheme = ThemeData(
+//   appBarTheme: AppBarTheme(backgroundColor: Colors.blueGrey[100]),
+//   scaffoldBackgroundColor: Colors.blueGrey[800],
+//   elevatedButtonTheme: ElevatedButtonThemeData(
+//       style: ButtonStyle(
+//     elevation: MaterialStateProperty.all(0),
+//     textStyle: MaterialStateProperty.all<TextStyle?>(GoogleFonts.nunito()),
+//     backgroundColor: MaterialStateProperty.all<Color?>(Colors.transparent),
+//     foregroundColor: MaterialStateProperty.all<Color?>(Colors.blueGrey),
+//     padding: MaterialStateProperty.all<EdgeInsetsGeometry?>(
+//         EdgeInsets.symmetric(horizontal: 5)),
+//     side: MaterialStateProperty.all<BorderSide?>(
+//       BorderSide(width: 1, color: Colors.blueGrey),
+//     ),
+//     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+//       RoundedRectangleBorder(
+//         borderRadius: BorderRadius.circular(10),
+//       ),
+//     ),
+//     alignment: Alignment.center,
+//   )),
+// );
 
 //////////////////////////////////
 ///

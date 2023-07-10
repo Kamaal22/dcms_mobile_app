@@ -254,75 +254,82 @@ Future<TimeOfDay?> showCustomTimePicker(BuildContext context) async {
                       ],
                     ),
                   ),
-                  Expanded(
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      physics: ClampingScrollPhysics(),
-                      itemCount: 48,
-                      itemBuilder: (BuildContext context, int index) {
-                        final hour =
-                            index ~/ 2 % 12 == 0 ? 12 : index ~/ 2 % 12;
-                        final minute = (index % 2) * 30;
-                        final isAM = selectedPeriod == 'AM';
-                        final formattedTime =
-                            '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} ${isAM ? 'AM' : 'PM'}';
-                        return Column(
-                          children: [
-                            ListTile(
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 0, horizontal: 10),
-                              title: Text(
-                                formattedTime,
-                                style: GoogleFonts.nunito(
-                                  color: selectedTime != null &&
-                                          selectedTime!.hour == hour &&
-                                          selectedTime!.minute == minute
-                                      ? Colors.blueAccent
-                                      : Colors.blueGrey[700],
-                                  fontWeight: selectedTime != null &&
-                                          selectedTime!.hour == hour &&
-                                          selectedTime!.minute == minute
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
+                  Container(
+                    height: 200,
+                    child: Expanded(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        physics: ClampingScrollPhysics(),
+                        itemCount: 48,
+                        itemBuilder: (BuildContext context, int index) {
+                          final hour =
+                              index ~/ 2 % 12 == 0 ? 12 : index ~/ 2 % 12;
+                          final minute = (index % 2) * 30;
+                          final isAM = selectedPeriod == 'AM';
+                          final formattedTime =
+                              '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} ${isAM ? 'AM' : 'PM'}';
+                          return Column(
+                            children: [
+                              ListTile(
+                                // tileColor: Colors.blueGrey[300],
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 0, horizontal: 10),
+                                title: Text(
+                                  formattedTime,
+                                  style: GoogleFonts.nunito(
+                                    color: selectedTime != null &&
+                                            selectedTime!.hour == hour &&
+                                            selectedTime!.minute == minute
+                                        ? Colors.blueAccent
+                                        : Colors.blueGrey[700],
+                                    fontWeight: selectedTime != null &&
+                                            selectedTime!.hour == hour &&
+                                            selectedTime!.minute == minute
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
                                 ),
+                                onTap: () {
+                                  setState(() {
+                                    selectedTime =
+                                        TimeOfDay(hour: hour, minute: minute);
+                                  });
+                                },
                               ),
-                              onTap: () {
-                                setState(() {
-                                  selectedTime =
-                                      TimeOfDay(hour: hour, minute: minute);
-                                });
-                              },
-                            ),
-                            Divider(indent: 0, endIndent: 0, height: 0),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(0))),
-                      elevation: 0,
-                      backgroundColor: Colors.blueAccent,
-                      fixedSize: Size(
-                        MediaQuery.of(context).size.width,
-                        30,
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      'OK',
-                      style: GoogleFonts.nunito(
-                        color: Colors.white,
+                              Divider(indent: 0, endIndent: 0, height: 0.5),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ),
                 ],
               ),
             ),
+            actions: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  // shape: RoundedRectangleBorder(
+                  //     borderRadius: BorderRadius.all(Radius.circular(0))),
+                  elevation: 0,
+                  // backgroundColor: Colors.blueAccent,
+                  fixedSize: Size(
+                    MediaQuery.of(context).size.width,
+                    30,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'OK',
+                  // style: GoogleFonts.nunito(
+                  //   color: Colors.white,
+                  // ),
+                ),
+              )
+            ],
+            actionsAlignment: MainAxisAlignment.center,
           );
         },
       );

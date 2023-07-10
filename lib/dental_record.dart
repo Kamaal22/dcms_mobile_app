@@ -1,190 +1,115 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:path_provider/path_provider.dart';
 
 class DentalRecord extends StatefulWidget {
   @override
-  _DentalRecordState createState() => _DentalRecordState();
+  State<DentalRecord> createState() => _DentalRecordState();
 }
 
 class _DentalRecordState extends State<DentalRecord> {
-  List<DentalEntry> dentalEntries = [
-    DentalEntry(
-      date: DateTime(2022, 5, 15),
-      treatment: 'Dental Cleaning',
-      diagnosis: 'Healthy gums, minimal tartar buildup',
-      medications: '',
-      allergies: '',
-    ),
-    DentalEntry(
-      date: DateTime(2022, 6, 30),
-      treatment: 'Tooth Extraction',
-      diagnosis: 'Severe tooth decay',
-      medications: 'Prescribed painkillers',
-      allergies: 'Penicillin',
-    ),
-    DentalEntry(
-      date: DateTime(2022, 8, 20),
-      treatment: 'Root Canal',
-      diagnosis: 'Infected tooth pulp',
-      medications: 'Prescribed antibiotics',
-      allergies: '',
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    FlutterDownloader.initialize(
+        debug: true // Set false to disable printing logs to console
+        );
+  }
+
+  @override
+  void dispose() {
+    FlutterDownloader.cancelAll();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Dental Record'),
+        title: Text('Dental Records'),
       ),
-      body: ListView.builder(
-        itemCount: dentalEntries.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(
-              dentalEntries[index].treatment,
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text('Date: ${dentalEntries[index].date.toString()}'),
-            trailing: Icon(Icons.arrow_forward),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DentalEntryDetailsPage(
-                    dentalEntry: dentalEntries[index],
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AddDentalEntryPage(),
-            ),
-          ).then((newEntry) {
-            if (newEntry != null) {
-              setState(() {
-                dentalEntries.add(newEntry);
-              });
-            }
-          });
-        },
-        child: Icon(Icons.add),
+      body: ListView(
+        children: [
+          DentalRecordItem(
+            title: 'Record 1',
+            date: '2023-07-10',
+            fileUrl:
+                'https://acrobatusers.com/assets/uploads/actions/File_Name_Stamper.pdf',
+          ),
+          DentalRecordItem(
+            title: 'Record 2',
+            date: '2023-07-09',
+            fileUrl:
+                'https://acrobatusers.com/assets/uploads/actions/File_Name_Stamper.pdf',
+          ),
+          DentalRecordItem(
+            title: 'Record 3',
+            date: '2023-07-08',
+            fileUrl:
+                'https://acrobatusers.com/assets/uploads/actions/File_Name_Stamper.pdf',
+          ),
+          // Add more DentalRecordItem widgets as needed
+        ],
       ),
     );
   }
 }
 
-class DentalEntry {
-  final DateTime date;
-  final String treatment;
-  final String diagnosis;
-  final String medications;
-  final String allergies;
+class DentalRecordItem extends StatelessWidget {
+  final String title;
+  final String date;
+  final String fileUrl;
 
-  DentalEntry({
+  const DentalRecordItem({
+    required this.title,
     required this.date,
-    required this.treatment,
-    required this.diagnosis,
-    required this.medications,
-    required this.allergies,
+    required this.fileUrl,
   });
-}
-
-class DentalEntryDetailsPage extends StatelessWidget {
-  final DentalEntry dentalEntry;
-
-  DentalEntryDetailsPage({required this.dentalEntry});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Dental Entry Details'),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Treatment: ${dentalEntry.treatment}',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8.0),
-            Text('Date: ${dentalEntry.date.toString()}'),
-            SizedBox(height: 8.0),
-            Text('Diagnosis: ${dentalEntry.diagnosis}'),
-            SizedBox(height: 8.0),
-            Text('Medications: ${dentalEntry.medications}'),
-            SizedBox(height: 8.0),
-            Text('Allergies: ${dentalEntry.allergies}'),
-          ],
-        ),
+    return ListTile(
+      title: Text(title),
+      subtitle: Text(date),
+      trailing: IconButton(
+        color: Colors.blueGrey[100],
+        icon: Icon(Icons.file_download_rounded),
+        onPressed: () {
+          _downloadFile(context);
+        },
       ),
     );
   }
-}
 
-class AddDentalEntryPage extends StatefulWidget {
-  @override
-  _AddDentalEntryPageState createState() => _AddDentalEntryPageState();
-}
+  Future<void> _downloadFile(BuildContext context) async {
+    try {
+      final appDocDir = await getApplicationDocumentsDirectory();
+      final downloadPath = '${appDocDir.path}/denta';
+      final savedDir = Directory(downloadPath);
+      bool hasExisted = await savedDir.exists();
+      if (!hasExisted) {
+        savedDir.create();
+      }
+      final taskId = await FlutterDownloader.enqueue(
+        url: fileUrl,
+        savedDir: downloadPath,
+        showNotification: true,
+        openFileFromNotification: true,
+      );
 
-class _AddDentalEntryPageState extends State<AddDentalEntryPage> {
-  TextEditingController _treatmentController = TextEditingController();
-  TextEditingController _diagnosisController = TextEditingController();
-  TextEditingController _medicationsController = TextEditingController();
-  TextEditingController _allergiesController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Add Dental Entry'),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _treatmentController,
-              decoration: InputDecoration(labelText: 'Treatment'),
-            ),
-            TextField(
-              controller: _diagnosisController,
-              decoration: InputDecoration(labelText: 'Diagnosis'),
-            ),
-            TextField(
-              controller: _medicationsController,
-              decoration: InputDecoration(labelText: 'Medications'),
-            ),
-            TextField(
-              controller: _allergiesController,
-              decoration: InputDecoration(labelText: 'Allergies'),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                DentalEntry newEntry = DentalEntry(
-                  date: DateTime.now(),
-                  treatment: _treatmentController.text,
-                  diagnosis: _diagnosisController.text,
-                  medications: _medicationsController.text,
-                  allergies: _allergiesController.text,
-                );
-                Navigator.pop(context, newEntry);
-              },
-              child: Text('Save'),
-            ),
-          ],
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Downloading $title...'),
         ),
-      ),
-    );
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to download $title.'),
+        ),
+      );
+    }
   }
 }

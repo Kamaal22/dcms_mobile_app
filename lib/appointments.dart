@@ -244,10 +244,10 @@ void cancelAppointment(BuildContext context, Appointment appointment) {
       return AlertDialog(
         titleTextStyle: GoogleFonts.nunito(
           fontWeight: FontWeight.bold,
-          color: Colors.blueGrey,
+          color: Colors.blue[800],
           fontSize: 20,
         ),
-        contentTextStyle: GoogleFonts.nunito(color: Colors.blueGrey),
+        contentTextStyle: GoogleFonts.nunito(color: Colors.blue),
         elevation: 0,
         scrollable: true,
         title: Text('Confirm Cancellation'),

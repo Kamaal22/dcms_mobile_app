@@ -32,7 +32,7 @@ class _LoginPageState extends State<LoginPage> {
       final data = jsonData['data'];
       print(jsonData);
       if (message == 'success' && data != null) {
-        prefs.setString('user_id', data['user_id']);
+        prefs.setInt('user_id', data['user_id']);
         prefs.setString('username', data['username']);
         prefs.setString('password', data['password']);
         prefs.setString('firstname', data['firstname'] ?? "");
@@ -86,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    ipAddress = '192.168.209.163'; // Set the initial IP address here
+    ipAddress = '192.168.100.23'; // Set the initial IP address here
   }
 
   @override
