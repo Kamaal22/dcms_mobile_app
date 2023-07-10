@@ -164,3 +164,77 @@ Future<Database> _initDatabase() async {
     },
   );
 }
+/*
+
+<?php
+
+// Retrieve the appointment data
+$type = $_POST['type'];
+$status = $_POST['status'];
+$date = $_POST['date'];
+$time = $_POST['time'];
+$patientId = $_POST['patient_id'];
+
+// Retrieve the patient ID from Shared Preferences or any other source
+// TODO: Replace this with your actual code to retrieve the patient ID
+// $patientId = $_GET['patient_id'];
+
+// Set the services and employee as null for now
+$services = null;
+$employeeId = null;
+
+// Create a mysqli connection
+$host = 'localhost';
+$username = 'root';
+$password = '';
+$database = 'denta';
+
+$connection = mysqli_connect($host, $username, $password, $database);
+
+if (!$connection) {
+    // Connection failed
+    $response = [
+        'status' => 'error',
+        'message' => 'Failed to connect to the database',
+    ];
+    header('Content-Type: application/json');
+    echo json_encode($response);
+    exit;
+}
+
+// Sanitize and validate the data before using it in SQL queries
+$type = mysqli_real_escape_string($connection, $type);
+$status = mysqli_real_escape_string($connection, $status);
+$date = mysqli_real_escape_string($connection, $date);
+$time = mysqli_real_escape_string($connection, $time);
+$patientId = mysqli_real_escape_string($connection, $patientId);
+
+// Process the appointment data (e.g., save to database, send email, etc.)
+// TODO: Add your code here to handle the appointment data
+// Example:
+$query = "INSERT INTO appointments (Type, status, date, time, patient_id, employee_id, services) 
+          VALUES ('$type', '$status', '$date', '$time', '$patientId', '$employeeId', '$services')";
+
+$result = mysqli_query($connection, $query);
+
+if ($result) {
+    $response = [
+        'status' => 'success',
+        'message' => 'Appointment created successfully',
+    ];
+} else {
+    $response = [
+        'status' => 'error',
+        'message' => 'Failed to create appointment',
+    ];
+}
+
+// Close the database connection
+mysqli_close($connection);
+
+// Return a response to the Flutter app
+header('Content-Type: application/json');
+echo json_encode($response);
+
+
+ */
