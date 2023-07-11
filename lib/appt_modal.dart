@@ -3,8 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'appt_functions.dart';
-import 'assets/colors.dart';
+// import 'appt_functions.dart';
+// import 'assets/colors.dart';
 import 'assets/component.dart';
 import 'package:http/http.dart' as http;
 
@@ -29,7 +29,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
   // Form fields
   DateTime? date;
   TimeOfDay? time;
-  List<String> services = [];
+  TextEditingController note = TextEditingController();
 
   @override
   void initState() {
@@ -165,6 +165,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
                 ),
               ),
               TextFormField(
+                controller: note,
                 maxLines: 5,
                 decoration: InputDecoration(
                   contentPadding:
@@ -211,15 +212,15 @@ class _AppointmentModelState extends State<AppointmentModel> {
         'status': 'Pending',
         'date': DateFormat('yyyy-MM-dd').format(date!),
         'time': time!.format(context),
-        'patient_id': await getPatientIdFromSharedPreferences().toString(),
+        'patient_id': 1.toString(),
         'employee_id': null.toString(),
-        'services': null.toString(),
+        'note': note.text.trim()
       };
 
       // Send the appointment data to the server
       try {
         var response = await http.post(
-          Uri.parse('http://192.168.37.163/appt/submit_appt.php'),
+          Uri.parse('http://192.168.247.163/appt/submit_appt.php'),
           body: appointment,
         );
 
@@ -231,6 +232,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
+                  style: GoogleFonts.nunito(),
                   'Appointment created successfully',
                 ),
                 backgroundColor: Colors.green,
@@ -240,6 +242,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
+                  style: GoogleFonts.nunito(),
                   'Failed to create appointment!',
                 ),
                 backgroundColor: Colors.red,
@@ -250,6 +253,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
+                style: GoogleFonts.nunito(),
                 'Failed to create appointment?',
               ),
               backgroundColor: Colors.red,

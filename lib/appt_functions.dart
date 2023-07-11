@@ -26,7 +26,7 @@ class Employee {
 
 Future<List<Employee>> fetchEmployeesFromApi() async {
   final response = await http
-      .get(Uri.parse('http://192.168.209.163/appt/fetch_employees.php'));
+      .get(Uri.parse('http://192.168.247.163/appt/fetch_employees.php'));
 
   if (response.statusCode == 200) {
     final List<dynamic> data = json.decode(response.body);
@@ -96,7 +96,7 @@ class Service {
 
 Future<List<Service>> fetchServicesFromApi() async {
   final response = await http
-      .get(Uri.parse('http://192.168.209.163/appt/fetch_services.php'));
+      .get(Uri.parse('http://192.168.247.163/appt/fetch_services.php'));
 
   if (response.statusCode == 200) {
     final List<dynamic> data = json.decode(response.body);
