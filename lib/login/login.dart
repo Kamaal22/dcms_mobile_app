@@ -86,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    ipAddress = '192.168.247.163'; // Set the initial IP address here
+    ipAddress = '192.168.1.202'; // Set the initial IP address here
   }
 
   @override
