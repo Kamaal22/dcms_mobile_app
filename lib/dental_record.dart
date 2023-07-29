@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path_provider/path_provider.dart';
 
 class DentalRecord extends StatefulWidget {
@@ -10,20 +9,8 @@ class DentalRecord extends StatefulWidget {
 }
 
 class _DentalRecordState extends State<DentalRecord> {
-  @override
-  void initState() {
-    super.initState();
-    FlutterDownloader.initialize(
-        debug: true // Set false to disable printing logs to console
-        );
-  }
 
-  @override
-  void dispose() {
-    FlutterDownloader.cancelAll();
-    super.dispose();
-  }
-
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,12 +79,6 @@ class DentalRecordItem extends StatelessWidget {
       if (!hasExisted) {
         savedDir.create();
       }
-      final taskId = await FlutterDownloader.enqueue(
-        url: fileUrl,
-        savedDir: downloadPath,
-        showNotification: true,
-        openFileFromNotification: true,
-      );
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

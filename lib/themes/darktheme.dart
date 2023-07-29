@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 ThemeData darkTheme = ThemeData(
   appBarTheme: AppBarTheme(
@@ -32,7 +33,7 @@ ThemeData darkTheme = ThemeData(
 
   dialogTheme: DialogTheme(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(10),
       ),
       backgroundColor: Colors.grey.shade700,
       shadowColor: Colors.blueGrey[50],
@@ -113,3 +114,35 @@ ThemeData darkTheme = ThemeData(
           fontWeight: FontWeight.bold, color: Colors.blueGrey[100]),
       contentPadding: EdgeInsets.symmetric(horizontal: 10)),
 );
+
+
+
+class ThemeProvider extends ChangeNotifier {
+  bool _isDarkMode = false;
+  final String _themeKey = 'isDarkMode';
+
+  ThemeProvider() {
+    _loadTheme();
+  }
+
+  bool get isDarkMode => _isDarkMode;
+
+  void toggleTheme() {
+    _isDarkMode = !_isDarkMode;
+    _saveTheme();
+    notifyListeners();
+  }
+
+  Future<void> _loadTheme() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _isDarkMode = prefs.getBool(_themeKey) ?? false;
+    notifyListeners();
+  }
+
+  Future<void> _saveTheme() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_themeKey, _isDarkMode);
+  }
+}
+
+

@@ -1,7 +1,10 @@
 import 'package:dcms_mobile_app/assets/colors.dart';
 import 'package:dcms_mobile_app/assets/component.dart';
+import 'package:dcms_mobile_app/themes/darktheme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -9,8 +12,18 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  bool _isDarkMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isDarkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -114,16 +127,18 @@ class _ProfilePageState extends State<ProfilePage> {
               ///////////////////////////////////////////////////////////////////////////////////////////////////
               SizedBox(height: 30),
               Container(
-                decoration: radius(10, transparent, Colors.blueGrey),
-                child: SwitchListTile(
-                  // selected: true,
-                  title: Text('Dark Mode'),
-                  value: false, // Replace with actual value for dark mode
-                  onChanged: (value) {
-                    // Toggle dark mode logic here
-                  },
-                ),
-              ),
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  height: 60,
+                  decoration: radius(10, transparent, Colors.blueGrey),
+                  child: SwitchListTile(
+                    title: Text("Dark Mode"),
+                      value: _isDarkMode,
+                      onChanged: (value) {
+                        setState(() {
+                          _isDarkMode = value;
+                        });
+                        themeProvider.toggleTheme();
+                      })),
             ],
           ),
         ),

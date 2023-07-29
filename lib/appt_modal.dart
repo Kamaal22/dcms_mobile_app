@@ -40,9 +40,11 @@ class _AppointmentModelState extends State<AppointmentModel> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: Text(
           'Make an appointment',
           style: GoogleFonts.nunito(
+            color: Colors.blueGrey,
             fontSize: 30,
           ),
         ),

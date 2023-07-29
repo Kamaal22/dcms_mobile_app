@@ -6,23 +6,28 @@ import 'package:dcms_mobile_app/themes/darktheme.dart';
 import 'package:dcms_mobile_app/themes/lighttheme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider(
+    create: (context) => ThemeProvider(),
+    child: MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'DCMS Mobile App',
-      themeMode: ThemeMode.system, // Use system theme mode
-      theme: lightTheme, // Light theme
-      darkTheme: darkTheme, // Dark theme
-      home: Index(),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, _) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData.light(useMaterial3: false),
+          darkTheme: ThemeData.dark(),
+          themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          home: Index(),
+        );
+      },
     );
   }
 }

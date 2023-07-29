@@ -45,6 +45,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
+        toolbarHeight: 200,
         title: Column(
           // mainAxisAlignment: MainAxisAlignment.start,
           children: [
