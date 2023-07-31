@@ -1,30 +1,21 @@
 import 'dart:convert';
-import 'dart:io';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 final TextStyle kAppBarTitleStyle = GoogleFonts.nunito(
   fontWeight: FontWeight.bold,
   color: Colors.blue[700],
 );
 
-const String kApiUrl = 'http://192.168.120.163/DCMS/app/mobile/appointment/getAppt.php';
+const String kApiUrl =
+    'http://192.168.33.163/DCMS/app/mobile/appointment/getAppt.php';
 const Duration kApiTimeout = Duration(seconds: 10);
 
-void main() {
-  runApp(AppointmentApp());
-}
-
-class AppointmentApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: AppointmentPage(),
-    );
-  }
-}
+const String kAppointmentTable = 'appointments';
 
 class AppointmentPage extends StatefulWidget {
   @override
@@ -34,27 +25,32 @@ class AppointmentPage extends StatefulWidget {
 class _AppointmentPageState extends State<AppointmentPage> {
   List<Appointment> appointments = [];
 
-  // Function to save the appointments to cache
-  Future<void> saveAppointmentsToCache(List<Appointment> appointments) async {
-    final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/appointments_cache.json');
-    final encodedList = appointments.map((appointment) => jsonEncode(appointment.toJson())).toList();
-    await file.writeAsString(jsonEncode(encodedList));
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () {
+      initialize();
+    });
   }
 
-  // Function to retrieve the appointments from cache
-  Future<List<Appointment>> getAppointmentsFromCache() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/appointments_cache.json');
-    if (await file.exists()) {
-      final jsonString = await file.readAsString();
-      final encodedList = jsonDecode(jsonString) as List<dynamic>;
-      return encodedList
-          .map((encodedAppointment) => Appointment.fromJson(encodedAppointment as Map<String, dynamic>))
-          .toList();
-    } else {
-      return [];
+  // Function to save the appointments to cache using SQLite
+  Future<void> saveAppointmentsToCache(List<Appointment> appointments) async {
+    final db = await DatabaseHelper.instance.database;
+    await db.delete(kAppointmentTable);
+
+    final batch = db.batch();
+    for (final appointment in appointments) {
+      batch.insert(kAppointmentTable, appointment.toJson());
     }
+    await batch.commit();
+  }
+
+  // Function to retrieve the appointments from cache using SQLite
+  Future<List<Appointment>> getAppointmentsFromCache() async {
+    final db = await DatabaseHelper.instance.database;
+    final result = await db.query(kAppointmentTable);
+
+    return result.map((json) => Appointment.fromJson(json)).toList();
   }
 
   // Function to fetch appointments from the server and update the cache
@@ -66,12 +62,11 @@ class _AppointmentPageState extends State<AppointmentPage> {
       ).timeout(kApiTimeout);
 
       if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        print(jsonData.toString());
+        final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
         if (jsonData['status'] == 'success') {
           List<Appointment> fetchedAppointments = [];
           for (var data in jsonData['data']) {
-            fetchedAppointments.add(Appointment.fromJson(data as Map<String, dynamic>));
+            fetchedAppointments.add(Appointment.fromJson(data));
           }
 
           setState(() {
@@ -81,8 +76,8 @@ class _AppointmentPageState extends State<AppointmentPage> {
           // Save the fetched appointments to cache
           await saveAppointmentsToCache(appointments);
         } else {
-          var data = jsonDecode(response.body);
-          print(data['data']);
+          var data = jsonData['data'];
+          print(data);
           // Handle error when no appointments found
         }
       } else {
@@ -94,17 +89,31 @@ class _AppointmentPageState extends State<AppointmentPage> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    getAppointmentsFromCache().then((cachedAppointments) {
-      if (cachedAppointments.isNotEmpty) {
-        setState(() {
-          appointments = cachedAppointments;
-        });
-      }
-    });
-    fetchAppointments();
+  Future<bool> checkNetConn() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    return connectivityResult != ConnectivityResult.none;
+  }
+
+  // New method to handle initialization tasks
+  Future<void> initialize() async {
+    final cachedAppointments = await getAppointmentsFromCache();
+    if (cachedAppointments.isNotEmpty) {
+      setState(() {
+        appointments = cachedAppointments;
+      });
+    }
+
+    final isConnected = await checkNetConn();
+    if (isConnected) {
+      await fetchAppointments();
+    } else {
+      // Show snackbar saying there is no internet connection. Can't fetch appointments.
+      ScaffoldMessenger.of(context as BuildContext).showSnackBar(
+        SnackBar(
+          content: Text("No internet connection. Can't fetch appointments."),
+        ),
+      );
+    }
   }
 
   @override
@@ -168,9 +177,10 @@ class _AppointmentPageState extends State<AppointmentPage> {
     }
 
     return Card(
-      color: Colors.blueGrey[50],
+      margin: EdgeInsets.zero,
+      // color: Colors.blueGrey,
       shape: RoundedRectangleBorder(
-        side: BorderSide(width: 0.010),
+        side: BorderSide(width: 0, color: Colors.blueGrey),
       ),
       elevation: 0,
       child: ListTile(
@@ -297,21 +307,20 @@ class Appointment {
     required this.status,
   });
 
-factory Appointment.fromJson(Map<String, dynamic> json) {
-  return Appointment(
-    appointmentId: int.parse(json['appointment_id'].toString()),
-    patient: json['patient'] as String,
-    patientId: int.parse(json['patient_id'].toString()),
-    dentist: json['dentist'] as String,
-    employeeId: int.parse(json['employee_id'].toString()),
-    date: json['date'] as String? ?? '',
-    time: json['time'] as String? ?? '',
-    note: json['note'] as String? ?? '',
-    type: json['Type'] as String? ?? '',
-    status: json['status'] as String? ?? '',
-  );
-}
-
+  factory Appointment.fromJson(Map<String, dynamic> json) {
+    return Appointment(
+      appointmentId: int.parse(json['appointment_id'].toString()),
+      patient: json['patient'] as String,
+      patientId: int.parse(json['patient_id'].toString()),
+      dentist: json['dentist'] as String,
+      employeeId: int.parse(json['employee_id'].toString()),
+      date: json['date'] as String? ?? '',
+      time: json['time'] as String? ?? '',
+      note: json['note'] as String? ?? '',
+      type: json['Type'] as String? ?? '',
+      status: json['status'] as String? ?? '',
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -328,7 +337,6 @@ factory Appointment.fromJson(Map<String, dynamic> json) {
     };
   }
 }
-
 
 void cancelAppointment(BuildContext context, Appointment appointment) {
   showDialog(
@@ -370,4 +378,42 @@ void cancelAppointment(BuildContext context, Appointment appointment) {
       );
     },
   );
+}
+
+class DatabaseHelper {
+  static final DatabaseHelper instance = DatabaseHelper._init();
+  static Database? _database;
+
+  DatabaseHelper._init();
+
+  Future<Database> get database async {
+    if (_database != null) return _database!;
+
+    _database = await _initDB('appointments.db');
+    return _database!;
+  }
+
+  Future<Database> _initDB(String filePath) async {
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, filePath);
+
+    return await openDatabase(path, version: 1, onCreate: _createDB);
+  }
+
+  Future<void> _createDB(Database db, int version) async {
+    await db.execute('''
+      CREATE TABLE $kAppointmentTable(
+        appointment_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        patient TEXT NOT NULL,
+        patient_id INTEGER NOT NULL,
+        dentist TEXT NOT NULL,
+        employee_id INTEGER NOT NULL,
+        date TEXT NOT NULL,
+        time TEXT NOT NULL,
+        note TEXT,
+        Type TEXT NOT NULL,
+        status TEXT NOT NULL
+      )
+    ''');
+  }
 }

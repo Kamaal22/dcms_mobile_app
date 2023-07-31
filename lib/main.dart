@@ -22,9 +22,11 @@ class MyApp extends StatelessWidget {
       builder: (context, themeProvider, _) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: ThemeData.light(useMaterial3: false),
+          theme: ThemeData(
+              appBarTheme: AppBarTheme(backgroundColor: Colors.transparent)),
           darkTheme: ThemeData.dark(),
-          themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+          themeMode:
+              themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
           home: Index(),
         );
       },

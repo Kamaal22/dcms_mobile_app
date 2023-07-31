@@ -222,7 +222,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
       // Send the appointment data to the server
       try {
         var response = await http.post(
-          Uri.parse('http://192.168.1.202/appt/submit_appt.php'),
+          Uri.parse('http://192.168.33.163/appt/submit_appt.php'),
           body: appointment,
         );
 

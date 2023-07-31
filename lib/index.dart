@@ -24,7 +24,7 @@ class _IndexPageState extends State<IndexPage> {
 // Color variables
   final Color gradientStartColor = Color.fromRGBO(236, 239, 241, 1);
   final Color gradientEndColor = Color.fromRGBO(207, 216, 220, 1);
-  final Color? selectedIconColor = Colors.blue[700];
+  final Color? selectedIconColor = Colors.blue[800];
   final Color? unselectedIconColor = Colors.blue[300];
   final Color? selectedIconBackgroundColor = Colors.blue[50];
 
