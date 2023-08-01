@@ -111,7 +111,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    ipAddress = '192.168.234.163'; // Set the initial IP address here
+    ipAddress = '192.168.39.163'; // Set the initial IP address here
   }
 
   @override
@@ -141,7 +141,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                         color: Colors.lightBlueAccent[200],
                       ),
                       child: Text(
-                        "Denta",
+                        "Emarites",
                         style: GoogleFonts.cinzel(
                           fontSize: 35,
                           fontWeight: FontWeight.bold,

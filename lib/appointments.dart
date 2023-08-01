@@ -7,7 +7,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 const String kApiUrl =
-    'http://192.168.234.163/DCMS/app/mobile/appointment/getAppt.php';
+    'http://192.168.39.163/DCMS/app/mobile/appointment/getAppt.php';
 const Duration kApiTimeout = Duration(seconds: 10);
 
 const String kAppointmentTable = 'appointments';
