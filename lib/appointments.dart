@@ -6,13 +6,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-final TextStyle kAppBarTitleStyle = GoogleFonts.nunito(
-  fontWeight: FontWeight.bold,
-  color: Colors.blue[700],
-);
-
 const String kApiUrl =
-    'http://192.168.33.163/DCMS/app/mobile/appointment/getAppt.php';
+    'http://192.168.234.163/DCMS/app/mobile/appointment/getAppt.php';
 const Duration kApiTimeout = Duration(seconds: 10);
 
 const String kAppointmentTable = 'appointments';
@@ -84,8 +79,8 @@ class _AppointmentPageState extends State<AppointmentPage> {
         print("API Error - statusCode = ${response.statusCode}");
       }
     } catch (e) {
-      print('Error fetching appointments: ${e.toString()}');
       // Handle network or server error
+      print('Error fetching appointments: ${e.toString()}');
     }
   }
 
@@ -127,7 +122,11 @@ class _AppointmentPageState extends State<AppointmentPage> {
             children: [
               Text(
                 "List of Your Appointments",
-                style: kAppBarTitleStyle,
+                style: GoogleFonts.nunito(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
+                  color: Colors.blueGrey,
+                ),
               ),
               RefreshIndicator(
                 child: IconButton(
@@ -141,6 +140,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
           ),
         ),
         elevation: 0,
+        toolbarHeight: 150,
       ),
       body: Column(
         children: [

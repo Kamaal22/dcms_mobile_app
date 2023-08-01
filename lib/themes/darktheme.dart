@@ -115,8 +115,6 @@ ThemeData darkTheme = ThemeData(
       contentPadding: EdgeInsets.symmetric(horizontal: 10)),
 );
 
-
-
 class ThemeProvider extends ChangeNotifier {
   bool _isDarkMode = false;
   final String _themeKey = 'isDarkMode';
@@ -144,5 +142,3 @@ class ThemeProvider extends ChangeNotifier {
     await prefs.setBool(_themeKey, _isDarkMode);
   }
 }
-
-

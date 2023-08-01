@@ -1,9 +1,12 @@
 import 'dart:convert';
 
+import 'package:dcms_mobile_app/assets/component.dart';
 import 'package:dcms_mobile_app/themes/darktheme.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -51,10 +54,7 @@ class _ProfilePageState extends State<ProfilePage> {
               // ///////////////////////////////////////////////////////////////////////////////////////////
               // ///////////////////////////////////////////////////////////////////////////////////////////
               Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(0),
-                  color: Colors.blueGrey,
-                ),
+                decoration: radius(0, Colors.transparent, Colors.blueGrey),
                 child: Column(children: [
                   ListTile(
                     onTap: () {
@@ -149,10 +149,7 @@ class _ProfilePageState extends State<ProfilePage> {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 10),
                 height: 60,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(0),
-                  color: Colors.blueGrey,
-                ),
+                decoration: radius(0, Colors.transparent, Colors.blueGrey),
                 child: SwitchListTile(
                   title: Text("Dark Mode"),
                   value: _isDarkMode,
@@ -207,27 +204,36 @@ class PersonalInfoPage extends StatefulWidget {
 
 class _PersonalInfoPageState extends State<PersonalInfoPage> {
   TextEditingController _firstNameController = TextEditingController();
+  TextEditingController _middleNameController = TextEditingController();
   TextEditingController _lastNameController = TextEditingController();
   TextEditingController _birthDateController = TextEditingController();
   TextEditingController _phoneNumberController = TextEditingController();
   TextEditingController _addressController = TextEditingController();
+  TextEditingController _currentPasswordController = TextEditingController();
+  TextEditingController _newPasswordController = TextEditingController();
+  TextEditingController _confirmNewPasswordController = TextEditingController();
 
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLoading = true;
-  String _errorMessage = '';
+  bool _isEditing = false;
 
   @override
   void initState() {
     super.initState();
-    fetchPatientDataFromApi();
+    fetchPatientDataFromSharedPreferences();
   }
 
   @override
   void dispose() {
     _firstNameController.dispose();
+    _middleNameController.dispose();
     _lastNameController.dispose();
     _birthDateController.dispose();
     _phoneNumberController.dispose();
     _addressController.dispose();
+    _currentPasswordController.dispose();
+    _newPasswordController.dispose();
+    _confirmNewPasswordController.dispose();
     super.dispose();
   }
 
@@ -236,87 +242,176 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Personal Info'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: () {
+              setState(() {
+                _isEditing = true;
+              });
+            },
+          ),
+        ],
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
-          : _errorMessage.isNotEmpty
-              ? Center(child: Text(_errorMessage))
-              : _buildForm(),
+          : _isEditing
+              ? _buildEditForm()
+              : _buildDisplayForm(),
     );
   }
 
-  Widget _buildForm() {
-    return Padding(
+  Widget _buildDisplayForm() {
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextFormField(
-            keyboardType: TextInputType.name,
-            controller: _firstNameController,
-            decoration: InputDecoration(labelText: 'First Name'),
-            validator: _validateField,
-          ),
-          TextFormField(
-            controller: _lastNameController,
-            decoration: InputDecoration(labelText: 'Last Name'),
-            validator: _validateField,
-          ),
-          TextFormField(
-            keyboardType: TextInputType.datetime,
-            controller: _birthDateController,
-            decoration: InputDecoration(labelText: 'Birth Date'),
-            validator: _validateField,
-          ),
-          TextFormField(
-            controller: _phoneNumberController,
-            keyboardType: TextInputType.phone,
-            decoration: InputDecoration(labelText: 'Phone Number'),
-            validator: _validateField,
-          ),
-          TextFormField(
-            controller: _addressController,
-            decoration: InputDecoration(labelText: 'Address'),
-            validator: _validateField,
-          ),
+          _buildDisplayField('First Name', _firstNameController.text),
           SizedBox(height: 20),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              elevation: 0,
-              textStyle: TextStyle(fontFamily: 'GoogleFonts.nunito()'),
-              primary: Colors.transparent,
-              onPrimary: Colors.blueGrey,
-              padding: EdgeInsets.zero,
-              fixedSize: Size(MediaQuery.of(context).size.width, 30),
-              side: BorderSide(width: 1, color: Colors.blueGrey),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-            ),
-            onPressed: _isLoading ? null : _savePatientInfo,
-            child: Text('Save'),
-          ),
+          _buildDisplayField('Middle Name', _middleNameController.text),
+          SizedBox(height: 20),
+          _buildDisplayField('Last Name', _lastNameController.text),
+          SizedBox(height: 20),
+          _buildDisplayField('Birth Date', _birthDateController.text),
+          SizedBox(height: 20),
+          _buildDisplayField('Phone Number', _phoneNumberController.text),
+          SizedBox(height: 20),
+          _buildDisplayField('Address', _addressController.text),
         ],
       ),
     );
   }
 
-  String? _validateField(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter a value';
-    }
-    return null;
+  Widget _buildEditForm() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildRoundedTextField('First Name', _firstNameController),
+            SizedBox(height: 20),
+            _buildRoundedTextField('Middle Name', _middleNameController),
+            SizedBox(height: 20),
+            _buildRoundedTextField('Last Name', _lastNameController),
+            SizedBox(height: 20),
+            _buildRoundedTextField('Birth Date', _birthDateController),
+            SizedBox(height: 20),
+            _buildRoundedTextField('Phone Number', _phoneNumberController),
+            SizedBox(height: 20),
+            _buildRoundedTextField('Address', _addressController),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _isLoading ? null : _savePatientInfo,
+              child: Text('Save'),
+            ),
+            SizedBox(height: 40),
+            ElevatedButton(
+              onPressed: _showChangePasswordDialog,
+              child: Text('Change Password'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showChangePasswordDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Change Password'),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  obscureText: true,
+                  controller: _currentPasswordController,
+                  decoration: InputDecoration(labelText: 'Current Password'),
+                  validator: (val) => val!.isEmpty ? 'Required' : null,
+                ),
+                SizedBox(height: 20),
+                TextFormField(
+                  obscureText: true,
+                  controller: _newPasswordController,
+                  decoration: InputDecoration(labelText: 'New Password'),
+                  validator: (val) => val!.isEmpty ? 'Required' : null,
+                ),
+                SizedBox(height: 20),
+                TextFormField(
+                  obscureText: true,
+                  controller: _confirmNewPasswordController,
+                  decoration:
+                      InputDecoration(labelText: 'Confirm New Password'),
+                  validator: (value) {
+                    if (value != _newPasswordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: _isLoading ? null : () => _changePassword(context),
+              child: Text('Change Password'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildDisplayField(String label, String value) {
+    return Row(
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        SizedBox(width: 8),
+        Text(value, style: TextStyle(fontSize: 16)),
+        SizedBox(height: 20),
+      ],
+    );
+  }
+
+  Widget _buildRoundedTextField(
+    String label,
+    TextEditingController controller,
+  ) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+      ),
+      validator: (val) => val!.isEmpty ? 'Required' : null,
+    );
   }
 
   Future<void> _savePatientInfo() async {
-    if (_validateForm()) {
+    if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
-        _errorMessage = '';
       });
 
       Patient patient = Patient(
         firstName: _firstNameController.text,
+        middleName: _middleNameController.text,
         lastName: _lastNameController.text,
         birthDate: _birthDateController.text,
         phoneNumber: _phoneNumberController.text,
@@ -324,13 +419,30 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
       );
 
       try {
-        await saveUpdatedPatientInfo(patient);
-        Navigator.pop(context); // Go back to the previous screen after saving
-      } catch (error) {
+        await saveUpdatedPatientInfoToSharedPreferences(patient);
+        await saveUpdatedPatientInfoToApi(patient); // Save to API endpoint.
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.green,
+            content: Text(
+              'Patient information saved successfully.',
+            ),
+            duration: Duration(seconds: 3),
+          ),
+        );
         setState(() {
-          _errorMessage =
-              'Failed to save patient information. Please try again.';
+          _isEditing = false;
         });
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(
+              'Failed to save patient information. Please try again.',
+            ),
+            duration: Duration(seconds: 3),
+          ),
+        );
       } finally {
         setState(() {
           _isLoading = false;
@@ -339,85 +451,154 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     }
   }
 
-  bool _validateForm() {
-    final form = Form.of(context);
-    return form.validate();
-  }
+  Future<void> _changePassword(BuildContext context) async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
 
-  Future<void> fetchPatientDataFromApi() async {
-    try {
-      final response = await http.post(
-        Uri.parse(
-          "http://192.168.33.163/DCMS/app/mobile/patient/getPatientInfo.php",
-        ),
-        body: {'patient_id': '3'},
-      );
+      String currentPassword = _currentPasswordController.text;
+      String newPassword = _newPasswordController.text;
 
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-        print(jsonData);
-        if (jsonData['status'] == 'success') {
-          final patientData =
-              jsonData['data'][0]; // Use [0] to access the first patient data
-          setState(() {
-            _firstNameController.text = patientData['first_name'];
-            _lastNameController.text = patientData['last_name'];
-            _birthDateController.text = patientData['birth_date'];
-            _phoneNumberController.text = patientData['phone_number'];
-            _addressController.text = patientData['address'];
-          });
+      try {
+        // Replace the following API_ENDPOINT with your actual API endpoint URL.
+        const API_ENDPOINT = 'https://example.com/change_password';
+        var response = await http.post(
+          Uri.parse(API_ENDPOINT),
+          body: {
+            'current_password': currentPassword,
+            'new_password': newPassword,
+          },
+        );
+
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.green,
+              content: Text(
+                'Password changed successfully.',
+              ),
+              duration: Duration(seconds: 3),
+            ),
+          );
+          Navigator.pop(
+              context); // Close the dialog after successful password change.
         } else {
-          setState(() {
-            _errorMessage = 'Failed to load patient data: ' + jsonData['data'];
-          });
+          throw Exception('Failed to change password: ${response.body}');
         }
-      } else {
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(
+              'Failed to change password: $error',
+            ),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      } finally {
         setState(() {
-          _errorMessage =
-              'Failed to load patient data: Status code: ${response.statusCode}';
+          _isLoading = false;
         });
       }
+    }
+  }
+
+  Future<void> saveUpdatedPatientInfoToSharedPreferences(
+      Patient patient) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    try {
+      await prefs.setString('first_name', patient.firstName);
+      await prefs.setString(
+          'middle_name', patient.middleName); // Added middle name saving
+      await prefs.setString('last_name', patient.lastName);
+      await prefs.setString('birth_date', patient.birthDate);
+      await prefs.setString('phone_number', patient.phoneNumber);
+      await prefs.setString('address', patient.address);
+      print("Profile Information updated successfully");
+    } catch (e) {
+      print("Error: $e");
+      throw Exception('Failed to update patient information');
+    }
+  }
+
+  Future<String?> getPasswordFromSharedPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('password');
+  }
+
+  Future<void> saveNewPasswordToSharedPreferences(String newPassword) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('password', newPassword);
+    print("Password changed successfully");
+  }
+
+  Future<void> saveUpdatedPatientInfoToApi(Patient patient) async {
+    // Replace this function with your actual API call to update patient information.
+    // For demonstration purposes, this function is left empty.
+  }
+
+  void fetchPatientDataFromSharedPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    try {
+      String? firstName = prefs.getString('first_name');
+      String? middleName =
+          prefs.getString('middle_name'); // Added middle name retrieval
+      String? lastName = prefs.getString('last_name');
+      String? birthDate = prefs.getString('birth_date');
+      String? phoneNumber = prefs.getString('phone_number');
+      String? address = prefs.getString('address');
+
+      if (firstName != null &&
+          middleName != null &&
+          lastName != null &&
+          birthDate != null &&
+          phoneNumber != null &&
+          address != null) {
+        setState(() {
+          _firstNameController.text = firstName;
+          _middleNameController.text = middleName; // Added middle name setting
+          _lastNameController.text = lastName;
+          _birthDateController.text = birthDate;
+          _phoneNumberController.text = phoneNumber;
+          _addressController.text = address;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(
+              'Failed to load patient data from SharedPreferences.',
+              style: GoogleFonts.nunito(),
+            ),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
     } catch (error) {
-      setState(() {
-        _errorMessage = 'Failed to load patient data: $error';
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(
+            'Failed to load patient data from SharedPreferences: $error',
+            style: GoogleFonts.nunito(),
+          ),
+          duration: Duration(seconds: 3),
+        ),
+      );
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
   }
-
-  Future<void> saveUpdatedPatientInfo(Patient patient) async {
-    try {
-      final response = await http.post(
-        Uri.parse(
-          "http://192.168.33.163/DCMS/app/mobile/patient/updatePatientInfo.php",
-        ),
-        body: {
-          'patient_id': '3',
-          'first_name': patient.firstName,
-          'last_name': patient.lastName,
-          'birth_date': patient.birthDate,
-          'phone_number': patient.phoneNumber,
-          'address': patient.address,
-        },
-      );
-
-      if (response.statusCode != 200 ||
-          json.decode(response.body)['status'] != 'success') {
-        throw Exception('Failed to update patient information');
-      } else {
-        print("Profile Information updated successfully");
-      }
-    } catch (e) {
-      print("Error: " + e.toString());
-    }
-  }
 }
 
 class Patient {
   final String firstName;
+  final String middleName; // Added middle name
   final String lastName;
   final String birthDate;
   final String phoneNumber;
@@ -425,6 +606,7 @@ class Patient {
 
   Patient({
     required this.firstName,
+    required this.middleName, // Added middle name
     required this.lastName,
     required this.birthDate,
     required this.phoneNumber,

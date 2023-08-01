@@ -16,8 +16,8 @@ class _HomePageState extends State<HomePage> {
   Future<void> getInfo() async {
     final prefs = await SharedPreferences.getInstance();
 
-    String? storedFirstname = prefs.getString('firstname');
-    String? storedLastname = prefs.getString('lastname');
+    String? storedFirstname = prefs.getString('first_name');
+    String? storedLastname = prefs.getString('last_name');
 
     if (storedFirstname != null && storedLastname != null) {
       // Data is available in shared preferences

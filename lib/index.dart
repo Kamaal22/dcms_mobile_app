@@ -1,17 +1,14 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
-
-import 'package:dcms_mobile_app/appointments.dart';
-import 'package:dcms_mobile_app/appt_modal.dart';
-import 'package:dcms_mobile_app/assets/colors.dart';
-import 'package:dcms_mobile_app/assets/component.dart';
-import 'package:dcms_mobile_app/dental_record.dart';
-import 'package:dcms_mobile_app/profile.dart';
-import 'package:dcms_mobile_app/home.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import 'assets/component.dart';
 import 'login/login.dart';
+import 'home.dart';
+import 'appointments.dart';
+import 'appt_modal.dart';
+import 'dental_record.dart';
+import 'profile.dart';
 
 class IndexPage extends StatefulWidget {
   const IndexPage({Key? key}) : super(key: key);
@@ -21,56 +18,6 @@ class IndexPage extends StatefulWidget {
 }
 
 class _IndexPageState extends State<IndexPage> {
-// Color variables
-  final Color gradientStartColor = Color.fromRGBO(236, 239, 241, 1);
-  final Color gradientEndColor = Color.fromRGBO(207, 216, 220, 1);
-  final Color? selectedIconColor = Colors.blue[800];
-  final Color? unselectedIconColor = Colors.blue[300];
-  final Color? selectedIconBackgroundColor = Colors.blue[50];
-
-  void checkLoginStatus() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString('user_id');
-    final username = prefs.getString('username');
-    final password = prefs.getString('password');
-
-    if (userId != null && username != null && password != null) {
-      // Data is available in shared preferences
-      print('User ID: $userId');
-      print('Username: $username');
-      print('Password: $password');
-      // navigateToPage(IndexPage());
-    } else {
-      // Data is not available in shared preferences
-      print('No data found in shared preferences.');
-      toPage(context, LoginPage());
-    }
-  }
-
-  void readDataFromSharedPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final userId = prefs.getString('user_id');
-    final username = prefs.getString('username');
-    final password = prefs.getString('password');
-
-    if (userId != null && username != null && password != null) {
-      // Data is available in shared preferences
-      print('User ID: $userId');
-      print('Username: $username');
-      print('Password: $password');
-    } else {
-      // Data is not available in shared preferences
-      print('No data found in shared preferences.');
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    checkLoginStatus();
-  }
-
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
@@ -80,6 +27,51 @@ class _IndexPageState extends State<IndexPage> {
     DentalRecord(),
     ProfilePage(),
   ];
+
+  Future<void> checkLoginStatus() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getString('patient_id');
+      final username = prefs.getString('username');
+      final password = prefs.getString('password');
+
+      if (userId != null && username != null && password != null) {
+        // Data is available in shared preferences
+        print('User ID: $userId');
+        print('Username: $username');
+        print('Password: $password');
+      } else {
+        // Data is not available in shared preferences
+        print('No data found in shared preferences.');
+        toPage(context, LoginPage());
+      }
+    } catch (e) {
+      // Error handling
+      print('Error while checking login status: $e');
+      // Show an error message to the user or handle the error as appropriate
+    }
+  }
+
+  @override
+  void dispose() {
+    // Cancel any ongoing animations or timers here
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    checkLoginStatus();
+  }
+
+  void navigateToPage(int index) {
+    // Check if the widget is still mounted before calling setState
+    if (mounted) {
+      setState(() {
+        _currentIndex = index;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,15 +84,11 @@ class _IndexPageState extends State<IndexPage> {
           elevation: 0,
           type: BottomNavigationBarType.fixed,
           currentIndex: _currentIndex,
-          selectedItemColor: selectedIconColor,
-          unselectedItemColor: unselectedIconColor,
+          selectedItemColor: Colors.blue[800],
+          unselectedItemColor: Colors.blue[300],
           showUnselectedLabels: false,
           showSelectedLabels: false,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
+          onTap: navigateToPage,
           items: [
             BottomNavigationBarItem(
               tooltip: "Home",
@@ -109,7 +97,7 @@ class _IndexPageState extends State<IndexPage> {
                       height: 40,
                       width: 40,
                       decoration: ShapeDecoration(
-                        color: selectedIconBackgroundColor,
+                        color: Colors.blue[50],
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
@@ -118,7 +106,7 @@ class _IndexPageState extends State<IndexPage> {
                         child: FaIcon(
                           FontAwesomeIcons.house,
                           size: 22,
-                          color: selectedIconColor,
+                          color: Colors.blue[800],
                         ),
                       ),
                     )
@@ -135,7 +123,7 @@ class _IndexPageState extends State<IndexPage> {
                       height: 40,
                       width: 40,
                       decoration: ShapeDecoration(
-                        color: selectedIconBackgroundColor,
+                        color: Colors.blue[50],
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
@@ -144,7 +132,7 @@ class _IndexPageState extends State<IndexPage> {
                         child: FaIcon(
                           FontAwesomeIcons.calendar,
                           size: 22,
-                          color: selectedIconColor,
+                          color: Colors.blue[800],
                         ),
                       ),
                     )
@@ -161,7 +149,7 @@ class _IndexPageState extends State<IndexPage> {
                       height: 40,
                       width: 40,
                       decoration: ShapeDecoration(
-                        color: selectedIconBackgroundColor,
+                        color: Colors.blue[50],
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
@@ -170,7 +158,7 @@ class _IndexPageState extends State<IndexPage> {
                         child: FaIcon(
                           FontAwesomeIcons.plus,
                           size: 22,
-                          color: selectedIconColor,
+                          color: Colors.blue[800],
                         ),
                       ),
                     )
@@ -187,7 +175,7 @@ class _IndexPageState extends State<IndexPage> {
                       height: 40,
                       width: 40,
                       decoration: ShapeDecoration(
-                        color: selectedIconBackgroundColor,
+                        color: Colors.blue[50],
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
@@ -196,7 +184,7 @@ class _IndexPageState extends State<IndexPage> {
                         child: FaIcon(
                           FontAwesomeIcons.fileMedical,
                           size: 22,
-                          color: selectedIconColor,
+                          color: Colors.blue[800],
                         ),
                       ),
                     )
@@ -213,7 +201,7 @@ class _IndexPageState extends State<IndexPage> {
                       height: 40,
                       width: 40,
                       decoration: ShapeDecoration(
-                        color: selectedIconBackgroundColor,
+                        color: Colors.blue[50],
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
@@ -222,7 +210,7 @@ class _IndexPageState extends State<IndexPage> {
                         child: FaIcon(
                           FontAwesomeIcons.circleUser,
                           size: 22,
-                          color: selectedIconColor,
+                          color: Colors.blue[800],
                         ),
                       ),
                     )

@@ -24,15 +24,15 @@ class _IndexState extends State<Index> {
 
   void checkLoginStatus() async {
     final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getString('user_id');
+    final userId = prefs.getInt('patient_id');
     final username = prefs.getString('username');
     final password = prefs.getString('password');
 
     if (userId != null && username != null && password != null) {
       // Data is available in shared preferences
-      print('User ID: $userId');
-      print('Username: $username');
-      print('Password: $password');
+      print('User ID: ' + userId.toString());
+      print('Username: ' + username);
+      print('Password: ' + password);
       navigateToPage(IndexPage());
     } else {
       // Data is not available in shared preferences

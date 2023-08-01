@@ -1,6 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,38 +14,82 @@ class LoginPage extends StatefulWidget {
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   late String ipAddress;
   final String apiUrl = '/DCMS/app/mobile/login/login.php';
+  bool isLoading = false;
 
   Future<void> login() async {
+    setState(() {
+      isLoading = true;
+    });
+
     final response = await http.post(Uri.http(ipAddress, apiUrl), body: {
       'username': usernameController.text,
       'password': passwordController.text,
     });
-    final prefs = await SharedPreferences.getInstance();
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
-      final message = jsonData['message'];
+      final status = jsonData['status'];
       final data = jsonData['data'];
       print(jsonData);
-      if (message == 'success' && data != null) {
-        prefs.setInt('user_id', data['user_id']);
-        prefs.setString('username', data['username']);
-        prefs.setString('password', data['password']);
-        prefs.setString('firstname', data['firstname'] ?? "");
-        prefs.setString('lastname', data['lastname'] ?? "");
+
+      if (status == 'success' && data != null) {
+        // Save the response data in SharedPreferences
+        await saveResponseInSharedPreferences(data);
+
+        // Show the success animation
+        await showSuccessAnimation();
 
         navigateToIndexPage();
       } else {
-        showAlertDialog('Login Error', 'Invalid username or password.');
+        showSnackBar('Invalid username or password.');
+
+        // Retry login after 3 seconds
+        Timer(Duration(seconds: 1), () {
+          setState(() {
+            isLoading = false;
+          });
+        });
       }
     } else {
-      showAlertDialog('Login Error', 'An error occurred during login.');
+      showSnackBar('An error occurred during login.');
+
+      // Retry login after 3 seconds
+      Timer(Duration(seconds: 1), () {
+        setState(() {
+          isLoading = false;
+        });
+      });
     }
+  }
+
+  Future<void> showSuccessAnimation() async {
+    final controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 500),
+    );
+
+    controller.forward();
+
+    await Future.delayed(Duration(milliseconds: 500));
+    controller.dispose();
+  }
+
+  Future<void> saveResponseInSharedPreferences(
+      Map<String, dynamic> data) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setInt('patient_id', data['patient_id']);
+    prefs.setString('first_name', data['first_name']);
+    prefs.setString('middle_name', data['middle_name']);
+    prefs.setString('last_name', data['last_name']);
+    prefs.setString('birth_date', data['birth_date']);
+    prefs.setString('gender', data['gender']);
+    prefs.setString('phone_number', data['phone_number']);
+    prefs.setString('address', data['address']);
   }
 
   void navigateToIndexPage() {
@@ -54,45 +99,25 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void showAlertDialog(String title, String content) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Theme(
-          data: ThemeData(
-            dialogBackgroundColor: Colors.lightBlue[900],
-          ),
-          child: CupertinoAlertDialog(
-            title: Text(
-              title,
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            content: Text(content),
-            actions: [
-              CupertinoDialogAction(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  'OK',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+  void showSnackBar(String message) {
+    final snackBar = SnackBar(
+      content: Text(message),
+      duration: Duration(seconds: 2),
     );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override
   void initState() {
     super.initState();
-    ipAddress = '192.168.33.163'; // Set the initial IP address here
+    ipAddress = '192.168.234.163'; // Set the initial IP address here
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Center(
           child: Column(
@@ -104,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     Text(
                       "Welcome to ",
-                      style: TextStyle(
+                      style: GoogleFonts.poppins(
                         fontSize: 35,
                         fontWeight: FontWeight.bold,
                       ),
@@ -117,7 +142,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       child: Text(
                         "Denta",
-                        style: TextStyle(
+                        style: GoogleFonts.cinzel(
                           fontSize: 35,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -130,69 +155,62 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(height: 20),
               Text(
                 "Best Dental in Somalia",
-                style: TextStyle(fontSize: 24),
+                style: GoogleFonts.poppins(fontSize: 24),
               ),
               SizedBox(height: 50),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 25),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(14),
-                    color: Colors.grey[200],
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 20),
-                    child: TextField(
-                      controller: usernameController,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Enter your Denta username',
-                      ),
-                    ),
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: TextField(
+                  controller: usernameController,
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                    hintText: 'Enter your Denta username',
                   ),
                 ),
               ),
               SizedBox(height: 20),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 25),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(14),
-                    color: Colors.grey[200],
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 20),
-                    child: TextField(
-                      controller: passwordController,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Enter your Denta Password',
-                      ),
-                    ),
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: TextField(
+                  controller: passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                    hintText: 'Enter your Denta Password',
                   ),
                 ),
               ),
               SizedBox(height: 20),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 25, vertical: 5),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
+                    fixedSize: Size(MediaQuery.of(context).size.width, 50),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     elevation: 0,
                   ),
-                  onPressed: login,
+                  onPressed: isLoading ? null : login,
                   child: Center(
-                    child: Text(
-                      "Sign In",
-                      style: TextStyle(
-                        fontSize: 28,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: isLoading
+                        ? CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.amber,
+                            backgroundColor: Colors.amber[900],
+                          ) // Show the loading circle while the request is ongoing
+                        : Text(
+                            "Sign In",
+                            style: GoogleFonts.poppins(
+                              fontSize: 28,
+                              color: Colors.white,
+                              // fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                 ),
               ),
