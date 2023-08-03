@@ -3,14 +3,15 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'assets/component.dart';
 import 'package:dcms_mobile_app/themes/darktheme.dart';
 import 'package:provider/provider.dart';
 
 const Duration kApiTimeout = Duration(seconds: 10);
-
 const String kAppointmentTable = 'appointments';
 
 class AppointmentPage extends StatefulWidget {
@@ -20,8 +21,8 @@ class AppointmentPage extends StatefulWidget {
 
 class _AppointmentPageState extends State<AppointmentPage> {
   List<Appointment> appointments = [];
+  String patient_id = '';
 
-  // Function to save the appointments to cache using SQLite
   Future<void> saveAppointmentsToCache(List<Appointment> appointments) async {
     final db = await DatabaseHelper.instance.database;
     await db.delete(kAppointmentTable);
@@ -33,7 +34,6 @@ class _AppointmentPageState extends State<AppointmentPage> {
     await batch.commit();
   }
 
-  // Function to retrieve the appointments from cache using SQLite
   Future<List<Appointment>> getAppointmentsFromCache() async {
     final db = await DatabaseHelper.instance.database;
     final result = await db.query(kAppointmentTable);
@@ -41,15 +41,34 @@ class _AppointmentPageState extends State<AppointmentPage> {
     return result.map((json) => Appointment.fromJson(json)).toList();
   }
 
-  // Function to fetch appointments from the server and update the cache
-  Future<void> fetchAppointments() async {
+  Future<String> getPatientId() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    int? storedPatientID = pref.getInt('patient_id');
+    return storedPatientID.toString();
+  }
+
+  // The other functions remain unchanged.
+
+  Future<void> fetchAppointments(BuildContext context) async {
+    final isConnected = await checkNetConn();
+
+    if (!isConnected) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Cannot fetch appointments. No Internet Connection."),
+        ),
+      );
+      return;
+    }
+
     try {
       final response = await http.post(
         Uri.parse(API_ENDPOINT('appointment/getAppt.php')),
-        body: {'patient_id': '3'},
+        body: {'patient_id': patient_id.toString()},
       ).timeout(kApiTimeout);
 
       if (response.statusCode == 200) {
+        print(response.body);
         final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
         if (jsonData['status'] == 'success') {
           List<Appointment> fetchedAppointments = [];
@@ -57,33 +76,43 @@ class _AppointmentPageState extends State<AppointmentPage> {
             fetchedAppointments.add(Appointment.fromJson(data));
           }
 
-          setState(() {
-            appointments = fetchedAppointments;
-          });
+          if (fetchedAppointments.isNotEmpty) {
+            setState(() {
+              appointments = fetchedAppointments;
+            });
 
-          // Save the fetched appointments to cache
-          await saveAppointmentsToCache(appointments);
+            await saveAppointmentsToCache(appointments);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("No appointments found."),
+              ),
+            );
+          }
         } else {
-          var data = jsonData['data'];
-          print(data);
-          // Handle error when no appointments found
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Error fetching appointments: ${jsonData['data']}"),
+            ),
+          );
         }
       } else {
-        print("API Error - statusCode = ${response.statusCode}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("API Error - statusCode = ${response.statusCode}"),
+          ),
+        );
       }
     } catch (e) {
-      // Handle network or server error
-      print('Error fetching appointments: ${e.toString()}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error fetching appointments: ${e.toString()}"),
+        ),
+      );
     }
   }
 
-  Future<bool> checkNetConn() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    return connectivityResult != ConnectivityResult.none;
-  }
-
-  // New method to handle initialization tasks
-  Future<void> initialize() async {
+  Future<void> initialize(BuildContext context) async {
     final cachedAppointments = await getAppointmentsFromCache();
     if (cachedAppointments.isNotEmpty) {
       setState(() {
@@ -93,10 +122,9 @@ class _AppointmentPageState extends State<AppointmentPage> {
 
     final isConnected = await checkNetConn();
     if (isConnected) {
-      await fetchAppointments();
+      await fetchAppointments(context);
     } else {
-      // Show snackbar saying there is no internet connection. Can't fetch appointments.
-      ScaffoldMessenger.of(context as BuildContext).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("No internet connection. Can't fetch appointments."),
         ),
@@ -107,52 +135,76 @@ class _AppointmentPageState extends State<AppointmentPage> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () {
-      initialize();
+    Future.delayed(Duration.zero, () async {
+      patient_id = await getPatientId();
+      fetchAppointments(context as BuildContext);
+      initialize(context as BuildContext);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final isDarkMode = themeProvider.isDarkMode;
+    final textColor = isDarkMode ? Colors.white : Colors.blueGrey;
+    final containerColor = isDarkMode ? Colors.grey[900] : Colors.grey[200];
+
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: containerColor,
         title: Padding(
           padding: EdgeInsets.symmetric(horizontal: 5),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "List of Your Appointments",
-                style: GoogleFonts.nunito(
-                  fontWeight: FontWeight.bold,
+                "Your Appointments",
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w500,
                   fontSize: 24,
-                  color: Colors.blueGrey,
+                  color: textColor,
                 ),
               ),
-              RefreshIndicator(
-                child: IconButton(
-                  onPressed: fetchAppointments,
-                  color: Colors.blueGrey,
-                  icon: Icon(Icons.refresh_rounded),
-                ),
-                onRefresh: fetchAppointments,
+              IconButton(
+                onPressed: () => fetchAppointments(context),
+                color: textColor,
+                icon: Icon(Icons.refresh_rounded),
               ),
             ],
           ),
         ),
         elevation: 0,
-        toolbarHeight: 150,
       ),
       body: Column(
         children: [
           SizedBox(height: 30),
           Expanded(
-            child: ListView.builder(
-              key: UniqueKey(),
-              itemCount: appointments.length,
-              itemBuilder: (context, index) {
-                return buildAppointmentCard(context, appointments[index]);
-              },
+            child: ListView(
+              children: [
+                _buildAppointmentsSection(
+                  appointments
+                      .where((appointment) => appointment.status == 'Pending')
+                      .toList(),
+                  "Pending Appointments",
+                  textColor,
+                ),
+                _buildAppointmentsSection(
+                  appointments
+                      .where((appointment) => appointment.status == 'Approved')
+                      .toList(),
+                  "Approved Appointments",
+                  textColor,
+                ),
+                _buildAppointmentsSection(
+                  appointments
+                      .where((appointment) => appointment.status == 'Cancelled')
+                      .toList(),
+                  "Cancelled Appointments",
+                  textColor,
+                  showPopupMenu:
+                      false, // Hide the popup menu for cancelled appointments
+                ),
+              ],
             ),
           ),
         ],
@@ -160,13 +212,62 @@ class _AppointmentPageState extends State<AppointmentPage> {
     );
   }
 
-  Widget buildAppointmentCard(BuildContext context, Appointment appointment) {
+  Widget _buildAppointmentsSection(List<Appointment> sectionAppointments,
+      String sectionTitle, Color textColor,
+      {bool showPopupMenu = true}) {
+    if (sectionAppointments.isEmpty) {
+      return SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text(
+            sectionTitle,
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: textColor,
+            ),
+          ),
+        ),
+        SizedBox(height: 8),
+        ListView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: sectionAppointments.length,
+          itemBuilder: (context, index) {
+            return buildAppointmentCard(
+                context, sectionAppointments[index], textColor, showPopupMenu);
+          },
+        ),
+        SizedBox(height: 16),
+      ],
+    );
+  }
+
+  Widget buildAppointmentCard(BuildContext context, Appointment appointment,
+      Color textColor, bool showPopupMenu) {
+    String appointmentTimeToString(String time) {
+      TimeOfDay appointmentTime;
+      try {
+        List<String> timeComponents = time.split(':');
+        int hour = int.parse(timeComponents[0]);
+        int minute = int.parse(timeComponents[1]);
+        appointmentTime = TimeOfDay(hour: hour, minute: minute);
+        return appointmentTime.format(context);
+      } catch (e) {
+        // Handle parsing error or set a default time if needed.
+        return "Invalid Time";
+      }
+    }
+
     Color statusColor;
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    final isDarkMode =
-        Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
-    final textColor = isDarkMode ? Colors.white : Colors.blueGrey;
-    final containerColor = isDarkMode ? Colors.grey[900] : Colors.grey[200];
+    final isDarkMode = themeProvider.isDarkMode;
+    final containerColor = isDarkMode ? Colors.black : Colors.blue[50];
     switch (appointment.status) {
       case 'Pending':
         statusColor = Colors.blue[800]!;
@@ -183,28 +284,39 @@ class _AppointmentPageState extends State<AppointmentPage> {
 
     return Card(
       margin: EdgeInsets.zero,
-      color: containerColor,
-      // shape: RoundedRectangleBorder(
-      //   side: BorderSide(width: 0, color: Colors.blueGrey),
-      // ),
+      color: isDarkMode ? Colors.grey[900] : Colors.white,
       elevation: 0,
       child: ListTile(
-        title: Text(
-          appointment.date + '          ' + appointment.time,
-          style: GoogleFonts.nunito(
-            color: textColor,
-            fontWeight: FontWeight.bold,
-          ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Date: " +
+                  DateFormat('EEE, d-MMM-yy')
+                      .format(DateTime.parse(appointment.date)),
+              style: GoogleFonts.ubuntu(
+                color: textColor,
+              ),
+            ),
+            Text(
+              "Time: " + appointmentTimeToString(appointment.time),
+              style: GoogleFonts.ubuntu(
+                color: textColor,
+              ),
+            ),
+          ],
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Dentist: ${appointment.dentist}',
                 style: GoogleFonts.actor(fontSize: 16, color: textColor)),
+            Text('Patient: ${appointment.patient}',
+                style: GoogleFonts.actor(fontSize: 16, color: textColor)),
             if (appointment.note.isNotEmpty)
               Text(
                 'Notes: ${appointment.note}',
-                style: GoogleFonts.nunito(
+                style: GoogleFonts.ubuntu(
                   color: textColor,
                   fontStyle: FontStyle.italic,
                 ),
@@ -213,21 +325,22 @@ class _AppointmentPageState extends State<AppointmentPage> {
               children: [
                 Text(
                   'Status: ',
-                  style: GoogleFonts.nunito(
+                  style: GoogleFonts.ubuntu(
                     color: textColor,
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 Container(
+                  decoration:
+                      radius(10, statusColor.withOpacity(0.1), statusColor),
                   alignment: Alignment.center,
                   height: 20,
                   width: MediaQuery.of(context).size.width * 0.15,
-                  color: statusColor,
+                  // color: statusColor,
                   child: Text(
                     appointment.status,
-                    style: GoogleFonts.nunito(
-                      color: Colors.grey[100],
-                      fontWeight: FontWeight.bold,
+                    style: GoogleFonts.ubuntu(
+                      color: statusColor,
+                      // fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -242,7 +355,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
               PopupMenuItem(
                 child: Text(
                   'View',
-                  style: GoogleFonts.nunito(
+                  style: GoogleFonts.ubuntu(
                     color: Colors.blueGrey,
                     fontWeight: FontWeight.bold,
                   ),
@@ -252,7 +365,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
               PopupMenuItem(
                 child: Text(
                   'Edit',
-                  style: GoogleFonts.nunito(
+                  style: GoogleFonts.ubuntu(
                     color: Colors.lightBlue[500],
                     fontWeight: FontWeight.bold,
                   ),
@@ -262,7 +375,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
               PopupMenuItem(
                 child: Text(
                   'Cancel',
-                  style: GoogleFonts.nunito(
+                  style: GoogleFonts.ubuntu(
                     color: Colors.red,
                     fontWeight: FontWeight.bold,
                   ),
@@ -289,16 +402,16 @@ class _AppointmentPageState extends State<AppointmentPage> {
 }
 
 class Appointment {
-  late int appointmentId;
-  late String patient;
-  late int patientId;
-  late String dentist;
-  late int employeeId;
-  late String date;
-  late String time;
-  late String note;
-  late String type;
-  late String status;
+  int appointmentId;
+  String patient;
+  int patientId;
+  String dentist;
+  int employeeId;
+  String date;
+  String time;
+  String note;
+  String type;
+  String status;
 
   Appointment({
     required this.appointmentId,
@@ -350,24 +463,22 @@ void cancelAppointment(BuildContext context, Appointment appointment) {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        titleTextStyle: GoogleFonts.nunito(
+        titleTextStyle: GoogleFonts.ubuntu(
           fontWeight: FontWeight.bold,
           color: Colors.blue[800],
           fontSize: 20,
         ),
-        contentTextStyle: GoogleFonts.nunito(color: Colors.blue),
+        contentTextStyle: GoogleFonts.ubuntu(color: Colors.blue),
         elevation: 0,
         scrollable: true,
         title: Text('Confirm Cancellation'),
         content: Text('Are you sure you want to cancel the appointment?'),
         actions: [
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
+            onPressed: () => Navigator.pop(context),
             child: Text(
               'No',
-              style: GoogleFonts.nunito(),
+              style: GoogleFonts.ubuntu(),
             ),
           ),
           TextButton(
@@ -377,7 +488,7 @@ void cancelAppointment(BuildContext context, Appointment appointment) {
             },
             child: Text(
               'Yes',
-              style: GoogleFonts.nunito(color: Colors.red[300]),
+              style: GoogleFonts.ubuntu(color: Colors.red[300]),
             ),
           ),
         ],

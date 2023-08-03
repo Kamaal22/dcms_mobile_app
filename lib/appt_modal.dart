@@ -187,12 +187,12 @@ class _AppointmentModelState extends State<AppointmentModel> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        elevation: 0,
+        elevation: 2,
         onPressed: submitForm,
         highlightElevation: 0.5,
-        backgroundColor: Colors.blue[700],
+        backgroundColor: isDarkMode ? Colors.white : Colors.black,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(150),
         ),
         child: Center(
           child: Transform.rotate(
@@ -201,7 +201,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
               Icons.send_rounded,
               size: 30,
               semanticLabel: "submit appointment",
-              color: Colors.white,
+              color: iconColor,
             ),
           ),
         ),

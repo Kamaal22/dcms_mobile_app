@@ -93,6 +93,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     prefs.setString('gender', data['gender']);
     prefs.setString('phone_number', data['phone_number']);
     prefs.setString('address', data['address']);
+    prefs.setString('username', data['username']);
+    prefs.setString('password', data['password']);
   }
 
   void navigateToIndexPage() {
