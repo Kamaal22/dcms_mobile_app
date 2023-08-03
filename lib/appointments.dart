@@ -5,9 +5,10 @@ import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'assets/component.dart';
+import 'package:dcms_mobile_app/themes/darktheme.dart';
+import 'package:provider/provider.dart';
 
-const String kApiUrl =
-    'http://192.168.234.163/DCMS/app/mobile/appointment/getAppt.php';
 const Duration kApiTimeout = Duration(seconds: 10);
 
 const String kAppointmentTable = 'appointments';
@@ -19,14 +20,6 @@ class AppointmentPage extends StatefulWidget {
 
 class _AppointmentPageState extends State<AppointmentPage> {
   List<Appointment> appointments = [];
-
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(Duration.zero, () {
-      initialize();
-    });
-  }
 
   // Function to save the appointments to cache using SQLite
   Future<void> saveAppointmentsToCache(List<Appointment> appointments) async {
@@ -52,7 +45,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
   Future<void> fetchAppointments() async {
     try {
       final response = await http.post(
-        Uri.parse(kApiUrl),
+        Uri.parse(API_ENDPOINT('appointment/getAppt.php')),
         body: {'patient_id': '3'},
       ).timeout(kApiTimeout);
 
@@ -112,6 +105,14 @@ class _AppointmentPageState extends State<AppointmentPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () {
+      initialize();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -161,7 +162,11 @@ class _AppointmentPageState extends State<AppointmentPage> {
 
   Widget buildAppointmentCard(BuildContext context, Appointment appointment) {
     Color statusColor;
-
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final isDarkMode =
+        Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+    final textColor = isDarkMode ? Colors.white : Colors.blueGrey;
+    final containerColor = isDarkMode ? Colors.grey[900] : Colors.grey[200];
     switch (appointment.status) {
       case 'Pending':
         statusColor = Colors.blue[800]!;
@@ -173,33 +178,34 @@ class _AppointmentPageState extends State<AppointmentPage> {
         statusColor = Colors.red[800]!;
         break;
       default:
-        statusColor = Colors.grey[800]!;
+        statusColor = textColor;
     }
 
     return Card(
       margin: EdgeInsets.zero,
-      // color: Colors.blueGrey,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(width: 0, color: Colors.blueGrey),
-      ),
+      color: containerColor,
+      // shape: RoundedRectangleBorder(
+      //   side: BorderSide(width: 0, color: Colors.blueGrey),
+      // ),
       elevation: 0,
       child: ListTile(
         title: Text(
           appointment.date + '          ' + appointment.time,
           style: GoogleFonts.nunito(
-            color: Colors.grey[800],
+            color: textColor,
             fontWeight: FontWeight.bold,
           ),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Dentist: ${appointment.dentist}'),
+            Text('Dentist: ${appointment.dentist}',
+                style: GoogleFonts.actor(fontSize: 16, color: textColor)),
             if (appointment.note.isNotEmpty)
               Text(
                 'Notes: ${appointment.note}',
                 style: GoogleFonts.nunito(
-                  color: Colors.grey[800],
+                  color: textColor,
                   fontStyle: FontStyle.italic,
                 ),
               ),
@@ -208,7 +214,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
                 Text(
                   'Status: ',
                   style: GoogleFonts.nunito(
-                    color: Colors.grey[800],
+                    color: textColor,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

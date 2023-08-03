@@ -1,15 +1,20 @@
+import 'package:dcms_mobile_app/settings/about.dart';
+import 'package:dcms_mobile_app/settings/change_pass.dart';
+import 'package:dcms_mobile_app/settings/feedback.dart';
+import 'package:dcms_mobile_app/settings/personal_info.dart';
+import 'package:dcms_mobile_app/settings/recover_pass.dart';
 import 'package:dcms_mobile_app/themes/darktheme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 
-class DentalRecord extends StatefulWidget {
+class SettingsPage extends StatefulWidget {
   @override
-  State<DentalRecord> createState() => _DentalRecordState();
+  State<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _DentalRecordState extends State<DentalRecord> {
+class _SettingsPageState extends State<SettingsPage> {
   bool _isDarkMode = false;
 
   @override
@@ -21,10 +26,15 @@ class _DentalRecordState extends State<DentalRecord> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final isDarkMode =
+        Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+    final textColor = isDarkMode ? Colors.black : Colors.white;
+    final iconColor = isDarkMode ? Colors.black : Colors.white;
+    final containerColor = isDarkMode ? Colors.white : Colors.black;
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue[300],
+        backgroundColor: Colors.blue[400],
         title: Text(
           'Settings',
           style: GoogleFonts.poppins(),
@@ -35,7 +45,7 @@ class _DentalRecordState extends State<DentalRecord> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 20),
+            // SizedBox(height: 20),
 
             // Profile Settings Section
             _buildSettingsSection(
@@ -44,12 +54,12 @@ class _DentalRecordState extends State<DentalRecord> {
               'Profile Settings',
               [
                 _buildSettingsItem('View and Update Personal Info', () {
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => PersonalInfoPage(),
-                  //   ),
-                  // );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProfileSettingsPage(),
+                    ),
+                  );
                 }),
                 _buildSettingsItem('Change Profile Picture', () {
                   // Implement change profile picture logic
@@ -64,26 +74,40 @@ class _DentalRecordState extends State<DentalRecord> {
               'Password Management',
               [
                 _buildSettingsItem('Change Password', () {
-                  // Implement password change logic
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChangePasswordPage(),
+                    ),
+                  );
                 }),
                 _buildSettingsItem('Password Recovery', () {
                   // Implement password recovery logic
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PasswordRecoveryPage(),
+                    ),
+                  );
                 }),
               ],
             ),
             Column(
-              // crossAxisAlignment: CrossAxisAlignment.,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                    color: Colors.grey[200],
-                    child: SwitchListTile(
-                      title: Row(
-                        children: [
-                          Icon(Icons.dark_mode_rounded),
-                          Text("Dark Mode")
-                        ],
-                      ),
+                  color: containerColor,
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.dark_mode_rounded,
+                      color: iconColor,
+                    ),
+                    title: Text(
+                      "Dark Mode",
+                      style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600, color: textColor),
+                    ),
+                    trailing: Switch(
                       value: _isDarkMode,
                       onChanged: (value) {
                         setState(() {
@@ -91,9 +115,9 @@ class _DentalRecordState extends State<DentalRecord> {
                         });
                         themeProvider.toggleTheme();
                       },
-                    )),
-                // Divider(),
-
+                    ),
+                  ),
+                ),
                 SizedBox(height: 20),
               ],
             ),
@@ -105,6 +129,12 @@ class _DentalRecordState extends State<DentalRecord> {
               [
                 _buildSettingsItem('Provide App Feedback', () {
                   // Implement app feedback form or email support logic
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FeedbackPage(),
+                    ),
+                  );
                 }),
               ],
             ),
@@ -129,6 +159,12 @@ class _DentalRecordState extends State<DentalRecord> {
               [
                 _buildSettingsItem('App Information', () {
                   // Implement app information display logic
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AboutPage(),
+                    ),
+                  );
                 }),
                 _buildSettingsItem('Third-Party Libraries', () {
                   // Implement third-party libraries acknowledgment logic
@@ -147,16 +183,25 @@ class _DentalRecordState extends State<DentalRecord> {
     String title,
     List<Widget> settingsItems,
   ) {
+    final isDarkMode =
+        Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+    final textColor = isDarkMode ? Colors.white : Colors.blueGrey;
+    final iconColor = isDarkMode ? Colors.white : Colors.blueGrey;
+    final containerColor = isDarkMode ? Colors.grey[900] : Colors.grey[200];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          color: Colors.grey[200],
+          color: containerColor,
           child: ListTile(
-            leading: Icon(icon),
+            leading: Icon(icon, color: iconColor),
             title: Text(
               title,
-              style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                color: textColor,
+              ),
             ),
           ),
         ),
@@ -169,6 +214,11 @@ class _DentalRecordState extends State<DentalRecord> {
 
   Widget _buildSettingsItem(String text, VoidCallback onPressed,
       {Color? textColor}) {
+    final isDarkMode =
+        Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+    final textColor = isDarkMode ? Colors.white : Colors.blueGrey;
+    final iconColor = isDarkMode ? Colors.white : Colors.blueGrey;
+    final containerColor = isDarkMode ? Colors.grey[900] : Colors.grey[200];
     return InkWell(
       onTap: onPressed,
       child: Container(
@@ -184,7 +234,10 @@ class _DentalRecordState extends State<DentalRecord> {
                 ),
               ),
             ),
-            Icon(Icons.arrow_forward_ios_rounded),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: iconColor,
+            ),
           ],
         ),
       ),
@@ -218,25 +271,3 @@ class _DentalRecordState extends State<DentalRecord> {
     );
   }
 }
-
-// class PersonalInfoPage extends StatefulWidget {
-//   @override
-//   _PersonalInfoPageState createState() => _PersonalInfoPageState();
-// }
-
-// class _PersonalInfoPageState extends State<PersonalInfoPage> {
-//   // Rest of the PersonalInfoPage code remains unchanged
-//   // ...
-//   // ...
-// }
-
-// class AboutAppPage extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     // Rest of the AboutAppPage code remains unchanged
-//     // ...
-//     // ...
-//   }
-// }
-
-// Other classes (Patient, ThemeProvider, etc.) remain the same.

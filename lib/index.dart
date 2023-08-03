@@ -7,8 +7,7 @@ import 'login/login.dart';
 import 'home.dart';
 import 'appointments.dart';
 import 'appt_modal.dart';
-import 'dental_record.dart';
-import 'profile.dart';
+import 'settings.dart';
 
 class IndexPage extends StatefulWidget {
   const IndexPage({Key? key}) : super(key: key);
@@ -22,10 +21,9 @@ class _IndexPageState extends State<IndexPage> {
 
   final List<Widget> _pages = [
     HomePage(),
-    AppointmentPage(),
     AppointmentModel(),
-    DentalRecord(),
-    ProfilePage(),
+    AppointmentPage(),
+    SettingsPage()
   ];
 
   Future<void> checkLoginStatus() async {
@@ -35,7 +33,7 @@ class _IndexPageState extends State<IndexPage> {
       final username = prefs.getString('username');
       final password = prefs.getString('password');
 
-      if (userId != null && username != null && password != null) {
+      if (username != null && password != null) {
         // Data is available in shared preferences
         print('User ID: $userId');
         print('Username: $username');
@@ -97,9 +95,9 @@ class _IndexPageState extends State<IndexPage> {
                       height: 40,
                       width: 40,
                       decoration: ShapeDecoration(
-                        color: Colors.blue[50],
+                        color: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderRadius: BorderRadius.all(Radius.circular(30)),
                         ),
                       ),
                       child: Center(
@@ -117,41 +115,15 @@ class _IndexPageState extends State<IndexPage> {
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              tooltip: "Appointments",
+              tooltip: "Appointment",
               icon: _currentIndex == 1
                   ? Ink(
                       height: 40,
                       width: 40,
                       decoration: ShapeDecoration(
-                        color: Colors.blue[50],
+                        color: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
-                      ),
-                      child: Center(
-                        child: FaIcon(
-                          FontAwesomeIcons.calendar,
-                          size: 22,
-                          color: Colors.blue[800],
-                        ),
-                      ),
-                    )
-                  : FaIcon(
-                      FontAwesomeIcons.calendar,
-                      size: 22,
-                    ),
-              label: 'Appointments',
-            ),
-            BottomNavigationBarItem(
-              tooltip: "Appointment",
-              icon: _currentIndex == 2
-                  ? Ink(
-                      height: 40,
-                      width: 40,
-                      decoration: ShapeDecoration(
-                        color: Colors.blue[50],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderRadius: BorderRadius.all(Radius.circular(30)),
                         ),
                       ),
                       child: Center(
@@ -169,56 +141,56 @@ class _IndexPageState extends State<IndexPage> {
               label: 'Add Appointment',
             ),
             BottomNavigationBarItem(
-              tooltip: "Medical Record",
+              tooltip: "Appointments",
+              icon: _currentIndex == 2
+                  ? Ink(
+                      height: 40,
+                      width: 40,
+                      decoration: ShapeDecoration(
+                        color: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(30)),
+                        ),
+                      ),
+                      child: Center(
+                        child: FaIcon(
+                          FontAwesomeIcons.calendar,
+                          size: 22,
+                          color: Colors.blue[800],
+                        ),
+                      ),
+                    )
+                  : FaIcon(
+                      FontAwesomeIcons.calendar,
+                      size: 22,
+                    ),
+              label: 'Appointments',
+            ),
+            BottomNavigationBarItem(
+              tooltip: "Settings",
               icon: _currentIndex == 3
                   ? Ink(
                       height: 40,
                       width: 40,
                       decoration: ShapeDecoration(
-                        color: Colors.blue[50],
+                        color: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderRadius: BorderRadius.all(Radius.circular(30)),
                         ),
                       ),
                       child: Center(
                         child: FaIcon(
-                          FontAwesomeIcons.fileMedical,
+                          FontAwesomeIcons.gear,
                           size: 22,
                           color: Colors.blue[800],
                         ),
                       ),
                     )
                   : FaIcon(
-                      FontAwesomeIcons.fileMedical,
+                      FontAwesomeIcons.gear,
                       size: 22,
                     ),
-              label: 'Medical records',
-            ),
-            BottomNavigationBarItem(
-              tooltip: "Profile",
-              icon: _currentIndex == 4
-                  ? Ink(
-                      height: 40,
-                      width: 40,
-                      decoration: ShapeDecoration(
-                        color: Colors.blue[50],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
-                      ),
-                      child: Center(
-                        child: FaIcon(
-                          FontAwesomeIcons.circleUser,
-                          size: 22,
-                          color: Colors.blue[800],
-                        ),
-                      ),
-                    )
-                  : FaIcon(
-                      FontAwesomeIcons.circleUser,
-                      size: 22,
-                    ),
-              label: 'Profile',
+              label: 'Settings',
             ),
           ],
         ),

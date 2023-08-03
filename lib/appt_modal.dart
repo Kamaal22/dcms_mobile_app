@@ -1,22 +1,10 @@
+import 'package:dcms_mobile_app/themes/darktheme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-// import 'appt_functions.dart';
-// import 'assets/colors.dart';
-import 'assets/component.dart';
 import 'package:http/http.dart' as http;
-
-Color kAppBarTitleColor = Colors.blueGrey[900]!;
-Color kRefreshIndicatorColor = Colors.blueGrey;
-Color kLabelTextColor = Colors.blueGrey;
-Color kInputBorderRadiusColor = Colors.blueGrey;
-Color kCalendarIconColor = Colors.blue[800]!;
-Color kTimePickerIconColor = Colors.blue[800]!;
-Color kSubmitButtonColor = Colors.blue[900]!;
-bool maleSelected = false;
-bool femaleSelected = false;
+import 'package:provider/provider.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class AppointmentModel extends StatefulWidget {
   @override
@@ -24,20 +12,28 @@ class AppointmentModel extends StatefulWidget {
 }
 
 class _AppointmentModelState extends State<AppointmentModel> {
+  CalendarFormat _calendarFormat = CalendarFormat.month;
+  DateTime? _selectedDay;
   final _formKey = GlobalKey<FormState>();
-
-  // Form fields
   DateTime? date;
   TimeOfDay? time;
   TextEditingController note = TextEditingController();
+  bool _isDarkMode = false;
 
   @override
   void initState() {
     super.initState();
+    _isDarkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
   }
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final isDarkMode =
+        Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+    final textColor = isDarkMode ? Colors.black : Colors.black;
+    final iconColor = isDarkMode ? Colors.black : Colors.white;
+    final containerColor = isDarkMode ? Colors.white : Colors.white;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -50,10 +46,9 @@ class _AppointmentModelState extends State<AppointmentModel> {
         ),
         elevation: 0,
         centerTitle: true,
-        toolbarHeight: 200,
       ),
       body: Padding(
-        padding: EdgeInsets.only(top: 100, left: 10, right: 10),
+        padding: EdgeInsets.symmetric(horizontal: 10),
         child: Form(
           key: _formKey,
           child: ListView(
@@ -73,67 +68,60 @@ class _AppointmentModelState extends State<AppointmentModel> {
                 ],
               ),
               SizedBox(height: 10),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Date',
-                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                  ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter the appointment date';
-                    }
-                    return null;
-                  },
-                  onTap: () {
-                    showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime(2030),
-                    ).then((selectedDate) {
-                      if (selectedDate != null) {
-                        setState(() {
-                          date = selectedDate;
-                        });
-                      }
-                    });
-                  },
-                  readOnly: true,
-                  controller: TextEditingController(
-                    text: date != null
-                        ? DateFormat('yyyy-MM-dd').format(date!)
-                        : '',
-                  ),
-                ),
-                trailing: Ink(
-                  color: Colors.blue[50],
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.calendar_today_rounded,
+              Card(
+                // elevation: 10,
+                // tileColor: Colors.orange,
+                // contentPadding: EdgeInsets.zero,
+                child: Container(
+                  color: isDarkMode ? Colors.grey[100] : Colors.white,
+                  child: TableCalendar(
+                    firstDay: DateTime.now(),
+                    lastDay: DateTime(2030),
+                    focusedDay: DateTime.now(),
+                    selectedDayPredicate: (day) {
+                      return isSameDay(_selectedDay, day);
+                    },
+                    onDaySelected: (selectedDay, focusedDay) {
+                      setState(() {
+                        _selectedDay = selectedDay;
+                      });
+                    },
+                    calendarFormat: _calendarFormat,
+                    onFormatChanged: (format) {
+                      setState(() {
+                        _calendarFormat = format;
+                      });
+                    },
+                    headerStyle: HeaderStyle(
+                        decoration: BoxDecoration(
+                          color: containerColor,
+                        ),
+                        titleTextStyle: GoogleFonts.poppins(color: textColor),
+                        leftChevronIcon: Icon(
+                          Icons.chevron_left_rounded,
+                          color: textColor,
+                        ),
+                        rightChevronIcon: Icon(
+                          Icons.chevron_right_rounded,
+                          color: textColor,
+                        ),
+                        formatButtonTextStyle: GoogleFonts.poppins(
+                            color: textColor, backgroundColor: containerColor)),
+                    calendarStyle: CalendarStyle(
+                      cellPadding: EdgeInsets.all(0),
+                      defaultTextStyle: GoogleFonts.poppins(color: textColor),
                     ),
-                    color: kCalendarIconColor,
-                    iconSize: 30,
                   ),
                 ),
               ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                title: TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Time',
-                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                  ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter the appointment time';
-                    }
-                    return null;
-                  },
+                title: InkWell(
                   onTap: () {
-                    showCustomTimePicker(context).then((selectedTime) {
+                    showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    ).then((selectedTime) {
                       if (selectedTime != null) {
                         setState(() {
                           time = selectedTime;
@@ -141,16 +129,33 @@ class _AppointmentModelState extends State<AppointmentModel> {
                       }
                     });
                   },
-                  readOnly: true,
-                  controller: TextEditingController(
-                    text: time != null ? time!.format(context) : '',
+                  child: IgnorePointer(
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Time',
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                      ),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter the appointment time';
+                        }
+                        return null;
+                      },
+                      readOnly: true,
+                      controller: TextEditingController(
+                        text: time != null ? time!.format(context) : '',
+                      ),
+                    ),
                   ),
                 ),
                 trailing: Ink(
                   color: Colors.blue[50],
                   child: IconButton(
                     onPressed: () {
-                      showCustomTimePicker(context).then((selectedTime) {
+                      showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.now(),
+                      ).then((selectedTime) {
                         if (selectedTime != null) {
                           setState(() {
                             time = selectedTime;
@@ -161,7 +166,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
                     icon: Icon(
                       Icons.access_time_rounded,
                     ),
-                    color: kTimePickerIconColor,
+                    color: Colors.blue[800],
                     iconSize: 30,
                   ),
                 ),
@@ -222,7 +227,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
       // Send the appointment data to the server
       try {
         var response = await http.post(
-          Uri.parse('http://192.168.234.163/appt/submit_appt.php'),
+          Uri.parse('http://192.168.1.202/appt/submit_appt.php'),
           body: appointment,
         );
 
@@ -234,8 +239,8 @@ class _AppointmentModelState extends State<AppointmentModel> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  style: GoogleFonts.nunito(),
                   'Appointment created successfully',
+                  style: GoogleFonts.nunito(),
                 ),
                 backgroundColor: Colors.green,
               ),
@@ -244,8 +249,8 @@ class _AppointmentModelState extends State<AppointmentModel> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  style: GoogleFonts.nunito(),
                   'Failed to create appointment!',
+                  style: GoogleFonts.nunito(),
                 ),
                 backgroundColor: Colors.red,
               ),
@@ -255,8 +260,8 @@ class _AppointmentModelState extends State<AppointmentModel> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                style: GoogleFonts.nunito(),
                 'Failed to create appointment?',
+                style: GoogleFonts.nunito(),
               ),
               backgroundColor: Colors.red,
             ),
@@ -274,13 +279,5 @@ class _AppointmentModelState extends State<AppointmentModel> {
         );
       }
     }
-  }
-
-  Future<String> getPatientIdFromSharedPreferences() async {
-    // Replace this with your actual code to retrieve the patient ID from Shared Preferences
-    // For example:
-    final prefs = await SharedPreferences.getInstance();
-    final patientId = prefs.getString('user_id');
-    return patientId.toString();
   }
 }

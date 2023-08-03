@@ -52,6 +52,8 @@ dependencies:
   sliver_app_bar_builder: ^1.0.5
   provider: ^6.0.5
   path_provider: ^2.0.15
+  url_launcher: ^6.1.12
+  table_calendar: ^3.0.9
   
 dev_dependencies:
   flutter_test:

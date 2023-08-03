@@ -1,8 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:dcms_mobile_app/assets/colors.dart';
+import 'package:dcms_mobile_app/assets/component.dart';
+import 'package:dcms_mobile_app/themes/darktheme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../index.dart';
@@ -17,8 +21,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  late String ipAddress;
-  final String apiUrl = '/DCMS/app/mobile/login/login.php';
   bool isLoading = false;
 
   Future<void> login() async {
@@ -26,7 +28,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       isLoading = true;
     });
 
-    final response = await http.post(Uri.http(ipAddress, apiUrl), body: {
+    final response =
+        await http.post(Uri.parse(API_ENDPOINT('login/login.php')), body: {
       'username': usernameController.text,
       'password': passwordController.text,
     });
@@ -108,16 +111,25 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
+  bool _isDarkMode = false;
+
   @override
   void initState() {
     super.initState();
-    ipAddress = '192.168.234.163'; // Set the initial IP address here
+    _isDarkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
   }
 
   @override
   Widget build(BuildContext context) {
+    // final themeProvider = Provider.of<ThemeProvider>(context, listen: false)
+    final isDarkMode =
+        Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+    final textColor = isDarkMode ? Colors.black : Colors.white;
+    final containerColor = isDarkMode ? Colors.black : Colors.white;
+    final elevatedButtonColor = isDarkMode ? Colors.white : Colors.black;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: containerColor,
       body: SafeArea(
         child: Center(
           child: Column(
@@ -137,15 +149,16 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                     Container(
                       padding: EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4),
-                        color: Colors.lightBlueAccent[200],
+                        // borderRadius: BorderRadius.circular(4),
+                        border: Border.all(width: 1, color: Colors.white),
+                        // color: Colors.lightBlueAccent[200],
                       ),
                       child: Text(
-                        "Denta",
-                        style: GoogleFonts.cinzel(
+                        "Emarites",
+                        style: GoogleFonts.poppins(
                           fontSize: 35,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          // color: Colors.blue[300],
                         ),
                       ),
                     ),
@@ -194,6 +207,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     elevation: 0,
+                    backgroundColor: elevatedButtonColor,
                   ),
                   onPressed: isLoading ? null : login,
                   child: Center(
@@ -207,7 +221,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                             "Sign In",
                             style: GoogleFonts.poppins(
                               fontSize: 28,
-                              color: Colors.white,
+                              color: textColor,
                               // fontWeight: FontWeight.bold,
                             ),
                           ),

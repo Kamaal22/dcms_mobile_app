@@ -338,3 +338,7 @@ Future<TimeOfDay?> showCustomTimePicker(BuildContext context) async {
 
   return selectedTime;
 }
+
+API_ENDPOINT(String path) {
+  return "http://192.168.1.202/DCMS/app/mobile/" + path;
+}
