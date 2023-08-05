@@ -28,44 +28,44 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       isLoading = true;
     });
 
-    final response =
-        await http.post(Uri.parse(API_ENDPOINT('login/login.php')), body: {
-      'username': usernameController.text,
-      'password': passwordController.text,
-    });
+    try {
+      final response = await http.post(
+          Uri.parse(API_ENDPOINT('login/login.php')),
+          body: {
+            'username': usernameController.text,
+            'password': passwordController.text,
+          }).timeout(Duration(
+          seconds: 10)); // Set a timeout of 10 seconds for the login request
 
-    if (response.statusCode == 200) {
-      final jsonData = json.decode(response.body);
-      final status = jsonData['status'];
-      final data = jsonData['data'];
-      print(jsonData);
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        final status = jsonData['status'];
+        final data = jsonData['data'];
+        print(jsonData);
 
-      if (status == 'success' && data != null) {
-        // Save the response data in SharedPreferences
-        await saveResponseInSharedPreferences(data);
+        if (status == 'success' && data != null) {
+          // Save the response data in SharedPreferences
+          await saveResponseInSharedPreferences(data);
 
-        // Show the success animation
-        await showSuccessAnimation();
+          // Show the success animation
+          await showSuccessAnimation();
 
-        navigateToIndexPage();
+          navigateToIndexPage();
+        } else {
+          showSnackBar('Invalid username or password.');
+        }
       } else {
-        showSnackBar('Invalid username or password.');
-
-        // Retry login after 3 seconds
-        Timer(Duration(seconds: 1), () {
-          setState(() {
-            isLoading = false;
-          });
-        });
+        showSnackBar('An error occurred during login.');
       }
-    } else {
-      showSnackBar('An error occurred during login.');
-
-      // Retry login after 3 seconds
-      Timer(Duration(seconds: 1), () {
-        setState(() {
-          isLoading = false;
-        });
+    } on TimeoutException {
+      showSnackBar('Request timeout. Please try again later.');
+    } catch (e) {
+      print(e.toString());
+      showSnackBar('An unexpected error occurred. Please try again later.' +
+          e.toString());
+    } finally {
+      setState(() {
+        isLoading = false;
       });
     }
   }

@@ -27,154 +27,210 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    final isDarkMode =
-        Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
-    final textColor = isDarkMode ? Colors.black : Colors.white;
-    final iconColor = isDarkMode ? Colors.black : Colors.white;
-    final containerColor = isDarkMode ? Colors.white : Colors.black;
+    final isDarkMode = themeProvider.isDarkMode;
+
+    // Define colors based on the theme mode
+    final iHeadColor = isDarkMode ? Colors.white : Colors.blue[800];
+    final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.grey[100];
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue[400],
+        backgroundColor: backgroundColor,
         title: Text(
           'Settings',
-          style: GoogleFonts.poppins(),
+          style: GoogleFonts.poppins(color: iHeadColor),
         ),
         elevation: 0,
       ),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // SizedBox(height: 20),
-
-            // Profile Settings Section
-            _buildSettingsSection(
-              context,
-              Icons.account_circle_rounded,
-              'Profile Settings',
-              [
-                _buildSettingsItem('View and Update Personal Info', () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ProfileSettingsPage(),
-                    ),
-                  );
-                }),
-                _buildSettingsItem('Change Profile Picture', () {
-                  // Implement change profile picture logic
-                }),
-              ],
-            ),
-
-            // Password Management Section
-            _buildSettingsSection(
-              context,
-              Icons.lock_rounded,
-              'Password Management',
-              [
-                _buildSettingsItem('Change Password', () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChangePasswordPage(),
-                    ),
-                  );
-                }),
-                _buildSettingsItem('Password Recovery', () {
-                  // Implement password recovery logic
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PasswordRecoveryPage(),
-                    ),
-                  );
-                }),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  color: isDarkMode ? Colors.grey[900] : Colors.grey[200],
-                  child: ListTile(
-                    leading: Icon(
-                      Icons.dark_mode_rounded,
-                      color: isDarkMode ? Colors.white : Colors.blueGrey,
-                    ),
-                    title: Text(
-                      "Dark Mode",
-                      style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w600,
-                          color: isDarkMode ? Colors.white : Colors.blueGrey),
-                    ),
-                    trailing: CupertinoSwitch(
-                      value: _isDarkMode,
-                      trackColor: Colors.grey[400],
-                      onChanged: (value) {
-                        setState(() {
-                          _isDarkMode = value;
-                        });
-                        themeProvider.toggleTheme();
-                      },
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSettingsSection(
+                context,
+                Icons.account_circle_rounded,
+                'Profile Settings',
+                [
+                  _buildSettingsItem('View and Update Personal Info', () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProfileSettingsPage(),
+                      ),
+                    );
+                  }),
+                  _buildSettingsItem('Change Profile Picture', () {
+                    // Implement change profile picture logic
+                  }),
+                ],
+                iHeadColor!,
+                backgroundColor!,
+              ),
+              _buildSettingsSection(
+                context,
+                Icons.lock_rounded,
+                'Password Management',
+                [
+                  _buildSettingsItem('Change Password', () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChangePasswordPage(),
+                      ),
+                    );
+                  }),
+                  _buildSettingsItem('Password Recovery', () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PasswordRecoveryPage(),
+                      ),
+                    );
+                  }),
+                ],
+                iHeadColor,
+                backgroundColor,
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                        color: backgroundColor,
+                        borderRadius: BorderRadius.all(Radius.circular(10))),
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.dark_mode_rounded,
+                        color: iHeadColor,
+                      ),
+                      title: Text(
+                        "Dark Mode",
+                        style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600, color: iHeadColor),
+                      ),
+                      trailing: CupertinoSwitch(
+                        value: _isDarkMode,
+                        trackColor: Colors.grey[400],
+                        onChanged: (value) {
+                          setState(() {
+                            _isDarkMode = value;
+                          });
+                          themeProvider.toggleTheme();
+                        },
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(height: 20),
-              ],
-            ),
-            // App Feedback Section
-            _buildSettingsSection(
-              context,
-              Icons.feedback_rounded,
-              'App Feedback',
-              [
-                _buildSettingsItem('Provide App Feedback', () {
-                  // Implement app feedback form or email support logic
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => FeedbackPage(),
+                  SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Handle App Feedback button press
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FeedbackPage(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: Size(MediaQuery.of(context).size.width, 50),
+                      elevation: 0,
+                      backgroundColor: backgroundColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                  );
-                }),
-              ],
-            ),
-
-            // Logout Section
-            _buildSettingsSection(
-              context,
-              Icons.logout_rounded,
-              'Logout',
-              [
-                _buildSettingsItem('Logout', () {
-                  _showLogoutConfirmationDialog(context);
-                }, textColor: Colors.red),
-              ],
-            ),
-
-            // About Page Section
-            _buildSettingsSection(
-              context,
-              Icons.info_rounded,
-              'About Page',
-              [
-                _buildSettingsItem('App Information', () {
-                  // Implement app information display logic
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AboutPage(),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.feedback_rounded,
+                          color: iHeadColor,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          'App Feedback',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            color: iHeadColor,
+                          ),
+                        ),
+                      ],
                     ),
-                  );
-                }),
-                _buildSettingsItem('Third-Party Libraries', () {
-                  // Implement third-party libraries acknowledgment logic
-                }),
-              ],
-            ),
-          ],
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Handle About button press
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AboutPage(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: Size(MediaQuery.of(context).size.width, 50),
+                      elevation: 0,
+                      backgroundColor: backgroundColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info_rounded,
+                          color: iHeadColor,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          'About',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            color: iHeadColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Handle Logout button press
+                      _showLogoutConfirmationDialog(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: Size(MediaQuery.of(context).size.width, 50),
+                      elevation: 0,
+                      backgroundColor: backgroundColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.logout_rounded,
+                          color: Colors.red,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          'Logout',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 200),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -185,46 +241,46 @@ class _SettingsPageState extends State<SettingsPage> {
     IconData icon,
     String title,
     List<Widget> settingsItems,
+    Color iHeadColor,
+    Color backgroundColor,
   ) {
-    final isDarkMode =
-        Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
-    final textColor = isDarkMode ? Colors.white : Colors.blueGrey;
-    final iconColor = isDarkMode ? Colors.white : Colors.blueGrey;
-    final containerColor = isDarkMode ? Colors.grey[900] : Colors.grey[200];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          color: containerColor,
-          child: ListTile(
-            leading: Icon(icon, color: iconColor),
-            title: Text(
-              title,
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w600,
-                color: textColor,
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10), color: backgroundColor),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+                color: backgroundColor,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10))),
+            child: ListTile(
+              leading: Icon(icon, color: iHeadColor),
+              title: Text(
+                title,
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  color: iHeadColor,
+                ),
               ),
             ),
           ),
-        ),
-        // Divider(),
-        ...settingsItems,
-        SizedBox(height: 20),
-      ],
+          ...settingsItems,
+          // SizedBox(height: 20),
+        ],
+      ),
     );
   }
 
   Widget _buildSettingsItem(String text, VoidCallback onPressed,
-      {Color? textColor}) {
-    final isDarkMode =
-        Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
-    final textColor = isDarkMode ? Colors.white : Colors.blueGrey;
-    final iconColor = isDarkMode ? Colors.white : Colors.blueGrey;
-    final containerColor = isDarkMode ? Colors.grey[900] : Colors.grey[200];
+      {Color? iHeadColor}) {
     return InkWell(
       onTap: onPressed,
       child: Container(
+        margin: EdgeInsets.zero,
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         child: Row(
           children: [
@@ -233,13 +289,13 @@ class _SettingsPageState extends State<SettingsPage> {
                 text,
                 style: GoogleFonts.syne(
                   fontSize: 16,
-                  color: textColor,
+                  color: iHeadColor,
                 ),
               ),
             ),
             Icon(
               Icons.arrow_forward_ios_rounded,
-              color: iconColor,
+              color: iHeadColor,
             ),
           ],
         ),
@@ -251,54 +307,29 @@ class _SettingsPageState extends State<SettingsPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return CupertinoAlertDialog(
           title: Text(
-            'Confirmation',
-            style: GoogleFonts.poppins(fontSize: 22),
+            'Are you sure you want to logout?',
+            style: GoogleFonts.poppins(),
           ),
-          content: Text('Are you sure you want to logout?',
-              style: GoogleFonts.syne()),
           actions: [
             TextButton(
-              style: ButtonStyle(
-                padding: MaterialStateProperty.all<EdgeInsets>(
-                  EdgeInsets.symmetric(horizontal: 0.2, vertical: 0.1),
-                ),
-                backgroundColor:
-                    MaterialStateProperty.all<Color>(Colors.blueGrey),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
               onPressed: () {
                 Navigator.pop(context);
               },
               child: Text(
                 'No',
-                style: GoogleFonts.syne(fontSize: 20, color: Colors.white),
+                style: GoogleFonts.syne(fontSize: 20, color: Colors.blue),
               ),
             ),
             TextButton(
-              style: ButtonStyle(
-                padding: MaterialStateProperty.all<EdgeInsets>(
-                  EdgeInsets.symmetric(horizontal: 0.2, vertical: 0.1),
-                ),
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
               onPressed: () {
                 Navigator.pop(context);
                 // Perform logout logic here
               },
               child: Text(
                 'Yes',
-                style: GoogleFonts.syne(fontSize: 20, color: Colors.white),
+                style: GoogleFonts.syne(fontSize: 20, color: Colors.red),
               ),
             ),
           ],

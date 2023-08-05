@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_fonts/google_fonts.dart';
@@ -132,13 +133,18 @@ class _AppointmentPageState extends State<AppointmentPage> {
     }
   }
 
+  bool _isDarkMode = false;
   @override
   void initState() {
     super.initState();
+
     Future.delayed(Duration.zero, () async {
       patient_id = await getPatientId();
       fetchAppointments(context as BuildContext);
       initialize(context as BuildContext);
+      _isDarkMode =
+          Provider.of<ThemeProvider>(context as BuildContext, listen: false)
+              .isDarkMode;
     });
   }
 
@@ -146,12 +152,14 @@ class _AppointmentPageState extends State<AppointmentPage> {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final isDarkMode = themeProvider.isDarkMode;
-    final textColor = isDarkMode ? Colors.white : Colors.blueGrey;
-    final containerColor = isDarkMode ? Colors.grey[900] : Colors.grey[200];
+
+    final iHeadColor = isDarkMode ? Colors.white : Colors.blue[800];
+    final textColor = isDarkMode ? Colors.white : Colors.grey[800];
+    final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.grey[100];
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: containerColor,
+        backgroundColor: backgroundColor,
         title: Padding(
           padding: EdgeInsets.symmetric(horizontal: 5),
           child: Row(
@@ -182,28 +190,48 @@ class _AppointmentPageState extends State<AppointmentPage> {
             child: ListView(
               children: [
                 _buildAppointmentsSection(
+                  context,
                   appointments
                       .where((appointment) => appointment.status == 'Pending')
                       .toList(),
+                  Icons.pending_rounded,
                   "Pending Appointments",
-                  textColor,
+                  iHeadColor!,
                 ),
                 _buildAppointmentsSection(
+                  context,
                   appointments
                       .where((appointment) => appointment.status == 'Approved')
                       .toList(),
+                  Icons.approval_rounded,
                   "Approved Appointments",
-                  textColor,
+                  iHeadColor,
                 ),
                 _buildAppointmentsSection(
+                  context,
                   appointments
                       .where((appointment) => appointment.status == 'Cancelled')
                       .toList(),
+                  Icons.event_busy_rounded,
                   "Cancelled Appointments",
-                  textColor,
+                  iHeadColor,
                   showPopupMenu:
                       false, // Hide the popup menu for cancelled appointments
                 ),
+                _buildAppointmentsSection(
+                  context,
+                  appointments
+                      .where((appointment) => appointment.status == 'Completed')
+                      .toList(),
+                  Icons.check_circle_rounded,
+                  "Completed Appointments",
+                  iHeadColor,
+                  showPopupMenu:
+                      false, // Hide the popup menu for cancelled appointments
+                ),
+                SizedBox(
+                  height: 200,
+                )
               ],
             ),
           ),
@@ -212,39 +240,61 @@ class _AppointmentPageState extends State<AppointmentPage> {
     );
   }
 
-  Widget _buildAppointmentsSection(List<Appointment> sectionAppointments,
-      String sectionTitle, Color textColor,
+  Widget _buildAppointmentsSection(
+      BuildContext context,
+      List<Appointment> sectionAppointments,
+      IconData icons,
+      String sectionTitle,
+      Color textColor,
       {bool showPopupMenu = true}) {
     if (sectionAppointments.isEmpty) {
       return SizedBox.shrink();
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(
-            sectionTitle,
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: textColor,
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final isDarkMode = themeProvider.isDarkMode;
+
+    final textColor = isDarkMode ? Colors.white : Colors.grey[800];
+    final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.grey[100];
+    final statusColorMap = {
+      'Pending': isDarkMode ? Colors.blue : Colors.blue[800],
+      'Approved': isDarkMode ? Colors.green : Colors.green[800],
+      'Cancelled': isDarkMode ? Colors.red : Colors.red[800],
+      'Completed': isDarkMode ? Colors.lightGreen : Colors.lightGreen[800],
+    };
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      decoration: radius(0, backgroundColor, Colors.grey),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            tileColor: backgroundColor,
+            leading: Icon(icons,
+                color: statusColorMap[sectionAppointments.first.status] ??
+                    Colors.grey),
+            title: Text(
+              sectionTitle,
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                color: statusColorMap[sectionAppointments.first.status] ??
+                    Colors.grey,
+              ),
             ),
           ),
-        ),
-        SizedBox(height: 8),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemCount: sectionAppointments.length,
-          itemBuilder: (context, index) {
-            return buildAppointmentCard(
-                context, sectionAppointments[index], textColor, showPopupMenu);
-          },
-        ),
-        SizedBox(height: 16),
-      ],
+          SizedBox(height: 8),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: sectionAppointments.length,
+            itemBuilder: (context, index) {
+              return buildAppointmentCard(context, sectionAppointments[index],
+                  textColor!, showPopupMenu);
+            },
+          ),
+          // SizedBox(height: 16),
+        ],
+      ),
     );
   }
 
@@ -267,136 +317,136 @@ class _AppointmentPageState extends State<AppointmentPage> {
     Color statusColor;
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final isDarkMode = themeProvider.isDarkMode;
-    final containerColor = isDarkMode ? Colors.black : Colors.blue[50];
+    final textColor = isDarkMode ? Colors.white : Colors.grey[800];
+
     switch (appointment.status) {
       case 'Pending':
-        statusColor = Colors.blue[800]!;
+        statusColor = isDarkMode ? Colors.blue : Colors.blue[800]!;
         break;
       case 'Approved':
-        statusColor = Colors.green[800]!;
+        statusColor = isDarkMode ? Colors.green : Colors.green[800]!;
         break;
       case 'Cancelled':
-        statusColor = Colors.red[800]!;
+        statusColor = isDarkMode ? Colors.red : Colors.red[800]!;
+        break;
+      case 'Completed':
+        statusColor = isDarkMode ? Colors.lightGreen : Colors.lightGreen[800]!;
         break;
       default:
-        statusColor = textColor;
+        statusColor = textColor!;
     }
 
-    return Card(
-      margin: EdgeInsets.zero,
-      color: isDarkMode ? Colors.grey[900] : Colors.white,
-      elevation: 0,
-      child: ListTile(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Date: " +
-                  DateFormat('EEE, d-MMM-yy')
-                      .format(DateTime.parse(appointment.date)),
-              style: GoogleFonts.ubuntu(
-                color: textColor,
-              ),
-            ),
-            Text(
-              "Time: " + appointmentTimeToString(appointment.time),
-              style: GoogleFonts.ubuntu(
-                color: textColor,
-              ),
-            ),
-          ],
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Dentist: ${appointment.dentist}',
-                style: GoogleFonts.actor(fontSize: 16, color: textColor)),
-            Text('Patient: ${appointment.patient}',
-                style: GoogleFonts.actor(fontSize: 16, color: textColor)),
-            if (appointment.note.isNotEmpty)
-              Text(
-                'Notes: ${appointment.note}',
-                style: GoogleFonts.ubuntu(
-                  color: textColor,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            Row(
+    return Column(
+      children: [
+        Card(
+          margin: EdgeInsets.zero,
+          color: Colors.transparent,
+          elevation: 0,
+          child: ListTile(
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Status: ',
+                  "Date: " +
+                      DateFormat('EEE, d-MMM-yy')
+                          .format(DateTime.parse(appointment.date)),
                   style: GoogleFonts.ubuntu(
                     color: textColor,
                   ),
                 ),
-                Container(
-                  decoration:
-                      radius(10, statusColor.withOpacity(0.1), statusColor),
-                  alignment: Alignment.center,
-                  height: 20,
-                  width: MediaQuery.of(context).size.width * 0.15,
-                  // color: statusColor,
-                  child: Text(
-                    appointment.status,
-                    style: GoogleFonts.ubuntu(
-                      color: statusColor,
-                      // fontWeight: FontWeight.w500,
-                    ),
+                Text(
+                  "Time: " + appointmentTimeToString(appointment.time),
+                  style: GoogleFonts.ubuntu(
+                    color: textColor,
                   ),
                 ),
               ],
             ),
-          ],
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Dentist: ${appointment.dentist}',
+                    style: GoogleFonts.actor(fontSize: 16, color: textColor)),
+                Text('Patient: ${appointment.patient}',
+                    style: GoogleFonts.actor(fontSize: 16, color: textColor)),
+                if (appointment.note.isNotEmpty)
+                  Text(
+                    'Notes: ${appointment.note}',
+                    style: GoogleFonts.ubuntu(
+                      color: textColor,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                Row(
+                  children: [
+                    Text(
+                      'Status: ',
+                      style: GoogleFonts.ubuntu(
+                        color: textColor,
+                      ),
+                    ),
+                    Container(
+                      decoration:
+                          radius(10, statusColor.withOpacity(0.1), statusColor),
+                      alignment: Alignment.center,
+                      height: 20,
+                      width: MediaQuery.of(context).size.width * 0.15,
+                      // color: statusColor,
+                      child: Text(
+                        appointment.status,
+                        style: GoogleFonts.ubuntu(
+                          color: statusColor,
+                          // fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            trailing: PopupMenuButton<String>(
+              elevation: 2,
+              itemBuilder: (context) {
+                return [
+                  PopupMenuItem(
+                    child: Text(
+                      'Edit',
+                      style: GoogleFonts.ubuntu(
+                        color: Colors.lightBlue[500],
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    value: 'edit',
+                  ),
+                  PopupMenuItem(
+                    child: Text(
+                      'Cancel',
+                      style: GoogleFonts.ubuntu(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    value: 'cancel',
+                  ),
+                ];
+              },
+              onSelected: (value) {
+                if (value == 'edit') {
+                  // Add your logic for editing the appointment
+                  cancelAppointment(context, appointment);
+                } else if (value == 'cancel') {
+                  // Add your logic for canceling the appointment
+                  cancelAppointment(context, appointment);
+                }
+              },
+            ),
+          ),
         ),
-        trailing: PopupMenuButton<String>(
-          elevation: 2,
-          itemBuilder: (context) {
-            return [
-              PopupMenuItem(
-                child: Text(
-                  'View',
-                  style: GoogleFonts.ubuntu(
-                    color: Colors.blueGrey,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                value: 'view',
-              ),
-              PopupMenuItem(
-                child: Text(
-                  'Edit',
-                  style: GoogleFonts.ubuntu(
-                    color: Colors.lightBlue[500],
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                value: 'edit',
-              ),
-              PopupMenuItem(
-                child: Text(
-                  'Cancel',
-                  style: GoogleFonts.ubuntu(
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                value: 'cancel',
-              ),
-            ];
-          },
-          onSelected: (value) {
-            if (value == 'view') {
-              // Add your logic for viewing the appointment
-            } else if (value == 'edit') {
-              // Add your logic for editing the appointment
-              cancelAppointment(context, appointment);
-            } else if (value == 'cancel') {
-              // Add your logic for canceling the appointment
-              cancelAppointment(context, appointment);
-            }
-          },
-        ),
-      ),
+        SizedBox(
+          height: 0,
+          child: Divider(),
+        )
+      ],
     );
   }
 }
@@ -462,23 +512,19 @@ void cancelAppointment(BuildContext context, Appointment appointment) {
     useSafeArea: false,
     context: context,
     builder: (BuildContext context) {
-      return AlertDialog(
-        titleTextStyle: GoogleFonts.ubuntu(
-          fontWeight: FontWeight.bold,
-          color: Colors.blue[800],
-          fontSize: 20,
-        ),
-        contentTextStyle: GoogleFonts.ubuntu(color: Colors.blue),
-        elevation: 0,
-        scrollable: true,
-        title: Text('Confirm Cancellation'),
-        content: Text('Are you sure you want to cancel the appointment?'),
+      return CupertinoAlertDialog(
+        title: Text("Are you sure you want to 'CANCEL' the appointment?",
+            style: GoogleFonts.ubuntu(
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[800],
+              // fontSize: 20,
+            )),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
               'No',
-              style: GoogleFonts.ubuntu(),
+              style: GoogleFonts.ubuntu(color: Colors.blue),
             ),
           ),
           TextButton(
@@ -488,7 +534,7 @@ void cancelAppointment(BuildContext context, Appointment appointment) {
             },
             child: Text(
               'Yes',
-              style: GoogleFonts.ubuntu(color: Colors.red[300]),
+              style: GoogleFonts.ubuntu(color: Colors.red),
             ),
           ),
         ],
