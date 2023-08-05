@@ -84,6 +84,17 @@ class _FeedbackPageState extends State<FeedbackPage> {
     final isDarkMode = themeProvider.isDarkMode;
     final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.blue[800];
     final textColor = isDarkMode ? Colors.white : Colors.blue[800];
+    SnackBar messageSnackBar(Color? backgroundColor, Color? textColor,
+        String message, int duration) {
+      return SnackBar(
+        duration: Duration(seconds: duration),
+        backgroundColor: backgroundColor,
+        content: Text(message,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500, fontSize: 20, color: textColor)),
+      );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -122,12 +133,18 @@ class _FeedbackPageState extends State<FeedbackPage> {
             String feedback = _feedbackController.text.trim();
             if (feedback.length >= 10) {
               _sendFeedback(feedback);
+            } else if (feedback.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar((messageSnackBar(
+                  Colors.red[50],
+                  Colors.red[800],
+                  "Please enter your feedback!",
+                  2)));
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Feedback must be at least 10 characters.'),
-                ),
-              );
+              ScaffoldMessenger.of(context).showSnackBar((messageSnackBar(
+                  Colors.red[50],
+                  Colors.red[800],
+                  'Feedback must be at least 10 characters.',
+                  2)));
             }
           },
           style: ElevatedButton.styleFrom(
@@ -146,24 +163,39 @@ class _FeedbackPageState extends State<FeedbackPage> {
   }
 
   void _sendFeedback(String feedback) async {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final isDarkMode = themeProvider.isDarkMode;
+
+    SnackBar messageSnackBar(Color? backgroundColor, Color? textColor,
+        String message, int duration) {
+      return SnackBar(
+        duration: Duration(seconds: duration),
+        backgroundColor: backgroundColor,
+        content: Text(message,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500, fontSize: 18, color: textColor)),
+      );
+    }
+
     try {
-      // Replace 'your_php_api_endpoint' with your actual PHP API endpoint URL
       final response = await http.post(
-        Uri.parse('your_php_api_endpoint'),
+        Uri.parse('http://192.168.110.163/DCMS/app/mobile/test.php'),
         body: {'feedback': feedback},
       );
 
       if (response.statusCode == 200) {
         _feedbackController.clear();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Feedback submitted successfully!'),
-          ),
-        );
+        ScaffoldMessenger.of(context).showSnackBar((messageSnackBar(
+            Colors.green[50],
+            Colors.green[800],
+            'Feedback submitted successfully! Thank you!',
+            2)));
       } else {
         throw Exception('Failed to submit feedback.');
       }
     } catch (e) {
+      print(e.toString());
       showDialog(
         context: context,
         builder: (context) => CupertinoAlertDialog(

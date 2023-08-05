@@ -1,4 +1,6 @@
+import 'package:dcms_mobile_app/themes/darktheme.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -50,6 +52,8 @@ class _IndexPageState extends State<IndexPage> {
     }
   }
 
+  late bool _isDarkMode = false;
+
   @override
   void dispose() {
     // Cancel any ongoing animations or timers here
@@ -60,6 +64,7 @@ class _IndexPageState extends State<IndexPage> {
   void initState() {
     super.initState();
     checkLoginStatus();
+    _isDarkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
   }
 
   void navigateToPage(int index) {
@@ -67,6 +72,8 @@ class _IndexPageState extends State<IndexPage> {
     if (mounted) {
       setState(() {
         _currentIndex = index;
+        _isDarkMode =
+            Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
       });
     }
   }

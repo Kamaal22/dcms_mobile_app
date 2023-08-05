@@ -16,12 +16,18 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  bool _isDarkMode = false;
+  late bool _isDarkMode = false;
 
   @override
   void initState() {
     super.initState();
     _isDarkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
   }
 
   @override

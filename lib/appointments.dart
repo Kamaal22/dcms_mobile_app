@@ -133,7 +133,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
     }
   }
 
-  bool _isDarkMode = false;
+  late bool _isDarkMode = false;
   @override
   void initState() {
     super.initState();
@@ -264,7 +264,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
     };
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      decoration: radius(0, backgroundColor, Colors.grey),
+      decoration: radius(10, backgroundColor, Colors.transparent),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
