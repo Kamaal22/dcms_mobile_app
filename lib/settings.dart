@@ -4,6 +4,7 @@ import 'package:dcms_mobile_app/settings/feedback.dart';
 import 'package:dcms_mobile_app/settings/personal_info.dart';
 import 'package:dcms_mobile_app/settings/recover_pass.dart';
 import 'package:dcms_mobile_app/themes/darktheme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -96,19 +97,21 @@ class _SettingsPageState extends State<SettingsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  color: containerColor,
+                  color: isDarkMode ? Colors.grey[900] : Colors.grey[200],
                   child: ListTile(
                     leading: Icon(
                       Icons.dark_mode_rounded,
-                      color: iconColor,
+                      color: isDarkMode ? Colors.white : Colors.blueGrey,
                     ),
                     title: Text(
                       "Dark Mode",
                       style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w600, color: textColor),
+                          fontWeight: FontWeight.w600,
+                          color: isDarkMode ? Colors.white : Colors.blueGrey),
                     ),
-                    trailing: Switch(
+                    trailing: CupertinoSwitch(
                       value: _isDarkMode,
+                      trackColor: Colors.grey[400],
                       onChanged: (value) {
                         setState(() {
                           _isDarkMode = value;
@@ -249,21 +252,54 @@ class _SettingsPageState extends State<SettingsPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirmation'),
-          content: Text('Are you sure you want to logout?'),
+          title: Text(
+            'Confirmation',
+            style: GoogleFonts.poppins(fontSize: 22),
+          ),
+          content: Text('Are you sure you want to logout?',
+              style: GoogleFonts.syne()),
           actions: [
             TextButton(
+              style: ButtonStyle(
+                padding: MaterialStateProperty.all<EdgeInsets>(
+                  EdgeInsets.symmetric(horizontal: 0.2, vertical: 0.1),
+                ),
+                backgroundColor:
+                    MaterialStateProperty.all<Color>(Colors.blueGrey),
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('No'),
+              child: Text(
+                'No',
+                style: GoogleFonts.syne(fontSize: 20, color: Colors.white),
+              ),
             ),
             TextButton(
+              style: ButtonStyle(
+                padding: MaterialStateProperty.all<EdgeInsets>(
+                  EdgeInsets.symmetric(horizontal: 0.2, vertical: 0.1),
+                ),
+                backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
+                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
               onPressed: () {
                 Navigator.pop(context);
                 // Perform logout logic here
               },
-              child: Text('Yes'),
+              child: Text(
+                'Yes',
+                style: GoogleFonts.syne(fontSize: 20, color: Colors.white),
+              ),
             ),
           ],
         );
