@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:dcms_mobile_app/themes/darktheme.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -358,60 +360,49 @@ class _AppointmentModelState extends State<AppointmentModel> {
       'time': timeFormatted,
       'patient_id': '1',
       'employee_id': 'null',
-      'note': note.text.trim(),
+      'note': note.text.trim().toString(),
     };
 
     try {
       var response = await http.post(
-        Uri.parse('http://192.168.1.202/appt/submit_appt.php'),
+        Uri.parse('http://192.168.133.163/appt/submit_appt.php'),
         body: appointment,
       );
 
       if (response.statusCode == 200 && response.body.isNotEmpty) {
-        var responseData = response.body;
-        print(responseData);
-        if (responseData == 'success') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Appointment created successfully',
-                style: GoogleFonts.nunito(),
-              ),
-              backgroundColor: Colors.green,
-            ),
-          );
+        var responseData = json.decode(response.body);
+        var status = responseData['status'];
+
+        print(response.body);
+        if (status == 'success') {
+          showSnackBarWithMessage(
+              'Appointment created successfully', Colors.green);
+        } else if (status == 'errorT') {
+          showSnackBarWithMessage(
+              'Time has already been appointed.', Colors.red);
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Failed to create appointment!',
-                style: GoogleFonts.nunito(),
-              ),
-              backgroundColor: Colors.red,
-            ),
-          );
+          showSnackBarWithMessage(
+              'Failed to create appointment!' + responseData, Colors.red);
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Failed to create appointment?',
-              style: GoogleFonts.nunito(),
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
+        showSnackBarWithMessage(
+            'Failed to create appointment: ${response.body}', Colors.red);
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Error: $error',
-            style: GoogleFonts.nunito(),
-          ),
-          backgroundColor: Colors.red,
-        ),
-      );
+      showSnackBarWithMessage('Error: $error', Colors.red);
     }
+  }
+
+  void showSnackBarWithMessage(String message, Color backgroundColor) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: GoogleFonts.poppins(),
+        ),
+        backgroundColor: backgroundColor,
+      ),
+    );
   }
 }
