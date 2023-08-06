@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:dcms_mobile_app/assets/colors.dart';
 import 'package:dcms_mobile_app/assets/component.dart';
 import 'package:dcms_mobile_app/themes/darktheme.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 import '../index.dart';
 
@@ -19,9 +17,16 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  late final TextEditingController usernameController;
+  late final TextEditingController passwordController;
   bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    usernameController = TextEditingController();
+    passwordController = TextEditingController();
+  }
 
   Future<void> login() async {
     setState(() {
@@ -30,12 +35,12 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
     try {
       final response = await http.post(
-          Uri.parse(API_ENDPOINT('login/login.php')),
-          body: {
-            'username': usernameController.text,
-            'password': passwordController.text,
-          }).timeout(Duration(
-          seconds: 10)); // Set a timeout of 10 seconds for the login request
+        Uri.parse(API_ENDPOINT('login/login.php')),
+        body: {
+          'username': usernameController.text,
+          'password': passwordController.text,
+        },
+      ).timeout(Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
@@ -44,12 +49,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         print(jsonData);
 
         if (status == 'success' && data != null) {
-          // Save the response data in SharedPreferences
           await saveResponseInSharedPreferences(data);
-
-          // Show the success animation
           await showSuccessAnimation();
-
           navigateToIndexPage();
         } else {
           showSnackBar('Invalid username or password.');
@@ -113,54 +114,61 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  bool _isDarkMode = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _isDarkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
-  }
-
   @override
   Widget build(BuildContext context) {
-    // final themeProvider = Provider.of<ThemeProvider>(context, listen: false)
-    final isDarkMode =
-        Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final isDarkMode = themeProvider.isDarkMode;
     final textColor = isDarkMode ? Colors.black : Colors.white;
-    final containerColor = isDarkMode ? Colors.black : Colors.white;
-    final elevatedButtonColor = isDarkMode ? Colors.white : Colors.black;
+    final iHeadColor = isDarkMode ? Colors.white : Colors.blue[700];
+    final containerColor = isDarkMode ? Colors.grey[800] : Colors.blue[50];
+    final inputColor = isDarkMode ? Colors.grey : Colors.blue[800];
+    final elevatedButtonColor = isDarkMode ? Colors.white : Colors.blue[800];
+    final comColor = isDarkMode ? Colors.white : Colors.blue[800];
 
     return Scaffold(
-      backgroundColor: containerColor,
-      body: SafeArea(
-        child: Center(
+      backgroundColor: isDarkMode ? Colors.grey[900] : Colors.white,
+      body: Center(
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          height: 500,
+          decoration: BoxDecoration(
+            color: containerColor,
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          margin: EdgeInsets.symmetric(horizontal: 10),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                child: Column(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       "Welcome to ",
-                      style: GoogleFonts.poppins(
+                      style: TextStyle(
                         fontSize: 35,
                         fontWeight: FontWeight.bold,
+                        color: iHeadColor,
                       ),
                     ),
                     Container(
                       padding: EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        // borderRadius: BorderRadius.circular(4),
-                        border: Border.all(width: 1, color: Colors.white),
-                        // color: Colors.lightBlueAccent[200],
+                        border: Border.all(width: 1, color: comColor!),
                       ),
-                      child: Text(
-                        "Emarites",
-                        style: GoogleFonts.poppins(
-                          fontSize: 35,
-                          fontWeight: FontWeight.bold,
-                          // color: Colors.blue[300],
+                      child: Container(
+                        padding: EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          border: Border.all(width: 1, color: comColor),
+                        ),
+                        child: Text(
+                          "Emirates",
+                          style: TextStyle(
+                            fontSize: 35,
+                            fontWeight: FontWeight.bold,
+                            color: comColor,
+                          ),
                         ),
                       ),
                     ),
@@ -170,18 +178,26 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               SizedBox(height: 20),
               Text(
                 "Best Dental in Somalia",
-                style: GoogleFonts.poppins(fontSize: 24),
+                style: TextStyle(fontSize: 24, color: iHeadColor),
               ),
               SizedBox(height: 50),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10),
                 child: TextField(
+                  style: TextStyle(color: inputColor),
                   controller: usernameController,
                   decoration: InputDecoration(
+                    focusColor: inputColor,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      borderSide: BorderSide(width: 2, color: inputColor!),
+                    ),
                     contentPadding: EdgeInsets.symmetric(horizontal: 10),
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    hintText: 'Enter your Denta username',
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      borderSide: BorderSide(width: 1, color: inputColor),
+                    ),
+                    hintText: 'Enter your username',
                   ),
                 ),
               ),
@@ -192,10 +208,17 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                   controller: passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
+                    focusColor: inputColor,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      borderSide: BorderSide(width: 2, color: inputColor),
+                    ),
                     contentPadding: EdgeInsets.symmetric(horizontal: 10),
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10))),
-                    hintText: 'Enter your Denta Password',
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      borderSide: BorderSide(width: 1, color: inputColor),
+                    ),
+                    hintText: 'Enter your Password',
                   ),
                 ),
               ),
@@ -218,13 +241,12 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                             strokeWidth: 2,
                             color: Colors.amber,
                             backgroundColor: Colors.amber[900],
-                          ) // Show the loading circle while the request is ongoing
+                          )
                         : Text(
                             "Sign In",
-                            style: GoogleFonts.poppins(
+                            style: TextStyle(
                               fontSize: 28,
                               color: textColor,
-                              // fontWeight: FontWeight.bold,
                             ),
                           ),
                   ),

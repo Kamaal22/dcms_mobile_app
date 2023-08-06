@@ -104,7 +104,9 @@ class _IndexPageState extends State<IndexPage> {
                       decoration: ShapeDecoration(
                         color: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(30)),
+                          side:
+                              BorderSide(width: 1, color: Colors.blue.shade800),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
                       ),
                       child: Center(
@@ -130,7 +132,9 @@ class _IndexPageState extends State<IndexPage> {
                       decoration: ShapeDecoration(
                         color: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(30)),
+                          side:
+                              BorderSide(width: 1, color: Colors.blue.shade800),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
                       ),
                       child: Center(
@@ -156,7 +160,9 @@ class _IndexPageState extends State<IndexPage> {
                       decoration: ShapeDecoration(
                         color: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(30)),
+                          side:
+                              BorderSide(width: 1, color: Colors.blue.shade800),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
                       ),
                       child: Center(
@@ -182,7 +188,9 @@ class _IndexPageState extends State<IndexPage> {
                       decoration: ShapeDecoration(
                         color: Colors.white,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(30)),
+                          side:
+                              BorderSide(width: 1, color: Colors.blue.shade800),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
                         ),
                       ),
                       child: Center(

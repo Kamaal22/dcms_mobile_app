@@ -104,13 +104,13 @@ class _FeedbackPageState extends State<FeedbackPage> {
           maxLines: 5,
           style: GoogleFonts.poppins(color: textColor),
           decoration: InputDecoration(
+            labelText: 'Feedback or Issue',
+            labelStyle: GoogleFonts.nunito(color: textColor, fontSize: 18),
             focusColor: backgroundColor,
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(10)),
               borderSide: BorderSide(width: 2, color: textColor!),
             ),
-            labelText: 'Feedback or Issue',
-            labelStyle: GoogleFonts.nunito(color: textColor, fontSize: 18),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(10)),
               borderSide: BorderSide(width: 1, color: textColor),

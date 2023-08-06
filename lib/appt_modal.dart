@@ -1,9 +1,9 @@
-import 'package:dcms_mobile_app/themes/darktheme.dart';
 import 'package:flutter/material.dart';
+import 'package:dcms_mobile_app/themes/darktheme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 import 'package:table_calendar/table_calendar.dart';
 
 class AppointmentModel extends StatefulWidget {
@@ -12,197 +12,336 @@ class AppointmentModel extends StatefulWidget {
 }
 
 class _AppointmentModelState extends State<AppointmentModel> {
-  CalendarFormat _calendarFormat = CalendarFormat.month;
-  DateTime? _selectedDay;
-  final _formKey = GlobalKey<FormState>();
   DateTime? date;
   TimeOfDay? time;
   TextEditingController note = TextEditingController();
-  bool _isDarkMode = false;
 
   @override
   void initState() {
     super.initState();
-    _isDarkMode = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+    date = DateTime.now();
+    time = TimeOfDay.now();
   }
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final isDarkMode =
         Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
-    final textColor = isDarkMode ? Colors.black : Colors.black;
-    final iconColor = isDarkMode ? Colors.black : Colors.white;
-    final containerColor = isDarkMode ? Colors.white : Colors.white;
+    final textColor = isDarkMode ? Colors.white : Colors.blue[700];
+    final inputColor = isDarkMode ? Colors.blue[800] : Colors.blue[100];
+    final elevatedButtonColor = isDarkMode ? Colors.white : Colors.blue[800];
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: isDarkMode ? Colors.grey[800] : Colors.grey[100],
         title: Text(
           'Make an appointment',
           style: GoogleFonts.nunito(
-            color: Colors.blueGrey,
+            color: textColor,
             fontSize: 30,
           ),
         ),
         elevation: 0,
-        centerTitle: true,
       ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: EdgeInsets.symmetric(horizontal: 10),
+      body: Center(
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          height: 500,
+          decoration: BoxDecoration(
+            color: isDarkMode ? Colors.grey[800] : Colors.grey[200],
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+          margin: EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    "Choose date and time:",
-                    style: GoogleFonts.nunito(
-                      fontSize: 18,
-                      color: Colors.blueGrey,
+              Container(
+                padding: EdgeInsets.all(20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Appointment Form',
+                      style: GoogleFonts.poppins(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                        color: isDarkMode ? Colors.white : Colors.black,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Card(
-                // elevation: 10,
-                // tileColor: Colors.orange,
-                // contentPadding: EdgeInsets.zero,
-                child: Container(
-                  color: isDarkMode ? Colors.grey[100] : Colors.white,
-                  child: TableCalendar(
-                    firstDay: DateTime.now(),
-                    lastDay: DateTime(2030),
-                    focusedDay: DateTime.now(),
-                    selectedDayPredicate: (day) {
-                      return isSameDay(_selectedDay, day);
-                    },
-                    onDaySelected: (selectedDay, focusedDay) {
-                      setState(() {
-                        _selectedDay = selectedDay;
-                      });
-                    },
-                    calendarFormat: _calendarFormat,
-                    onFormatChanged: (format) {
-                      setState(() {
-                        _calendarFormat = format;
-                      });
-                    },
-                    headerStyle: HeaderStyle(
-                        decoration: BoxDecoration(
-                          color: containerColor,
-                        ),
-                        titleTextStyle: GoogleFonts.poppins(color: textColor),
-                        leftChevronIcon: Icon(
-                          Icons.chevron_left_rounded,
-                          color: textColor,
-                        ),
-                        rightChevronIcon: Icon(
-                          Icons.chevron_right_rounded,
-                          color: textColor,
-                        ),
-                        formatButtonTextStyle: GoogleFonts.poppins(
-                            color: textColor, backgroundColor: containerColor)),
-                    calendarStyle: CalendarStyle(
-                      cellPadding: EdgeInsets.all(0),
-                      defaultTextStyle: GoogleFonts.poppins(color: textColor),
-                    ),
-                  ),
-                ),
-              ),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: InkWell(
-                  onTap: () {
-                    showTimePicker(
-                      context: context,
-                      initialTime: TimeOfDay.now(),
-                    ).then((selectedTime) {
-                      if (selectedTime != null) {
+                    ElevatedButton(
+                      onPressed: () {
                         setState(() {
-                          time = selectedTime;
+                          date = DateTime.now();
+                          time = TimeOfDay.now();
+                          note.clear();
                         });
-                      }
-                    });
-                  },
-                  child: IgnorePointer(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Time',
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                      ),
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Please enter the appointment time';
-                        }
-                        return null;
                       },
-                      readOnly: true,
-                      controller: TextEditingController(
-                        text: time != null ? time!.format(context) : '',
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        backgroundColor: Colors.red,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
+                      child: Text(
+                        'Clear',
+                        style: GoogleFonts.nunito(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                trailing: Ink(
-                  color: Colors.blue[50],
-                  child: IconButton(
-                    onPressed: () {
-                      showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay.now(),
-                      ).then((selectedTime) {
-                        if (selectedTime != null) {
-                          setState(() {
-                            time = selectedTime;
-                          });
-                        }
-                      });
-                    },
-                    icon: Icon(
-                      Icons.access_time_rounded,
-                    ),
-                    color: Colors.blue[800],
-                    iconSize: 30,
-                  ),
+                  ],
                 ),
               ),
-              TextFormField(
-                controller: note,
-                maxLines: 5,
-                decoration: InputDecoration(
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                  labelText: "Add note",
-                  labelStyle: GoogleFonts.nunito(),
-                  alignLabelWithHint: true,
+              Expanded(
+                child: Form(
+                  child: ListView(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    children: [
+                      SizedBox(height: 20),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: InkWell(
+                          onTap: () async {
+                            final selectedDate = await showDatePicker(
+                              context: context,
+                              initialDate: date ?? DateTime.now(),
+                              firstDate: DateTime.now(),
+                              lastDate: DateTime(2024),
+                            );
+                            if (selectedDate != null) {
+                              setState(() {
+                                date = selectedDate;
+                              });
+                            }
+                          },
+                          child: IgnorePointer(
+                            ignoring: true,
+                            child: TextFormField(
+                              style: GoogleFonts.poppins(color: textColor),
+                              decoration: InputDecoration(
+                                labelText: 'Date',
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 10),
+                                focusColor: isDarkMode
+                                    ? Colors.blue[800]
+                                    : Colors.blue[100],
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                  borderSide:
+                                      BorderSide(width: 2, color: textColor!),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                  borderSide:
+                                      BorderSide(width: 1, color: inputColor!),
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return 'Please enter the appointment Date';
+                                }
+                                return null;
+                              },
+                              readOnly: true,
+                              controller: TextEditingController(
+                                text: date != null
+                                    ? DateFormat('yyyy-MM-dd').format(date!)
+                                    : '',
+                              ),
+                            ),
+                          ),
+                        ),
+                        trailing: Container(
+                          height: 50,
+                          width: 50,
+                          color: elevatedButtonColor,
+                          child: IconButton(
+                            onPressed: () async {
+                              final selectedDate = await showDatePicker(
+                                context: context,
+                                initialDate: date ?? DateTime.now(),
+                                firstDate: DateTime.now(),
+                                lastDate: DateTime(2024),
+                              );
+                              if (selectedDate != null) {
+                                setState(() {
+                                  date = selectedDate;
+                                });
+                              }
+                            },
+                            icon: Icon(
+                              Icons.calendar_today,
+                            ),
+                            color: isDarkMode ? Colors.grey[800] : Colors.white,
+                            iconSize: 30,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: InkWell(
+                          onTap: () async {
+                            final selectedTime = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.fromDateTime(date!),
+                            );
+                            if (selectedTime != null) {
+                              setState(() {
+                                time = selectedTime;
+                              });
+                            }
+                          },
+                          child: IgnorePointer(
+                            ignoring: true,
+                            child: TextFormField(
+                              style: GoogleFonts.poppins(color: textColor),
+                              decoration: InputDecoration(
+                                labelText: 'Time',
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 10),
+                                focusColor: isDarkMode
+                                    ? Colors.blue[800]
+                                    : Colors.blue[100],
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                  borderSide:
+                                      BorderSide(width: 2, color: textColor),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10)),
+                                  borderSide:
+                                      BorderSide(width: 1, color: inputColor),
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return 'Please enter the appointment Time';
+                                }
+                                return null;
+                              },
+                              readOnly: true,
+                              controller: TextEditingController(
+                                text: time != null ? time!.format(context) : '',
+                              ),
+                              onTap: () async {
+                                final selectedTime = await showTimePicker(
+                                  context: context,
+                                  initialTime: time!,
+                                );
+                                if (selectedTime != null) {
+                                  setState(() {
+                                    time = selectedTime;
+                                  });
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                        trailing: Container(
+                          height: 50,
+                          width: 50,
+                          color: elevatedButtonColor,
+                          child: IconButton(
+                            onPressed: () async {
+                              final selectedTime = await showTimePicker(
+                                context: context,
+                                initialTime: time!,
+                              );
+                              if (selectedTime != null) {
+                                setState(() {
+                                  time = selectedTime;
+                                });
+                              }
+                            },
+                            icon: Icon(
+                              Icons.more_time_rounded,
+                            ),
+                            color: isDarkMode ? Colors.grey[800] : Colors.white,
+                            iconSize: 30,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      TextFormField(
+                        controller: note,
+                        maxLines: 5,
+                        style: GoogleFonts.poppins(color: elevatedButtonColor),
+                        decoration: InputDecoration(
+                          focusColor:
+                              isDarkMode ? Colors.blue[800] : Colors.blue[100],
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            borderSide: BorderSide(width: 2, color: textColor),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            borderSide: BorderSide(width: 1, color: inputColor),
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              Icons.clear,
+                              color: Colors.black,
+                            ),
+                            onPressed: () {
+                              note.clear();
+                            },
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
+                          labelText: "Add note",
+                          labelStyle: GoogleFonts.nunito(),
+                          alignLabelWithHint: true,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 40,
+                      ),
+                      ElevatedButton(
+                        onPressed: submitForm,
+                        style: ElevatedButton.styleFrom(
+                          fixedSize:
+                              Size(MediaQuery.of(context).size.width, 50),
+                          elevation: 2,
+                          backgroundColor: elevatedButtonColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Make appointment ",
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 20,
+                                color: isDarkMode
+                                    ? Colors.grey[800]
+                                    : Colors.white,
+                              ),
+                            ),
+                            Icon(
+                              Icons.send_rounded,
+                              size: 30,
+                              color:
+                                  isDarkMode ? Colors.grey[800] : Colors.white,
+                            )
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        elevation: 2,
-        onPressed: submitForm,
-        highlightElevation: 0.5,
-        backgroundColor: isDarkMode ? Colors.white : Colors.black,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(150),
-        ),
-        child: Center(
-          child: Transform.rotate(
-            angle: -45,
-            child: Icon(
-              Icons.send_rounded,
-              size: 30,
-              semanticLabel: "submit appointment",
-              color: iconColor,
-            ),
           ),
         ),
       ),
@@ -210,74 +349,69 @@ class _AppointmentModelState extends State<AppointmentModel> {
   }
 
   Future<void> submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState?.save();
+    var dateFormatted = DateFormat('yyyy-MM-dd').format(date!);
+    var timeFormatted = time!.format(context);
+    var appointment = {
+      'type': 'Online',
+      'status': 'Pending',
+      'date': dateFormatted,
+      'time': timeFormatted,
+      'patient_id': '1',
+      'employee_id': 'null',
+      'note': note.text.trim(),
+    };
 
-      // Create a new appointment object
-      var appointment = {
-        'type': 'Online',
-        'status': 'Pending',
-        'date': DateFormat('yyyy-MM-dd').format(date!),
-        'time': time!.format(context),
-        'patient_id': 1.toString(),
-        'employee_id': null.toString(),
-        'note': note.text.trim()
-      };
+    try {
+      var response = await http.post(
+        Uri.parse('http://192.168.1.202/appt/submit_appt.php'),
+        body: appointment,
+      );
 
-      // Send the appointment data to the server
-      try {
-        var response = await http.post(
-          Uri.parse('http://192.168.1.202/appt/submit_appt.php'),
-          body: appointment,
-        );
-
-        if (response.statusCode == 200 && response.body.isNotEmpty) {
-          var responseData = response.body;
-          print(responseData);
-          // Process the response data here
-          if (responseData == 'success') {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Appointment created successfully',
-                  style: GoogleFonts.nunito(),
-                ),
-                backgroundColor: Colors.green,
+      if (response.statusCode == 200 && response.body.isNotEmpty) {
+        var responseData = response.body;
+        print(responseData);
+        if (responseData == 'success') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Appointment created successfully',
+                style: GoogleFonts.nunito(),
               ),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Failed to create appointment!',
-                  style: GoogleFonts.nunito(),
-                ),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
+              backgroundColor: Colors.green,
+            ),
+          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Failed to create appointment?',
+                'Failed to create appointment!',
                 style: GoogleFonts.nunito(),
               ),
               backgroundColor: Colors.red,
             ),
           );
         }
-      } catch (error) {
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Error: $error',
+              'Failed to create appointment?',
               style: GoogleFonts.nunito(),
             ),
             backgroundColor: Colors.red,
           ),
         );
       }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Error: $error',
+            style: GoogleFonts.nunito(),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 }
