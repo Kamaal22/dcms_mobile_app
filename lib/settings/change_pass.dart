@@ -1,5 +1,4 @@
-import 'package:dcms_mobile_app/assets/component.dart';
-import 'package:dcms_mobile_app/themes/darktheme.dart';
+import 'package:dcms_mobile_app/index.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -9,8 +8,9 @@ import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'assets/component.dart';
-import 'package:dcms_mobile_app/themes/darktheme.dart';
 import 'package:provider/provider.dart';
+
+import 'index.dart';
 
 const Duration kApiTimeout = Duration(seconds: 10);
 const String kAppointmentTable = 'appointments';
@@ -91,6 +91,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
             );
           }
         } else {
+          getAppointmentsFromCache();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("Error fetching appointments: ${jsonData['data']}"),
@@ -168,8 +169,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
               Text(
                 "Your Appointments",
                 style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 24,
+                  // fontWeight: FontWeight.w500,
                   color: textColor,
                 ),
               ),

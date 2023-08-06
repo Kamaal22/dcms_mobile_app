@@ -1,12 +1,13 @@
 import 'dart:convert';
 
+import 'package:dcms_mobile_app/assets/component.dart';
 import 'package:flutter/material.dart';
-import 'package:dcms_mobile_app/themes/darktheme.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:table_calendar/table_calendar.dart';
+
+import 'index.dart';
 
 class AppointmentModel extends StatefulWidget {
   @override
@@ -17,10 +18,12 @@ class _AppointmentModelState extends State<AppointmentModel> {
   DateTime? date;
   TimeOfDay? time;
   TextEditingController note = TextEditingController();
+  late bool isDarkMode = false;
 
   @override
   void initState() {
     super.initState();
+    isDarkMode;
     date = DateTime.now();
     time = TimeOfDay.now();
   }
@@ -38,9 +41,8 @@ class _AppointmentModelState extends State<AppointmentModel> {
         backgroundColor: isDarkMode ? Colors.grey[800] : Colors.grey[100],
         title: Text(
           'Make an appointment',
-          style: GoogleFonts.nunito(
+          style: GoogleFonts.poppins(
             color: textColor,
-            fontSize: 30,
           ),
         ),
         elevation: 0,
@@ -365,7 +367,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
 
     try {
       var response = await http.post(
-        Uri.parse('http://192.168.133.163/appt/submit_appt.php'),
+        Uri.parse(API_ENDPOINT("appointment/submit_appt.php")),
         body: appointment,
       );
 
@@ -377,6 +379,11 @@ class _AppointmentModelState extends State<AppointmentModel> {
         if (status == 'success') {
           showSnackBarWithMessage(
               'Appointment created successfully', Colors.green);
+          setState(() {
+            date = DateTime.now();
+            time = TimeOfDay.now();
+            note.clear();
+          });
         } else if (status == 'errorT') {
           showSnackBarWithMessage(
               'Time has already been appointed.', Colors.red);

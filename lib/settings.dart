@@ -3,11 +3,12 @@ import 'package:dcms_mobile_app/settings/change_pass.dart';
 import 'package:dcms_mobile_app/settings/feedback.dart';
 import 'package:dcms_mobile_app/settings/personal_info.dart';
 import 'package:dcms_mobile_app/settings/recover_pass.dart';
-import 'package:dcms_mobile_app/themes/darktheme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+
+import 'index.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
