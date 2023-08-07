@@ -26,12 +26,6 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
-  }
-
-  @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final isDarkMode = themeProvider.isDarkMode;

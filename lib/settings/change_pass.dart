@@ -20,17 +20,25 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   @override
   Widget build(BuildContext context) {
     final isDarkMode =
-        Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+        Provider.of<ThemeProvider>(context, listen: true).isDarkMode;
     final textColor = isDarkMode ? Colors.white : Colors.black;
-    final elevatedButtonColor = isDarkMode ? Colors.black : Colors.blue[300];
-    final containerColor = isDarkMode ? Colors.white : Colors.grey[200];
+    final elevatedButtonColor =
+        isDarkMode ? Colors.grey[900] : Colors.blue[800];
+    final containerColor = isDarkMode ? Colors.grey[800] : Colors.grey[100];
+    // final inputColor = isDarkMode ? Colors.blue[800] : Colors.blue[100];
+    final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.blue[800];
+    final iHeadColor = isDarkMode ? Colors.white : Colors.blue[800];
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue[300],
+        backgroundColor: containerColor,
         title: Text(
           'Change Password',
           style: GoogleFonts.poppins(),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: iHeadColor),
+          onPressed: () => Navigator.of(context).pop(),
         ),
         elevation: 0,
       ),
@@ -48,12 +56,23 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     TextFormField(
+                      style: GoogleFonts.poppins(color: textColor),
                       controller: _currentPasswordController,
                       obscureText: true,
                       decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
                         labelText: 'Current Password',
+                        labelStyle:
+                            GoogleFonts.nunito(color: textColor, fontSize: 18),
+                        focusColor: backgroundColor,
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(width: 2, color: textColor!),
+                        ),
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(width: 1, color: textColor),
+                        ),
                       ),
                       validator: (value) {
                         if (value!.isEmpty) {
@@ -68,9 +87,19 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       controller: _newPasswordController,
                       obscureText: true,
                       decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
                         labelText: 'New Password',
+                        labelStyle:
+                            GoogleFonts.nunito(color: textColor, fontSize: 18),
+                        focusColor: backgroundColor,
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(width: 2, color: textColor),
+                        ),
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(width: 1, color: textColor),
+                        ),
                       ),
                       validator: (value) {
                         if (value!.isEmpty) {
@@ -85,9 +114,19 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                       controller: _confirmNewPasswordController,
                       obscureText: true,
                       decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
                         labelText: 'Confirm New Password',
+                        labelStyle:
+                            GoogleFonts.nunito(color: textColor, fontSize: 18),
+                        focusColor: backgroundColor,
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(width: 2, color: textColor),
+                        ),
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                          borderSide: BorderSide(width: 1, color: textColor),
+                        ),
                       ),
                       validator: (value) {
                         if (value!.isEmpty) {
@@ -101,14 +140,18 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                     ),
                     SizedBox(height: 24),
                     ElevatedButton(
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color?>(
-                            elevatedButtonColor),
-                      ),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: elevatedButtonColor,
+                          elevation: 0,
+                          fixedSize: Size(200, 50),
+                          shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)))),
                       onPressed: _changePassword,
                       child: Text(
                         'Change Password',
-                        style: GoogleFonts.syne(color: textColor),
+                        style: GoogleFonts.poppins(
+                            color: Colors.white, fontSize: 20),
                       ),
                     ),
                   ],

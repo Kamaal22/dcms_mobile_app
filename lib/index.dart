@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:dcms_mobile_app/themes/darktheme.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:http/http.dart' as http;
 
 import 'assets/component.dart';
 import 'login/login.dart';
@@ -56,7 +60,6 @@ class _IndexPageState extends State<IndexPage> {
 
   @override
   void dispose() {
-    // Cancel any ongoing animations or timers here
     super.dispose();
   }
 
@@ -68,7 +71,6 @@ class _IndexPageState extends State<IndexPage> {
   }
 
   void navigateToPage(int index) {
-    // Check if the widget is still mounted before calling setState
     if (mounted) {
       setState(() {
         _currentIndex = index;
@@ -81,7 +83,7 @@ class _IndexPageState extends State<IndexPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(children: _pages, index: _currentIndex),
+      body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: Container(
         color: Colors.transparent,
         child: BottomNavigationBar(
@@ -239,5 +241,52 @@ class ThemeProvider extends ChangeNotifier {
   Future<void> _saveTheme() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_themeKey, _isDarkMode);
+  }
+}
+
+Future<dynamic> makeRequest(
+    BuildContext context, String url, Map<String, dynamic> body) async {
+  try {
+    // var http;
+    final response = await http
+        .post(
+          Uri.parse(url),
+          body: body,
+        )
+        .timeout(const Duration(seconds: 10));
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      if (data['status'] == 'success') {
+        return data['data'];
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error from API'),
+          ),
+        );
+        return null;
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('API Error - ${response.statusCode}'),
+        ),
+      );
+      return null;
+    }
+  } catch (e) {
+    print(e);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          textAlign: TextAlign.center,
+          'Request error: ' + e.toString(),
+          style: GoogleFonts.ubuntu(),
+        ),
+      ),
+    );
+    return null;
   }
 }

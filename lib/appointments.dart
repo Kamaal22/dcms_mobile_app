@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -7,13 +8,14 @@ import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
+import 'appointment_edit.dart';
 import 'assets/component.dart';
 import 'package:provider/provider.dart';
 
 import 'index.dart';
 
-const Duration kApiTimeout = Duration(seconds: 10);
-const String kAppointmentTable = 'appointments';
+const String AppointmentTable = 'appointments';
+bool isLoading = false;
 
 class AppointmentPage extends StatefulWidget {
   @override
@@ -24,20 +26,30 @@ class _AppointmentPageState extends State<AppointmentPage> {
   List<Appointment> appointments = [];
   String patient_id = '';
 
+  void editAppointment(BuildContext context, Appointment appointment) {
+    // Navigate to appointment edit screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AppointmentEditPage(appointment: appointment),
+      ),
+    );
+  }
+
   Future<void> saveAppointmentsToCache(List<Appointment> appointments) async {
     final db = await DatabaseHelper.instance.database;
-    await db.delete(kAppointmentTable);
+    await db.delete(AppointmentTable);
 
     final batch = db.batch();
     for (final appointment in appointments) {
-      batch.insert(kAppointmentTable, appointment.toJson());
+      batch.insert(AppointmentTable, appointment.toJson());
     }
     await batch.commit();
   }
 
   Future<List<Appointment>> getAppointmentsFromCache() async {
     final db = await DatabaseHelper.instance.database;
-    final result = await db.query(kAppointmentTable);
+    final result = await db.query(AppointmentTable);
 
     return result.map((json) => Appointment.fromJson(json)).toList();
   }
@@ -48,17 +60,38 @@ class _AppointmentPageState extends State<AppointmentPage> {
     return storedPatientID.toString();
   }
 
-  // The other functions remain unchanged.
+  Future<bool> checkNetConn() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+
+    if (connectivityResult == ConnectivityResult.mobile ||
+        connectivityResult == ConnectivityResult.wifi) {
+      return true; // Internet connection is available
+    } else {
+      return false; // No internet connection
+    }
+  }
 
   Future<void> fetchAppointments(BuildContext context) async {
     final isConnected = await checkNetConn();
+    // bool isLoading = false;
+
+    setState(() {
+      isLoading = true;
+    });
 
     if (!isConnected) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Cannot fetch appointments. No Internet Connection."),
+          content: Text(
+              textAlign: TextAlign.center,
+              "No Internet Connection. Getting appointments from cache...",
+              style: GoogleFonts.syne()),
         ),
       );
+      setState(() {
+        isLoading = false;
+      });
+      appointments = await getAppointmentsFromCache();
       return;
     }
 
@@ -66,8 +99,10 @@ class _AppointmentPageState extends State<AppointmentPage> {
       final response = await http.post(
         Uri.parse(API_ENDPOINT('appointment/getAppt.php')),
         body: {'patient_id': patient_id.toString()},
-      ).timeout(kApiTimeout);
-
+      ).timeout(Duration(seconds: 10));
+      setState(() {
+        isLoading = true;
+      });
       if (response.statusCode == 200) {
         print(response.body);
         final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
@@ -79,6 +114,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
 
           if (fetchedAppointments.isNotEmpty) {
             setState(() {
+              isLoading = false;
               appointments = fetchedAppointments;
             });
 
@@ -91,26 +127,51 @@ class _AppointmentPageState extends State<AppointmentPage> {
             );
           }
         } else {
-          getAppointmentsFromCache();
+          final cachedAppointments = await getAppointmentsFromCache();
+          if (cachedAppointments.isNotEmpty) {
+            setState(() {
+              appointments = cachedAppointments;
+            });
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content:
+                    Text("Error fetching appointments: ${jsonData['data']}"),
+              ),
+            );
+          }
+        }
+      } else {
+        setState(() {
+          isLoading = true;
+        });
+        final cachedAppointments = await getAppointmentsFromCache();
+        if (cachedAppointments.isNotEmpty) {
+          setState(() {
+            isLoading = false;
+            appointments = cachedAppointments;
+          });
+        } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("Error fetching appointments: ${jsonData['data']}"),
+              content: Text("API Error - statusCode = ${response.statusCode}"),
             ),
           );
         }
+      }
+    } catch (e) {
+      final cachedAppointments = await getAppointmentsFromCache();
+      if (cachedAppointments.isNotEmpty) {
+        setState(() {
+          appointments = cachedAppointments;
+        });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("API Error - statusCode = ${response.statusCode}"),
+            content: Text("Error fetching appointments: ${e.toString()}"),
           ),
         );
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Error fetching appointments: ${e.toString()}"),
-        ),
-      );
     }
   }
 
@@ -124,13 +185,21 @@ class _AppointmentPageState extends State<AppointmentPage> {
 
     final isConnected = await checkNetConn();
     if (isConnected) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          // content: Text("No internet connection. Can't fetch appointments."),
+          content: Text("This data is from the server"),
+        ),
+      );
       await fetchAppointments(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("No internet connection. Can't fetch appointments."),
+          // content: Text("No internet connection. Can't fetch appointments."),
+          content: Text("This data is from the cache"),
         ),
       );
+      await getAppointmentsFromCache();
     }
   }
 
@@ -141,7 +210,6 @@ class _AppointmentPageState extends State<AppointmentPage> {
 
     Future.delayed(Duration.zero, () async {
       patient_id = await getPatientId();
-      fetchAppointments(context as BuildContext);
       initialize(context as BuildContext);
       _isDarkMode =
           Provider.of<ThemeProvider>(context as BuildContext, listen: false)
@@ -158,6 +226,19 @@ class _AppointmentPageState extends State<AppointmentPage> {
     final textColor = isDarkMode ? Colors.white : Colors.grey[800];
     final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.grey[100];
 
+    if (isLoading) {
+      return Container(
+        color: isDarkMode ? Colors.grey[700] : Colors.grey[100],
+        child: Center(
+          child: CircularProgressIndicator(backgroundColor: iHeadColor),
+        ),
+      );
+    }
+    // setState(() {
+    //   isLoading = false;
+    //   fetchAppointments(context);
+    //   isLoading = false;
+    // });
     return Scaffold(
       appBar: AppBar(
         backgroundColor: backgroundColor,
@@ -169,7 +250,6 @@ class _AppointmentPageState extends State<AppointmentPage> {
               Text(
                 "Your Appointments",
                 style: GoogleFonts.poppins(
-                  // fontWeight: FontWeight.w500,
                   color: textColor,
                 ),
               ),
@@ -215,8 +295,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
                   Icons.event_busy_rounded,
                   "Cancelled Appointments",
                   iHeadColor,
-                  showPopupMenu:
-                      false, // Hide the popup menu for cancelled appointments
+                  showPopupMenu: false,
                 ),
                 _buildAppointmentsSection(
                   context,
@@ -226,8 +305,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
                   Icons.check_circle_rounded,
                   "Completed Appointments",
                   iHeadColor,
-                  showPopupMenu:
-                      false, // Hide the popup menu for cancelled appointments
+                  showPopupMenu: false,
                 ),
                 SizedBox(
                   height: 200,
@@ -292,7 +370,6 @@ class _AppointmentPageState extends State<AppointmentPage> {
                   textColor!, showPopupMenu);
             },
           ),
-          // SizedBox(height: 16),
         ],
       ),
     );
@@ -347,15 +424,13 @@ class _AppointmentPageState extends State<AppointmentPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Date: " +
-                      DateFormat('EEE, d-MMM-yy')
-                          .format(DateTime.parse(appointment.date)),
+                  "Date: " + appointment.date,
                   style: GoogleFonts.ubuntu(
                     color: textColor,
                   ),
                 ),
                 Text(
-                  "Time: " + appointmentTimeToString(appointment.time),
+                  "Time: " + appointment.time,
                   style: GoogleFonts.ubuntu(
                     color: textColor,
                   ),
@@ -433,7 +508,8 @@ class _AppointmentPageState extends State<AppointmentPage> {
               onSelected: (value) {
                 if (value == 'edit') {
                   // Add your logic for editing the appointment
-                  cancelAppointment(context, appointment);
+                  // cancelAppointment(context, appointment);
+                  editAppointment(context, appointment);
                 } else if (value == 'cancel') {
                   // Add your logic for canceling the appointment
                   cancelAppointment(context, appointment);
@@ -457,8 +533,8 @@ class Appointment {
   int patientId;
   String dentist;
   int employeeId;
-  String date;
-  String time;
+  dynamic date;
+  dynamic time;
   String note;
   String type;
   String status;
@@ -513,11 +589,16 @@ void cancelAppointment(BuildContext context, Appointment appointment) {
     context: context,
     builder: (BuildContext context) {
       return CupertinoAlertDialog(
-        title: Text("Are you sure you want to 'CANCEL' the appointment?",
+        content: Text(
+          textAlign: TextAlign.left,
+          "if you cancel the appointment you will not be able to reschedule it again",
+          style: GoogleFonts.ubuntu(fontSize: 14),
+        ),
+        title: Text("Are you sure you want to 'CANCEL' this appointment?",
             style: GoogleFonts.ubuntu(
               fontWeight: FontWeight.bold,
               color: Colors.grey[800],
-              // fontSize: 20,
+              fontSize: 16,
             )),
         actions: [
           TextButton(
@@ -529,7 +610,6 @@ void cancelAppointment(BuildContext context, Appointment appointment) {
           ),
           TextButton(
             onPressed: () {
-              // Cancel appointment logic here
               Navigator.pop(context);
             },
             child: Text(
@@ -565,7 +645,7 @@ class DatabaseHelper {
 
   Future<void> _createDB(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE $kAppointmentTable(
+      CREATE TABLE $AppointmentTable(
         appointment_id INTEGER PRIMARY KEY AUTOINCREMENT,
         patient TEXT NOT NULL,
         patient_id INTEGER NOT NULL,

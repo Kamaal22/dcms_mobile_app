@@ -108,3 +108,90 @@ return Scaffold(
         ],
       ),
     );
+
+
+
+    ================================================
+
+    Future makeRequest(BuildContext context, String api, dynamic body, ){
+       try {
+      final response = await http.post(
+        Uri.parse(api),
+        body: body,
+      ).timeout(Duration(seconds: 10));
+      
+      if (response.statusCode == 200) {
+        print(response.body);
+        final data = jsonDecode(response.body);
+        if (data['status'] == 'success') {
+        return data['data'];
+        } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content:
+                    Text(textAlign: TextAlign.center, data['data']),
+              ),
+            );
+          }
+        }
+        else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("API Error - statusCode = ${response.statusCode}"),
+            ),
+          );
+        }
+      } 
+      
+    } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString(), style: GoogleFonts.ubuntu()),
+          ),
+        );
+    }
+
+
+    ===========================
+
+    void _submitForm() async {
+    // Validate form
+
+    // Send POST request to update appointment
+    var response = await http.post(
+        Uri.parse(API_ENDPOINT('appointment/updateAppointment.php')),
+        body: {
+          'id': widget.appointment.id,
+          'date': _dateController.text,
+          'time': _timeController.text,
+          'notes': _notesController.text
+        });
+
+    try {
+      if (response.statusCode == 200) {
+        print(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(
+          textAlign: TextAlign.center,
+          "Appointment has been updated successfully",
+          style: GoogleFonts.ubuntu(),
+        )));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(
+          textAlign: TextAlign.center,
+          "API error" + response.body,
+          style: GoogleFonts.ubuntu(),
+        )));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+        textAlign: TextAlign.center,
+        e.toString(),
+        style: GoogleFonts.ubuntu(),
+      )));
+    }
+
+    Navigator.pop(context);
+  }

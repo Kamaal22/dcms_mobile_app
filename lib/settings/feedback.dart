@@ -80,7 +80,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
   }
 
   Widget _buildFeedbackForm() {
-    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: true);
     final isDarkMode = themeProvider.isDarkMode;
     final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.blue[800];
     final textColor = isDarkMode ? Colors.white : Colors.blue[800];
@@ -163,7 +163,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
   }
 
   void _sendFeedback(String feedback) async {
-    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: true);
     final isDarkMode = themeProvider.isDarkMode;
 
     SnackBar messageSnackBar(Color? backgroundColor, Color? textColor,

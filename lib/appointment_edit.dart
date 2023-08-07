@@ -1,31 +1,99 @@
 import 'dart:convert';
 
+import 'package:dcms_mobile_app/appointments.dart';
 import 'package:dcms_mobile_app/assets/component.dart';
+import 'package:dcms_mobile_app/index.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 
-import 'index.dart';
+class AppointmentEditPage extends StatefulWidget {
+  final Appointment appointment;
 
-class AppointmentModel extends StatefulWidget {
+  AppointmentEditPage({Key? key, required this.appointment}) : super(key: key);
+
   @override
-  _AppointmentModelState createState() => _AppointmentModelState();
+  State<AppointmentEditPage> createState() => _AppointmentEditPageState();
 }
 
-class _AppointmentModelState extends State<AppointmentModel> {
+class _AppointmentEditPageState extends State<AppointmentEditPage> {
   DateTime? date;
   TimeOfDay? time;
   TextEditingController note = TextEditingController();
-  late bool isDarkMode = false;
 
   @override
   void initState() {
     super.initState();
-    isDarkMode;
+
     date = DateTime.now();
     time = TimeOfDay.now();
+
+    note.text = widget.appointment.note;
+  }
+
+  Future<void> submitForm() async {
+    var dateFormatted = DateFormat('yyyy-MM-dd').format(date!);
+    var timeFormatted = time!.format(context);
+    var appointment = {
+      "appointment_id": widget.appointment.appointmentId,
+      'type': 'Online',
+      'status': 'Pending',
+      'date': dateFormatted,
+      'time': timeFormatted,
+      'patient_id': '1',
+      'employee_id': 'null',
+      'note': note.text.trim(),
+    };
+
+    try {
+      var response = await http.post(
+        Uri.parse(API_ENDPOINT("appointment/update_appt.php")),
+        body: appointment,
+      );
+
+      if (response.statusCode == 200 && response.body.isNotEmpty) {
+        var responseData = json.decode(response.body);
+        var status = responseData['status'];
+
+        print(response.body);
+        if (status == 'success') {
+          showSnackBarWithMessage(
+              'Appointment updated successfully', Colors.green);
+          setState(() {
+            date = DateTime.now();
+            time = DateTime.now() as TimeOfDay?;
+            note.clear();
+          });
+        } else if (status == 'errorT') {
+          showSnackBarWithMessage(
+              'Time has already been appointed.', Colors.red);
+        } else {
+          showSnackBarWithMessage(
+              'Failed to create appointment!' + responseData.toString(),
+              Colors.red);
+        }
+      } else {
+        showSnackBarWithMessage(
+            'Failed to create appointment: ${response.body}', Colors.red);
+      }
+    } catch (error) {
+      showSnackBarWithMessage('Error: $error', Colors.red);
+    }
+  }
+
+  void showSnackBarWithMessage(String message, Color backgroundColor) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: GoogleFonts.poppins(),
+        ),
+        backgroundColor: backgroundColor,
+      ),
+    );
   }
 
   @override
@@ -43,14 +111,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: isDarkMode ? Colors.grey[800] : Colors.grey[100],
-        title: Text(
-          'Make an appointment',
-          style: GoogleFonts.poppins(
-            color: textColor,
-          ),
-        ),
-        elevation: 0,
+        title: Text('Edit Appointment'),
       ),
       body: Center(
         child: Container(
@@ -129,7 +190,9 @@ class _AppointmentModelState extends State<AppointmentModel> {
                           child: IgnorePointer(
                             ignoring: true,
                             child: TextFormField(
-                              style: GoogleFonts.poppins(color: textColor),
+                              style: GoogleFonts.poppins(
+                                  color:
+                                      isDarkMode ? Colors.white : Colors.black),
                               decoration: InputDecoration(
                                 labelText: 'Date',
                                 contentPadding:
@@ -209,7 +272,9 @@ class _AppointmentModelState extends State<AppointmentModel> {
                           child: IgnorePointer(
                             ignoring: true,
                             child: TextFormField(
-                              style: GoogleFonts.poppins(color: textColor),
+                              style: GoogleFonts.poppins(
+                                  color:
+                                      isDarkMode ? Colors.white : Colors.black),
                               decoration: InputDecoration(
                                 labelText: 'Time',
                                 contentPadding:
@@ -282,7 +347,8 @@ class _AppointmentModelState extends State<AppointmentModel> {
                       TextFormField(
                         controller: note,
                         maxLines: 5,
-                        style: GoogleFonts.poppins(color: elevatedButtonColor),
+                        style: GoogleFonts.poppins(
+                            color: isDarkMode ? Colors.white : Colors.black),
                         decoration: InputDecoration(
                           focusColor:
                               isDarkMode ? Colors.blue[800] : Colors.blue[100],
@@ -353,67 +419,6 @@ class _AppointmentModelState extends State<AppointmentModel> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Future<void> submitForm() async {
-    var dateFormatted = DateFormat('yyyy-MM-dd').format(date!);
-    var timeFormatted = time!.format(context);
-    var appointment = {
-      'type': 'Online',
-      'status': 'Pending',
-      'date': dateFormatted,
-      'time': timeFormatted,
-      'patient_id': '1',
-      'employee_id': 'null',
-      'note': note.text.trim().toString(),
-    };
-
-    try {
-      var response = await http.post(
-        Uri.parse(API_ENDPOINT("appointment/submit_appt.php")),
-        body: appointment,
-      );
-
-      if (response.statusCode == 200 && response.body.isNotEmpty) {
-        var responseData = json.decode(response.body);
-        var status = responseData['status'];
-
-        print(response.body);
-        if (status == 'success') {
-          showSnackBarWithMessage(
-              'Appointment created successfully', Colors.green);
-          setState(() {
-            date = DateTime.now();
-            time = TimeOfDay.now();
-            note.clear();
-          });
-        } else if (status == 'errorT') {
-          showSnackBarWithMessage(
-              'Time has already been appointed.', Colors.red);
-        } else {
-          showSnackBarWithMessage(
-              'Failed to create appointment!' + responseData, Colors.red);
-        }
-      } else {
-        showSnackBarWithMessage(
-            'Failed to create appointment: ${response.body}', Colors.red);
-      }
-    } catch (error) {
-      showSnackBarWithMessage('Error: $error', Colors.red);
-    }
-  }
-
-  void showSnackBarWithMessage(String message, Color backgroundColor) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.poppins(),
-        ),
-        backgroundColor: backgroundColor,
       ),
     );
   }
