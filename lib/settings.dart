@@ -29,12 +29,14 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final isDarkMode = themeProvider.isDarkMode;
+    final scaffoldDarkTheme = isDarkMode ? Colors.grey[900] : Colors.grey[50];
 
     // Define colors based on the theme mode
     final iHeadColor = isDarkMode ? Colors.white : Colors.blue[800];
     final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.grey[100];
 
     return Scaffold(
+      backgroundColor: scaffoldDarkTheme,
       appBar: AppBar(
         backgroundColor: backgroundColor,
         title: Text(
@@ -116,10 +118,13 @@ class _SettingsPageState extends State<SettingsPage> {
                         value: _isDarkMode,
                         trackColor: Colors.grey[400],
                         onChanged: (value) {
+                          // Update the theme immediately
+                          themeProvider.toggleTheme();
+
+                          // Update the local state
                           setState(() {
                             _isDarkMode = value;
                           });
-                          themeProvider.toggleTheme();
                         },
                       ),
                     ),

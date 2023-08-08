@@ -82,135 +82,132 @@ class _IndexPageState extends State<IndexPage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: true);
+    final isDarkMode = themeProvider.isDarkMode;
+    final scaffoldDarkTheme = isDarkMode ? Colors.grey[900] : Colors.grey[50];
+
     return Scaffold(
       body: IndexedStack(index: _currentIndex, children: _pages),
-      bottomNavigationBar: Container(
-        color: Colors.transparent,
-        child: BottomNavigationBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          type: BottomNavigationBarType.fixed,
-          currentIndex: _currentIndex,
-          selectedItemColor: Colors.blue[800],
-          unselectedItemColor: Colors.blue[300],
-          showUnselectedLabels: false,
-          showSelectedLabels: false,
-          onTap: navigateToPage,
-          items: [
-            BottomNavigationBarItem(
-              tooltip: "Home",
-              icon: _currentIndex == 0
-                  ? Ink(
-                      height: 40,
-                      width: 40,
-                      decoration: ShapeDecoration(
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          side:
-                              BorderSide(width: 1, color: Colors.blue.shade800),
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: scaffoldDarkTheme,
+        elevation: 0,
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _currentIndex,
+        selectedItemColor: Colors.blue[800],
+        unselectedItemColor: Colors.blue[300],
+        showUnselectedLabels: false,
+        showSelectedLabels: false,
+        onTap: navigateToPage,
+        items: [
+          BottomNavigationBarItem(
+            tooltip: "Home",
+            icon: _currentIndex == 0
+                ? Ink(
+                    height: 40,
+                    width: 40,
+                    decoration: ShapeDecoration(
+                      color: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(width: 1, color: Colors.blue.shade800),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
-                      child: Center(
-                        child: FaIcon(
-                          FontAwesomeIcons.house,
-                          size: 22,
-                          color: Colors.blue[800],
-                        ),
-                      ),
-                    )
-                  : FaIcon(
-                      FontAwesomeIcons.house,
-                      size: 22,
                     ),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              tooltip: "Appointment",
-              icon: _currentIndex == 1
-                  ? Ink(
-                      height: 40,
-                      width: 40,
-                      decoration: ShapeDecoration(
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          side:
-                              BorderSide(width: 1, color: Colors.blue.shade800),
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
+                    child: Center(
+                      child: FaIcon(
+                        FontAwesomeIcons.house,
+                        size: 22,
+                        color: Colors.blue[800],
                       ),
-                      child: Center(
-                        child: FaIcon(
-                          FontAwesomeIcons.plus,
-                          size: 22,
-                          color: Colors.blue[800],
-                        ),
-                      ),
-                    )
-                  : FaIcon(
-                      FontAwesomeIcons.plus,
-                      size: 22,
                     ),
-              label: 'Add Appointment',
-            ),
-            BottomNavigationBarItem(
-              tooltip: "Appointments",
-              icon: _currentIndex == 2
-                  ? Ink(
-                      height: 40,
-                      width: 40,
-                      decoration: ShapeDecoration(
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          side:
-                              BorderSide(width: 1, color: Colors.blue.shade800),
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
+                  )
+                : FaIcon(
+                    FontAwesomeIcons.house,
+                    size: 22,
+                  ),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            tooltip: "Appointment",
+            icon: _currentIndex == 1
+                ? Ink(
+                    height: 40,
+                    width: 40,
+                    decoration: ShapeDecoration(
+                      color: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(width: 1, color: Colors.blue.shade800),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
-                      child: Center(
-                        child: FaIcon(
-                          FontAwesomeIcons.calendar,
-                          size: 22,
-                          color: Colors.blue[800],
-                        ),
-                      ),
-                    )
-                  : FaIcon(
-                      FontAwesomeIcons.calendar,
-                      size: 22,
                     ),
-              label: 'Appointments',
-            ),
-            BottomNavigationBarItem(
-              tooltip: "Settings",
-              icon: _currentIndex == 3
-                  ? Ink(
-                      height: 40,
-                      width: 40,
-                      decoration: ShapeDecoration(
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          side:
-                              BorderSide(width: 1, color: Colors.blue.shade800),
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
+                    child: Center(
+                      child: FaIcon(
+                        FontAwesomeIcons.plus,
+                        size: 22,
+                        color: Colors.blue[800],
                       ),
-                      child: Center(
-                        child: FaIcon(
-                          FontAwesomeIcons.gear,
-                          size: 22,
-                          color: Colors.blue[800],
-                        ),
-                      ),
-                    )
-                  : FaIcon(
-                      FontAwesomeIcons.gear,
-                      size: 22,
                     ),
-              label: 'Settings',
-            ),
-          ],
-        ),
+                  )
+                : FaIcon(
+                    FontAwesomeIcons.plus,
+                    size: 22,
+                  ),
+            label: 'Add Appointment',
+          ),
+          BottomNavigationBarItem(
+            tooltip: "Appointments",
+            icon: _currentIndex == 2
+                ? Ink(
+                    height: 40,
+                    width: 40,
+                    decoration: ShapeDecoration(
+                      color: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(width: 1, color: Colors.blue.shade800),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                    child: Center(
+                      child: FaIcon(
+                        FontAwesomeIcons.calendar,
+                        size: 22,
+                        color: Colors.blue[800],
+                      ),
+                    ),
+                  )
+                : FaIcon(
+                    FontAwesomeIcons.calendar,
+                    size: 22,
+                  ),
+            label: 'Appointments',
+          ),
+          BottomNavigationBarItem(
+            tooltip: "Settings",
+            icon: _currentIndex == 3
+                ? Ink(
+                    height: 40,
+                    width: 40,
+                    decoration: ShapeDecoration(
+                      color: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(width: 1, color: Colors.blue.shade800),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                    ),
+                    child: Center(
+                      child: FaIcon(
+                        FontAwesomeIcons.gear,
+                        size: 22,
+                        color: Colors.blue[800],
+                      ),
+                    ),
+                  )
+                : FaIcon(
+                    FontAwesomeIcons.gear,
+                    size: 22,
+                  ),
+            label: 'Settings',
+          ),
+        ],
       ),
     );
   }
@@ -241,52 +238,5 @@ class ThemeProvider extends ChangeNotifier {
   Future<void> _saveTheme() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_themeKey, _isDarkMode);
-  }
-}
-
-Future<dynamic> makeRequest(
-    BuildContext context, String url, Map<String, dynamic> body) async {
-  try {
-    // var http;
-    final response = await http
-        .post(
-          Uri.parse(url),
-          body: body,
-        )
-        .timeout(const Duration(seconds: 10));
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-
-      if (data['status'] == 'success') {
-        return data['data'];
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error from API'),
-          ),
-        );
-        return null;
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('API Error - ${response.statusCode}'),
-        ),
-      );
-      return null;
-    }
-  } catch (e) {
-    print(e);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          textAlign: TextAlign.center,
-          'Request error: ' + e.toString(),
-          style: GoogleFonts.ubuntu(),
-        ),
-      ),
-    );
-    return null;
   }
 }

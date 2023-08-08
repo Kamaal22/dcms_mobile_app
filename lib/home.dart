@@ -1,12 +1,16 @@
 import 'dart:convert';
 
+import 'package:dcms_mobile_app/appointment_edit.dart';
 import 'package:dcms_mobile_app/assets/component.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import 'index.dart';
 import 'package:dcms_mobile_app/appointments.dart';
 import 'package:dcms_mobile_app/appt_modal.dart';
@@ -71,6 +75,8 @@ class _HomePageState extends State<HomePage> {
       'time': item['time'] ?? '',
       'patient_id': item['patient_id'].toString(),
       'employee_id': item['employee_id'].toString(),
+      'dentist': item['dentist'].toString(),
+      'patient': item['patient'].toString(),
       'note': item['note'] ?? '*****************',
     };
   }
@@ -93,6 +99,71 @@ class _HomePageState extends State<HomePage> {
       // Handle parsing error or set a default time if needed.
       return "Invalid Time";
     }
+  }
+
+  void _launchPhoneApp() async {
+    final phoneNumber = '0615592560'; // Replace with your clinic's phone number
+    final Uri phoneUri = Uri(scheme: 'tel', path: phoneNumber);
+    if (await canLaunchUrlString(phoneUri.toString())) {
+      await launchUrlString(phoneUri.toString());
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not launch the phone app')),
+      );
+    }
+  }
+
+  void _launchEmailApp() async {
+    final emailAddress = 'Kamaaludiin792@gmail.com';
+    final Uri emailUri = Uri(
+      scheme: 'mailto',
+      path: emailAddress,
+      queryParameters: {'subject': 'Contact Inquiry'},
+    );
+    if (await canLaunchUrlString(emailUri.toString())) {
+      await launchUrlString(emailUri.toString());
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not launch the email app')),
+      );
+    }
+  }
+
+  void _showContactDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text('Contact Us'),
+          content: Text('Choose how you want to contact us:'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _launchPhoneApp();
+              },
+              child: Text('Phone'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _launchEmailApp();
+              },
+              child: Text('Email'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _editAppointment(Map<String, String> appointment) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditAppointmentPage(appointment: appointment),
+      ),
+    );
   }
 
   @override
@@ -251,7 +322,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     onPressed: () {
-                      // Code to contact the clinic
+                      _showContactDialog();
                     },
                     child: Text('Contact Us',
                         style: GoogleFonts.syne(color: elevTextColor)),
@@ -281,52 +352,51 @@ class _HomePageState extends State<HomePage> {
                             child: Text('No upcoming appointments',
                                 style: GoogleFonts.poppins()),
                           )
-                        : ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor: backgroundColor, elevation: 0),
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: upcomingAppointments.length,
-                              itemBuilder: (context, index) {
-                                return ListTile(
-                                  leading: Container(
-                                    height: 35,
-                                    width: 35,
-                                    decoration: BoxDecoration(
-                                        color: elevatedButtonColor,
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(50))),
-                                    child: Icon(Icons.calendar_month_rounded,
-                                        color: elevTextColor),
-                                  ),
-                                  title: Row(
-                                    children: [
-                                      Text(
-                                        DateFormat('EEE, dd-MMM-yy').format(
-                                            DateTime.parse(
-                                                upcomingAppointments[index]
-                                                    ['date']!)),
-                                        style: GoogleFonts.poppins(),
-                                      ),
-                                      Text(" at " +
-                                          appointmentTimeToString(
+                        : ListView.builder(
+                            padding: EdgeInsets.symmetric(vertical: 2),
+                            shrinkWrap: true,
+                            itemCount: upcomingAppointments.length,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                leading: Container(
+                                  height: 35,
+                                  width: 35,
+                                  decoration: BoxDecoration(
+                                      color: elevatedButtonColor,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(50))),
+                                  child: Icon(Icons.calendar_month_rounded,
+                                      color: elevTextColor),
+                                ),
+                                title: Row(
+                                  children: [
+                                    Text(
+                                      DateFormat('EEE, dd-MMM-yy').format(
+                                          DateTime.parse(
                                               upcomingAppointments[index]
-                                                  ['time']!))
-                                    ],
-                                  ),
-                                  subtitle: Text(
-                                    upcomingAppointments[index]['note']!,
-                                    style: GoogleFonts.syne(),
-                                  ),
-                                  trailing: Icon(Icons.arrow_forward),
-                                  onTap: () {
-                                    print(
-                                        'View appointment details: ${upcomingAppointments[index]}');
-                                  },
-                                );
-                              },
-                            ),
+                                                  ['date']!)),
+                                      style: GoogleFonts.poppins(),
+                                    ),
+                                    Text(" at " +
+                                        appointmentTimeToString(
+                                            upcomingAppointments[index]
+                                                ['time']!))
+                                  ],
+                                ),
+                                subtitle: Text(
+                                  upcomingAppointments[index]['note']! +
+                                      upcomingAppointments[index]['dentist']! +
+                                      upcomingAppointments[index]['type']!,
+                                  style: GoogleFonts.syne(),
+                                ),
+                                trailing: Icon(Icons.arrow_forward),
+                                onTap: () {
+                                  print(
+                                      'View appointment details: ${upcomingAppointments[index]}');
+                                  _editAppointment(upcomingAppointments[index]);
+                                },
+                              );
+                            },
                           ),
                   ],
                 ),
@@ -353,5 +423,132 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///
+class EditAppointmentPage extends StatefulWidget {
+  final Map<String, String> appointment;
+
+  EditAppointmentPage({required this.appointment});
+
+  @override
+  _EditAppointmentPageState createState() => _EditAppointmentPageState();
+}
+
+class _EditAppointmentPageState extends State<EditAppointmentPage> {
+  late TextEditingController noteController;
+  late DateTime selectedDate;
+  late TimeOfDay selectedTime;
+  late String? type = widget.appointment['type'];
+  @override
+  void initState() {
+    super.initState();
+    noteController =
+        TextEditingController(text: widget.appointment['note'] ?? '');
+
+    // Initialize date and time values from the existing appointment
+    selectedDate = DateTime.parse(widget.appointment['date']!);
+    List<String> timeComponents = widget.appointment['time']!.split(':');
+    selectedTime = TimeOfDay(
+      hour: int.parse(timeComponents[0]),
+      minute: int.parse(timeComponents[1]),
+    );
+  }
+
+  Future<void> _selectDate() async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2030),
+    );
+
+    if (pickedDate != null && pickedDate != selectedDate) {
+      setState(() {
+        selectedDate = pickedDate;
+      });
+    }
+  }
+
+  Future<void> _selectTime() async {
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: selectedTime,
+    );
+
+    if (pickedTime != null && pickedTime != selectedTime) {
+      setState(() {
+        selectedTime = pickedTime;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Edit Appointment'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Appointment Details:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 10),
+            Text('Date: ${DateFormat('EEE, dd-MMM-yy').format(selectedDate)}'),
+            Text('Time: ${selectedTime.format(context)}'),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _selectDate,
+              child: Text('Select Date'),
+            ),
+            ElevatedButton(
+              onPressed: _selectTime,
+              child: Text('Select Time'),
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Edit Note:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            TextFormField(
+              controller: noteController,
+              maxLines: 3,
+              decoration: InputDecoration(
+                hintText: 'Add a note...',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                _saveChanges();
+              },
+              child: Text('Save Changes'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _saveChanges() {
+    // Update the appointment with the edited values
+    widget.appointment['date'] = selectedDate.toString();
+    widget.appointment['time'] = selectedTime.format(context);
+    widget.appointment['note'] = noteController.text;
+
+    // Perform any logic to save the changes, such as making API calls or updating local data
+
+    // Navigate back to the previous page
+    Navigator.pop(context);
   }
 }

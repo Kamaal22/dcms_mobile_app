@@ -20,9 +20,16 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final isDarkMode = themeProvider.isDarkMode;
+    final scaffoldDarkTheme = isDarkMode ? Colors.red[900] : Colors.red[50];
+
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, _) {
         return MaterialApp(
+          color: scaffoldDarkTheme,
+          themeAnimationCurve: Curves.linear,
+          themeAnimationDuration: Duration.zero,
           debugShowCheckedModeBanner: false,
           theme: ThemeData.light(),
           darkTheme: ThemeData.dark(),

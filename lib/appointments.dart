@@ -31,7 +31,13 @@ class _AppointmentPageState extends State<AppointmentPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AppointmentEditPage(appointment: appointment),
+        builder: (context) => AppointmentEditPage(
+            appointmentId: appointment.appointmentId.toString(),
+            patientId: appointment.patientId,
+            appointmentDate: appointment.date,
+            appointmentTime: appointment.time,
+            appointmentType: appointment.type,
+            appointmentNote: appointment.note),
       ),
     );
   }
@@ -207,39 +213,38 @@ class _AppointmentPageState extends State<AppointmentPage> {
   @override
   void initState() {
     super.initState();
-
+    // fetchAppointments(context);
+    Future.delayed(Duration(seconds: 10), () {
+      setState(() {
+        isLoading = false;
+      });
+    });
     Future.delayed(Duration.zero, () async {
       patient_id = await getPatientId();
       initialize(context as BuildContext);
-      _isDarkMode =
-          Provider.of<ThemeProvider>(context as BuildContext, listen: false)
-              .isDarkMode;
+      // _isDarkMode =
+      //     Provider.of<ThemeProvider>(context as BuildContext, listen: false)
+      //         .isDarkMode;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: true);
     final isDarkMode = themeProvider.isDarkMode;
 
     final iHeadColor = isDarkMode ? Colors.white : Colors.blue[800];
     final textColor = isDarkMode ? Colors.white : Colors.grey[800];
     final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.grey[100];
+    final scaffoldDarkTheme = isDarkMode ? Colors.grey[900] : Colors.grey[50];
+    Future.delayed(Duration(seconds: 10), () {
+      setState(() {
+        isLoading = false;
+      });
+    });
 
-    if (isLoading) {
-      return Container(
-        color: isDarkMode ? Colors.grey[700] : Colors.grey[100],
-        child: Center(
-          child: CircularProgressIndicator(backgroundColor: iHeadColor),
-        ),
-      );
-    }
-    // setState(() {
-    //   isLoading = false;
-    //   fetchAppointments(context);
-    //   isLoading = false;
-    // });
     return Scaffold(
+      backgroundColor: scaffoldDarkTheme,
       appBar: AppBar(
         backgroundColor: backgroundColor,
         title: Padding(
@@ -263,58 +268,79 @@ class _AppointmentPageState extends State<AppointmentPage> {
         ),
         elevation: 0,
       ),
-      body: Column(
-        children: [
-          SizedBox(height: 30),
-          Expanded(
-            child: ListView(
+      body: isLoading
+          ? Container(
+              color: backgroundColor,
+              child: Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(backgroundColor: iHeadColor),
+                    SizedBox(height: 20),
+                    Text("Loading...",
+                        style:
+                            GoogleFonts.syne(fontSize: 22, color: iHeadColor))
+                  ],
+                ),
+              ),
+            )
+          : Column(
               children: [
-                _buildAppointmentsSection(
-                  context,
-                  appointments
-                      .where((appointment) => appointment.status == 'Pending')
-                      .toList(),
-                  Icons.pending_rounded,
-                  "Pending Appointments",
-                  iHeadColor!,
+                SizedBox(height: 30),
+                Expanded(
+                  child: ListView(
+                    children: [
+                      _buildAppointmentsSection(
+                        context,
+                        appointments
+                            .where((appointment) =>
+                                appointment.status == 'Pending')
+                            .toList(),
+                        Icons.pending_rounded,
+                        "Pending Appointments",
+                        iHeadColor!,
+                      ),
+                      _buildAppointmentsSection(
+                        context,
+                        appointments
+                            .where((appointment) =>
+                                appointment.status == 'Approved')
+                            .toList(),
+                        Icons.approval_rounded,
+                        "Approved Appointments",
+                        iHeadColor,
+                      ),
+                      _buildAppointmentsSection(
+                        context,
+                        appointments
+                            .where((appointment) =>
+                                appointment.status == 'Cancelled')
+                            .toList(),
+                        Icons.event_busy_rounded,
+                        "Cancelled Appointments",
+                        iHeadColor,
+                        showPopupMenu: false,
+                      ),
+                      _buildAppointmentsSection(
+                        context,
+                        appointments
+                            .where((appointment) =>
+                                appointment.status == 'Completed')
+                            .toList(),
+                        Icons.check_circle_rounded,
+                        "Completed Appointments",
+                        iHeadColor,
+                        showPopupMenu: false,
+                      ),
+                      SizedBox(
+                        height: 200,
+                      )
+                    ],
+                  ),
                 ),
-                _buildAppointmentsSection(
-                  context,
-                  appointments
-                      .where((appointment) => appointment.status == 'Approved')
-                      .toList(),
-                  Icons.approval_rounded,
-                  "Approved Appointments",
-                  iHeadColor,
-                ),
-                _buildAppointmentsSection(
-                  context,
-                  appointments
-                      .where((appointment) => appointment.status == 'Cancelled')
-                      .toList(),
-                  Icons.event_busy_rounded,
-                  "Cancelled Appointments",
-                  iHeadColor,
-                  showPopupMenu: false,
-                ),
-                _buildAppointmentsSection(
-                  context,
-                  appointments
-                      .where((appointment) => appointment.status == 'Completed')
-                      .toList(),
-                  Icons.check_circle_rounded,
-                  "Completed Appointments",
-                  iHeadColor,
-                  showPopupMenu: false,
-                ),
-                SizedBox(
-                  height: 200,
-                )
               ],
             ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -424,13 +450,15 @@ class _AppointmentPageState extends State<AppointmentPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Date: " + appointment.date,
+                  "Date: " +
+                      DateFormat('EEE, d-MMM-yy')
+                          .format(DateTime.parse(appointment.date)),
                   style: GoogleFonts.ubuntu(
                     color: textColor,
                   ),
                 ),
                 Text(
-                  "Time: " + appointment.time,
+                  "Time: " + appointmentTimeToString(appointment.time),
                   style: GoogleFonts.ubuntu(
                     color: textColor,
                   ),
@@ -440,6 +468,8 @@ class _AppointmentPageState extends State<AppointmentPage> {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text('type: ${appointment.type}',
+                    style: GoogleFonts.actor(fontSize: 16, color: textColor)),
                 Text('Dentist: ${appointment.dentist}',
                     style: GoogleFonts.actor(fontSize: 16, color: textColor)),
                 Text('Patient: ${appointment.patient}',
@@ -479,43 +509,45 @@ class _AppointmentPageState extends State<AppointmentPage> {
                 ),
               ],
             ),
-            trailing: PopupMenuButton<String>(
-              elevation: 2,
-              itemBuilder: (context) {
-                return [
-                  PopupMenuItem(
-                    child: Text(
-                      'Edit',
-                      style: GoogleFonts.ubuntu(
-                        color: Colors.lightBlue[500],
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    value: 'edit',
-                  ),
-                  PopupMenuItem(
-                    child: Text(
-                      'Cancel',
-                      style: GoogleFonts.ubuntu(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    value: 'cancel',
-                  ),
-                ];
-              },
-              onSelected: (value) {
-                if (value == 'edit') {
-                  // Add your logic for editing the appointment
-                  // cancelAppointment(context, appointment);
-                  editAppointment(context, appointment);
-                } else if (value == 'cancel') {
-                  // Add your logic for canceling the appointment
-                  cancelAppointment(context, appointment);
-                }
-              },
-            ),
+            trailing: showPopupMenu
+                ? PopupMenuButton<String>(
+                    elevation: 2,
+                    itemBuilder: (context) {
+                      return [
+                        PopupMenuItem(
+                          child: Text(
+                            'Edit',
+                            style: GoogleFonts.ubuntu(
+                              color: Colors.lightBlue[500],
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          value: 'edit',
+                        ),
+                        PopupMenuItem(
+                          child: Text(
+                            'Cancel',
+                            style: GoogleFonts.ubuntu(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          value: 'cancel',
+                        ),
+                      ];
+                    },
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        // Add your logic for editing the appointment
+                        // cancelAppointment(context, appointment);
+                        editAppointment(context, appointment);
+                      } else if (value == 'cancel') {
+                        // Add your logic for canceling the appointment
+                        cancelAppointment(context, appointment);
+                      }
+                    },
+                  )
+                : null,
           ),
         ),
         SizedBox(
@@ -533,8 +565,8 @@ class Appointment {
   int patientId;
   String dentist;
   int employeeId;
-  dynamic date;
-  dynamic time;
+  String date;
+  String time;
   String note;
   String type;
   String status;
@@ -562,7 +594,7 @@ class Appointment {
       date: json['date'] as String? ?? '',
       time: json['time'] as String? ?? '',
       note: json['note'] as String? ?? '',
-      type: json['Type'] as String? ?? '',
+      type: json['type'] as String? ?? '',
       status: json['status'] as String? ?? '',
     );
   }
@@ -577,13 +609,19 @@ class Appointment {
       'date': date,
       'time': time,
       'note': note,
-      'Type': type,
+      'type': type,
       'status': status,
     };
   }
 }
 
 void cancelAppointment(BuildContext context, Appointment appointment) {
+  final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+  final isDarkMode = themeProvider.isDarkMode;
+
+  // Define colors based on the theme mode
+  final bgColor = isDarkMode ? Colors.red[800] : Colors.white;
+  final textColor = isDarkMode ? Colors.white : Colors.red[800];
   showDialog(
     useSafeArea: false,
     context: context,
@@ -605,16 +643,33 @@ void cancelAppointment(BuildContext context, Appointment appointment) {
             onPressed: () => Navigator.pop(context),
             child: Text(
               'No',
-              style: GoogleFonts.ubuntu(color: Colors.blue),
+              style: GoogleFonts.poppins(
+                  color: Colors.blue, fontWeight: FontWeight.w600),
             ),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
+            onPressed: () async {
+              final isConnected = await checkNetConn();
+
+              if (!isConnected) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    backgroundColor: textColor,
+                    content: Text(
+                        textAlign: TextAlign.center,
+                        "Cannot cancel appointment. No internet connection",
+                        style: GoogleFonts.syne(color: bgColor, fontSize: 18)),
+                  ),
+                );
+              } else {
+                Navigator.pop(context);
+              }
             },
             child: Text(
-              'Yes',
-              style: GoogleFonts.ubuntu(color: Colors.red),
+              'Yes, Cancel',
+              style: GoogleFonts.poppins(
+                  color: Colors.red, fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -654,7 +709,7 @@ class DatabaseHelper {
         date TEXT NOT NULL,
         time TEXT NOT NULL,
         note TEXT,
-        Type TEXT NOT NULL,
+        type TEXT NOT NULL,
         status TEXT NOT NULL
       )
     ''');
