@@ -1,3 +1,4 @@
+import 'package:dcms_mobile_app/login/login.dart';
 import 'package:dcms_mobile_app/settings/about.dart';
 import 'package:dcms_mobile_app/settings/change_pass.dart';
 import 'package:dcms_mobile_app/settings/feedback.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'index.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
@@ -330,11 +332,23 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             TextButton(
               onPressed: () {
+                // clear the shared preferences then navigate to login page
+                SharedPreferences.getInstance().then((prefs) {
+                  prefs.clear().then((value) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LoginPage(),
+                      ),
+                    );
+                  });
+                });
+
                 Navigator.pop(context);
                 // Perform logout logic here
               },
               child: Text(
-                'Yes',
+                'Yes, logout',
                 style: GoogleFonts.syne(fontSize: 20, color: Colors.red),
               ),
             ),

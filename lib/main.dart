@@ -22,16 +22,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final isDarkMode = themeProvider.isDarkMode;
-    final scaffoldDarkTheme = isDarkMode ? Colors.red[900] : Colors.red[50];
+    final scaffoldDarkTheme = isDarkMode ? Colors.blue[800] : Colors.grey[800];
 
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, _) {
         return MaterialApp(
-          color: scaffoldDarkTheme,
+          // color: scaffoldDarkTheme,
           themeAnimationCurve: Curves.linear,
           themeAnimationDuration: Duration.zero,
           debugShowCheckedModeBanner: false,
-          theme: ThemeData.light(),
+          theme: ThemeData(
+              textTheme: GoogleFonts.poppinsTextTheme(),
+              colorScheme: ColorScheme.light(
+                  primary: scaffoldDarkTheme!, background: scaffoldDarkTheme)),
           darkTheme: ThemeData.dark(),
           themeMode:
               themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,

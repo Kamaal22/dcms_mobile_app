@@ -85,6 +85,9 @@ class _IndexPageState extends State<IndexPage> {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: true);
     final isDarkMode = themeProvider.isDarkMode;
     final scaffoldDarkTheme = isDarkMode ? Colors.grey[900] : Colors.grey[50];
+    final iconNborderColors = isDarkMode ? Colors.white : Colors.blue[800];
+    final containerColor = isDarkMode ? Colors.grey[900] : Colors.grey[50];
+    final unselectedColor = isDarkMode ? Colors.grey[800] : Colors.blue;
 
     return Scaffold(
       body: IndexedStack(index: _currentIndex, children: _pages),
@@ -93,8 +96,8 @@ class _IndexPageState extends State<IndexPage> {
         elevation: 0,
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
-        selectedItemColor: Colors.blue[800],
-        unselectedItemColor: Colors.blue[300],
+        selectedItemColor: iconNborderColors,
+        unselectedItemColor: unselectedColor,
         showUnselectedLabels: false,
         showSelectedLabels: false,
         onTap: navigateToPage,
@@ -106,9 +109,9 @@ class _IndexPageState extends State<IndexPage> {
                     height: 40,
                     width: 40,
                     decoration: ShapeDecoration(
-                      color: Colors.white,
+                      color: containerColor,
                       shape: RoundedRectangleBorder(
-                        side: BorderSide(width: 1, color: Colors.blue.shade800),
+                        side: BorderSide(width: 2, color: iconNborderColors!),
                         borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
@@ -116,7 +119,7 @@ class _IndexPageState extends State<IndexPage> {
                       child: FaIcon(
                         FontAwesomeIcons.house,
                         size: 22,
-                        color: Colors.blue[800],
+                        color: iconNborderColors,
                       ),
                     ),
                   )
@@ -133,9 +136,9 @@ class _IndexPageState extends State<IndexPage> {
                     height: 40,
                     width: 40,
                     decoration: ShapeDecoration(
-                      color: Colors.white,
+                      color: containerColor,
                       shape: RoundedRectangleBorder(
-                        side: BorderSide(width: 1, color: Colors.blue.shade800),
+                        side: BorderSide(width: 2, color: iconNborderColors!),
                         borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
@@ -143,7 +146,7 @@ class _IndexPageState extends State<IndexPage> {
                       child: FaIcon(
                         FontAwesomeIcons.plus,
                         size: 22,
-                        color: Colors.blue[800],
+                        color: iconNborderColors,
                       ),
                     ),
                   )
@@ -160,17 +163,17 @@ class _IndexPageState extends State<IndexPage> {
                     height: 40,
                     width: 40,
                     decoration: ShapeDecoration(
-                      color: Colors.white,
+                      color: containerColor,
                       shape: RoundedRectangleBorder(
-                        side: BorderSide(width: 1, color: Colors.blue.shade800),
+                        side: BorderSide(width: 2, color: iconNborderColors!),
                         borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
                     child: Center(
                       child: FaIcon(
-                        FontAwesomeIcons.calendar,
+                        FontAwesomeIcons.calendarCheck,
                         size: 22,
-                        color: Colors.blue[800],
+                        color: iconNborderColors,
                       ),
                     ),
                   )
@@ -187,9 +190,9 @@ class _IndexPageState extends State<IndexPage> {
                     height: 40,
                     width: 40,
                     decoration: ShapeDecoration(
-                      color: Colors.white,
+                      color: containerColor,
                       shape: RoundedRectangleBorder(
-                        side: BorderSide(width: 1, color: Colors.blue.shade800),
+                        side: BorderSide(width: 2, color: iconNborderColors!),
                         borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
                     ),
@@ -197,7 +200,7 @@ class _IndexPageState extends State<IndexPage> {
                       child: FaIcon(
                         FontAwesomeIcons.gear,
                         size: 22,
-                        color: Colors.blue[800],
+                        color: iconNborderColors,
                       ),
                     ),
                   )

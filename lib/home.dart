@@ -54,15 +54,15 @@ class _HomePageState extends State<HomePage> {
         });
       } else {
         // Handle error case
-        print('Error: ${data['message']}');
+        print('Error: ${data['data']}');
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(data['message'])));
+            .showSnackBar(SnackBar(content: Text(data['data'] ?? "")));
       }
     } else {
       final data = json.decode(response.body) as Map<String, dynamic>;
-      print('Error fetching data: ${data['message']}');
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(data['message'])));
+      print('Error fetching data: ${data['data']}');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(textAlign: TextAlign.center, data['message'])));
     }
   }
 
