@@ -353,6 +353,7 @@ class _HomePageState extends State<HomePage> {
                                 style: GoogleFonts.poppins()),
                           )
                         : ListView.builder(
+                            physics: NeverScrollableScrollPhysics(),
                             padding: EdgeInsets.symmetric(vertical: 2),
                             shrinkWrap: true,
                             itemCount: upcomingAppointments.length,

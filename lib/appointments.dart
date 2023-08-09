@@ -359,7 +359,8 @@ class _AppointmentPageState extends State<AppointmentPage> {
     final isDarkMode = themeProvider.isDarkMode;
 
     final textColor = isDarkMode ? Colors.white : Colors.grey[800];
-    final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.grey[100];
+    final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.grey[200];
+
     final statusColorMap = {
       'Pending': isDarkMode ? Colors.blue : Colors.blue[800],
       'Approved': isDarkMode ? Colors.green : Colors.green[800],
@@ -368,11 +369,13 @@ class _AppointmentPageState extends State<AppointmentPage> {
     };
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      decoration: radius(10, backgroundColor, Colors.transparent),
+      // decoration: radius(1000, backgroundColor, Colors.transparent),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10))),
             tileColor: backgroundColor,
             leading: Icon(icons,
                 color: statusColorMap[sectionAppointments.first.status] ??
@@ -386,7 +389,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
               ),
             ),
           ),
-          SizedBox(height: 8),
+          SizedBox(height: 10),
           ListView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
@@ -421,6 +424,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final isDarkMode = themeProvider.isDarkMode;
     final textColor = isDarkMode ? Colors.white : Colors.grey[800];
+    final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.grey[200];
 
     switch (appointment.status) {
       case 'Pending':
@@ -441,25 +445,34 @@ class _AppointmentPageState extends State<AppointmentPage> {
 
     return Column(
       children: [
+        // SizedBox(height: 2, child: Divider()),
         Card(
           margin: EdgeInsets.zero,
-          color: Colors.transparent,
+          color: backgroundColor!,
           elevation: 0,
           child: ListTile(
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
+                  "Appointment ID: " + appointment.appointmentId.toString(),
+                  style: GoogleFonts.ubuntu(
+                    color: textColor,
+                  ),
+                ),
+                Text(
                   "Date: " +
                       DateFormat('EEE, d-MMM-yy')
                           .format(DateTime.parse(appointment.date)),
                   style: GoogleFonts.ubuntu(
+                    fontWeight: FontWeight.bold,
                     color: textColor,
                   ),
                 ),
                 Text(
                   "Time: " + appointmentTimeToString(appointment.time),
                   style: GoogleFonts.ubuntu(
+                    fontWeight: FontWeight.bold,
                     color: textColor,
                   ),
                 ),
@@ -473,7 +486,11 @@ class _AppointmentPageState extends State<AppointmentPage> {
                 Text('Dentist: ${appointment.dentist}',
                     style: GoogleFonts.actor(fontSize: 16, color: textColor)),
                 Text('Patient: ${appointment.patient}',
-                    style: GoogleFonts.actor(fontSize: 16, color: textColor)),
+                    style: GoogleFonts.actor(
+                      fontSize: 16,
+                      color: textColor,
+                      fontWeight: FontWeight.bold,
+                    )),
                 if (appointment.note.isNotEmpty)
                   Text(
                     'Notes: ${appointment.note}',
@@ -482,6 +499,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
                       fontStyle: FontStyle.italic,
                     ),
                   ),
+                SizedBox(height: 10),
                 Row(
                   children: [
                     Text(
@@ -495,7 +513,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
                           radius(10, statusColor.withOpacity(0.1), statusColor),
                       alignment: Alignment.center,
                       height: 20,
-                      width: MediaQuery.of(context).size.width * 0.15,
+                      width: MediaQuery.of(context).size.width * 0.20,
                       // color: statusColor,
                       child: Text(
                         appointment.status,
@@ -550,10 +568,10 @@ class _AppointmentPageState extends State<AppointmentPage> {
                 : null,
           ),
         ),
-        SizedBox(
-          height: 0,
-          child: Divider(),
-        )
+        // SizedBox(
+        // height: 0,
+        // Divider(),
+        // )
       ],
     );
   }
@@ -649,6 +667,20 @@ void cancelAppointment(BuildContext context, Appointment appointment) {
           ),
           TextButton(
             onPressed: () async {
+              void showSnackBarWithMessage(
+                  String message, Color backgroundColor) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      message,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.poppins(),
+                    ),
+                    backgroundColor: backgroundColor,
+                  ),
+                );
+              }
+
               final isConnected = await checkNetConn();
 
               if (!isConnected) {
@@ -663,8 +695,46 @@ void cancelAppointment(BuildContext context, Appointment appointment) {
                   ),
                 );
               } else {
-                Navigator.pop(context);
+                print(appointment.appointmentId);
+                var response = await http.post(
+                  Uri.parse(API_ENDPOINT("appointment/cancel_appt.php")),
+                  body: {
+                    'appointment_id': appointment.appointmentId.toString()
+                  },
+                );
+
+                try {
+                  if (response.statusCode == 200 && response.body.isNotEmpty) {
+                    var responseData = json.decode(response.body);
+                    var status = responseData['status'];
+                    print('Response Body: ${response.body}');
+                    print('Response Data: $responseData');
+                    if (status == 'success') {
+                      showSnackBarWithMessage(
+                          'Appointment updated successfully', Colors.green);
+                    } else if (status == 'errorT') {
+                      showSnackBarWithMessage(
+                          'Time has already been appointed. Select another time!',
+                          Colors.red);
+                    } else {
+                      showSnackBarWithMessage(
+                          'Failed to update appointment!' +
+                              responseData.toString(),
+                          Colors.red);
+                    }
+                  } else {
+                    var responseData = json.decode(response.body);
+                    showSnackBarWithMessage(
+                        'Failed to update appointment: ' +
+                            responseData.toString(),
+                        Colors.red);
+                  }
+                } catch (error) {
+                  print('Response Body: ${response.body}'); // Debugging
+                  showSnackBarWithMessage('Error: $error', Colors.red);
+                }
               }
+              Navigator.pop(context);
             },
             child: Text(
               'Yes, Cancel',
