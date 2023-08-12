@@ -178,42 +178,32 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        elevation: 0,
-        backgroundColor: isDarkMode ? Colors.grey[800] : Colors.grey[100],
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Container(
-              padding: EdgeInsets.all(2),
-              margin: EdgeInsets.symmetric(horizontal: 2),
-              decoration: BoxDecoration(
-                  border: Border.all(width: 0.5, color: textColor!)),
-              child: Container(
-                padding: EdgeInsets.all(1),
+          elevation: 0,
+          backgroundColor: isDarkMode ? Colors.grey[800] : Colors.grey[100],
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Container(
+                padding: EdgeInsets.all(2),
+                margin: EdgeInsets.symmetric(horizontal: 2),
                 decoration: BoxDecoration(
-                    border: Border.all(width: 0.5, color: textColor)),
-                child: Text(
-                  'Emarites ',
-                  style: GoogleFonts.cinzelDecorative(color: textColor),
+                    border: Border.all(width: 0.5, color: textColor!)),
+                child: Container(
+                  padding: EdgeInsets.all(1),
+                  decoration: BoxDecoration(
+                      border: Border.all(width: 0.5, color: textColor)),
+                  child: Text(
+                    'Emarites ',
+                    style: GoogleFonts.cinzelDecorative(color: textColor),
+                  ),
                 ),
               ),
-            ),
-            Text(
-              'Dental Clinic',
-              style: GoogleFonts.poppins(color: textColor),
-            ),
-          ],
-        ),
-        actions: [
-          // User Profile (Replace with real data)
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CircleAvatar(
-              backgroundImage: AssetImage('assets/profile.jpg'),
-            ),
-          ),
-        ],
-      ),
+              Text(
+                'Dental Clinic',
+                style: GoogleFonts.poppins(color: textColor),
+              ),
+            ],
+          )),
       body: RefreshIndicator(
         onRefresh: fetchInitialData,
         child: SingleChildScrollView(
