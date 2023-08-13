@@ -34,7 +34,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         backgroundColor: containerColor,
         title: Text(
           'Change Password',
-          style: GoogleFonts.poppins(),
+          style: GoogleFonts.poppins(color: iHeadColor),
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_rounded, color: iHeadColor),
