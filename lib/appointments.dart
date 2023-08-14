@@ -182,6 +182,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
   }
 
   Future<void> initialize(BuildContext context) async {
+    print("this is being initialized in the initial state");
     final cachedAppointments = await getAppointmentsFromCache();
     if (cachedAppointments.isNotEmpty) {
       setState(() {
@@ -210,10 +211,12 @@ class _AppointmentPageState extends State<AppointmentPage> {
   }
 
   late bool _isDarkMode = false;
+
   @override
   void initState() {
     super.initState();
     // fetchAppointments(context);
+    print("this is the initial state");
     Future.delayed(Duration(seconds: 10), () {
       setState(() {
         isLoading = false;
@@ -237,6 +240,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
     final textColor = isDarkMode ? Colors.white : Colors.grey[800];
     final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.grey[100];
     final scaffoldDarkTheme = isDarkMode ? Colors.grey[900] : Colors.grey[50];
+
     Future.delayed(Duration(seconds: 10), () {
       setState(() {
         isLoading = false;

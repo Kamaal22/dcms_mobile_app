@@ -28,6 +28,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     // final inputColor = isDarkMode ? Colors.blue[800] : Colors.blue[100];
     final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.blue[800];
     final iHeadColor = isDarkMode ? Colors.white : Colors.blue[800];
+    final scaffoldDarkTheme = isDarkMode ? Colors.grey[900] : Colors.grey[50];
 
     return Scaffold(
       appBar: AppBar(
@@ -42,6 +43,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         ),
         elevation: 0,
       ),
+      backgroundColor: scaffoldDarkTheme,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),

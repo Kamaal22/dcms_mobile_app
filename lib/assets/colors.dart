@@ -1,7 +1,9 @@
 // ignore_for_file: unused_local_variable
 
+import 'package:dcms_mobile_app/index.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 // Primary Color
 const Color primaryColor = Color.fromARGB(255, 33, 33, 34);
@@ -42,6 +44,37 @@ const Color secondaryColor = Color(0xFFDF734E);
 //     alignment: Alignment.center,
 //   )),
 // );
+
+// final themeProvider =
+//     Provider.of<ThemeProvider>(BuildContext as BuildContext, listen: true);
+
+// final isDarkMode = themeProvider.isDarkMode;
+
+// final primaryColorr = isDarkMode ? Colors.blue[700] : Colors.blue[700];
+// final accentColor = isDarkMode ? Colors.tealAccent : Colors.deepOrangeAccent;
+
+// final textColor = isDarkMode ? Colors.white : Colors.blue[700];
+// final textSecondaryColor = isDarkMode ? Colors.grey[300] : Colors.grey[600];
+
+// final backgroundColor = isDarkMode ? Colors.grey[900] : Colors.grey[100];
+// final cardBackgroundColor = isDarkMode ? Colors.grey[800] : Colors.white;
+
+// final buttonColor = isDarkMode ? Colors.blue[700] : Colors.blue[700];
+// final buttonTextColor = isDarkMode ? Colors.white : Colors.white;
+
+// final inputFillColor = isDarkMode ? Colors.blue[800] : Colors.blue[100];
+// var inputBorderColor = isDarkMode ? Colors.blue[900] : Colors.grey[400];
+// final focusedInputBorderColor = isDarkMode ? Colors.white : Colors.blue[800];
+
+// final appBarColor = isDarkMode ? Colors.transparent : Colors.transparent;
+// final appBarIconColor = isDarkMode ? Colors.white : Colors.blue[700];
+// final appBarTextColor = isDarkMode ? Colors.white : Colors.blue[700];
+
+// final scaffoldBackgroundColor = isDarkMode ? Colors.grey[900] : Colors.grey[50];
+
+// final errorColor = Colors.red;
+
+// final successColor = Colors.green;
 
 //////////////////////////////////
 ///

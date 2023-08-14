@@ -106,15 +106,14 @@ class _FeedbackPageState extends State<FeedbackPage> {
           decoration: InputDecoration(
             labelText: 'Feedback or Issue',
             labelStyle: GoogleFonts.nunito(color: textColor, fontSize: 18),
-            focusColor: backgroundColor,
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(10)),
               borderSide: BorderSide(width: 2, color: textColor!),
             ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              borderSide: BorderSide(width: 1, color: textColor),
-            ),
+            // border: InputBorder(
+            // borderRadius: BorderRadius.all(Radius.circular(10)),
+            // borderSide: BorderSide(width: 4, color: Colors.white),
+            // ),
             suffixIcon: IconButton(
               icon: Icon(
                 Icons.clear,

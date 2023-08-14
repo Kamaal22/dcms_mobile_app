@@ -25,6 +25,7 @@ class _AboutPageState extends State<AboutPage> {
     final iHeadColor = isDarkMode ? Colors.white : Colors.blue[800];
     final textColor = isDarkMode ? Colors.white : Colors.blue;
     final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.grey[100];
+    final scaffoldDarkTheme = isDarkMode ? Colors.grey[900] : Colors.grey[50];
 
     return Scaffold(
       appBar: AppBar(
@@ -39,6 +40,7 @@ class _AboutPageState extends State<AboutPage> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
+      backgroundColor: scaffoldDarkTheme,
       body: SingleChildScrollView(
         child: Container(
           margin: EdgeInsets.symmetric(horizontal: 10),

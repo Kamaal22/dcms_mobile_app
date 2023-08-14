@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> {
       'employee_id': item['employee_id'].toString(),
       'dentist': item['dentist'].toString(),
       'patient': item['patient'].toString(),
-      'note': item['note'] ?? '*****************',
+      'note': item['note'] ?? " ",
     };
   }
 
@@ -175,6 +175,7 @@ class _HomePageState extends State<HomePage> {
     final textColor = isDarkMode ? Colors.white : Colors.blue[700];
     final elevatedButtonColor = isDarkMode ? Colors.white : Colors.blue[800];
     final elevTextColor = isDarkMode ? Colors.grey[800] : Colors.white;
+    final scaffoldDarkTheme = isDarkMode ? Colors.grey[900] : Colors.grey[50];
 
     return Scaffold(
       appBar: AppBar(
@@ -204,6 +205,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           )),
+      backgroundColor: scaffoldDarkTheme,
       body: RefreshIndicator(
         onRefresh: fetchInitialData,
         child: SingleChildScrollView(
@@ -215,8 +217,10 @@ class _HomePageState extends State<HomePage> {
               SizedBox(height: 100),
               Container(
                 padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-                color: backgroundColor,
                 width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                    color: backgroundColor,
+                    borderRadius: BorderRadius.all(Radius.circular(10))),
                 child: Column(
                   children: [
                     Row(
@@ -259,36 +263,18 @@ class _HomePageState extends State<HomePage> {
               SizedBox(height: 20),
               // Buttons for actions
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       fixedSize:
-                          Size(MediaQuery.of(context).size.width * 0.32, 20),
+                          Size(MediaQuery.of(context).size.width * 0.45, 50),
                       elevation: 0,
                       backgroundColor: elevatedButtonColor,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => AppointmentModel()),
-                      );
-                    },
-                    child: Text('Book Appointment',
-                        style: GoogleFonts.syne(color: elevTextColor)),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      fixedSize:
-                          Size(MediaQuery.of(context).size.width * 0.32, 20),
-                      elevation: 0,
-                      backgroundColor: elevatedButtonColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(10),
+                            topLeft: Radius.circular(10)),
                       ),
                     ),
                     onPressed: () {
@@ -299,23 +285,28 @@ class _HomePageState extends State<HomePage> {
                       );
                     },
                     child: Text('View Appointments',
-                        style: GoogleFonts.syne(color: elevTextColor)),
+                        style: GoogleFonts.syne(
+                            color: elevTextColor, fontSize: 18)),
                   ),
+                  SizedBox(width: 1),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       fixedSize:
-                          Size(MediaQuery.of(context).size.width * 0.25, 20),
+                          Size(MediaQuery.of(context).size.width * 0.45, 50),
                       elevation: 0,
                       backgroundColor: elevatedButtonColor,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(10),
+                            topRight: Radius.circular(10)),
                       ),
                     ),
                     onPressed: () {
                       _showContactDialog();
                     },
                     child: Text('Contact Us',
-                        style: GoogleFonts.syne(color: elevTextColor)),
+                        style: GoogleFonts.syne(
+                            color: elevTextColor, fontSize: 18)),
                   ),
                 ],
               ),
@@ -323,8 +314,10 @@ class _HomePageState extends State<HomePage> {
               // Upcoming Appointments
               Container(
                 padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-                color: backgroundColor,
                 width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                    color: backgroundColor,
+                    borderRadius: BorderRadius.all(Radius.circular(10))),
                 child: Column(
                   children: [
                     Row(children: [
@@ -375,9 +368,9 @@ class _HomePageState extends State<HomePage> {
                                   ],
                                 ),
                                 subtitle: Text(
-                                  upcomingAppointments[index]['note']! +
-                                      upcomingAppointments[index]['dentist']! +
-                                      upcomingAppointments[index]['type']!,
+                                  upcomingAppointments[index]['patient']! +
+                                      "\n" +
+                                      upcomingAppointments[index]['note']!,
                                   style: GoogleFonts.syne(),
                                 ),
                                 trailing: Icon(Icons.arrow_forward),
@@ -480,10 +473,15 @@ class _EditAppointmentPageState extends State<EditAppointmentPage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: true);
+    final isDarkMode = themeProvider.isDarkMode;
+    final scaffoldDarkTheme = isDarkMode ? Colors.grey[900] : Colors.grey[50];
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Appointment'),
       ),
+      backgroundColor: scaffoldDarkTheme,
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(

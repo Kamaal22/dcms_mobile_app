@@ -140,6 +140,8 @@ class _AppointmentEditPageState extends State<AppointmentEditPage> {
     final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.grey[100];
     final iHeadColor = isDarkMode ? Colors.white : Colors.blue[800];
 
+    final scaffoldDarkTheme = isDarkMode ? Colors.grey[900] : Colors.grey[50];
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: backgroundColor,
@@ -153,6 +155,7 @@ class _AppointmentEditPageState extends State<AppointmentEditPage> {
         ),
         elevation: 0,
       ),
+      backgroundColor: scaffoldDarkTheme,
       body: Center(
         child: Container(
           width: MediaQuery.of(context).size.width,

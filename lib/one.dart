@@ -52,7 +52,9 @@ class _IndexState extends State<Index> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Image.asset('assets/ic_launcher.png'),
+        child: Container(
+            margin: EdgeInsets.symmetric(horizontal: 10),
+            child: Image.asset('assets/logo.png')),
       ),
     );
   }

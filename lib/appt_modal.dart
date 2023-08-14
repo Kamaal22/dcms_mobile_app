@@ -40,6 +40,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
     final textColor = isDarkMode ? Colors.white : Colors.blue[700];
     final inputColor = isDarkMode ? Colors.blue[800] : Colors.blue[100];
     final elevatedButtonColor = isDarkMode ? Colors.white : Colors.blue[800];
+    final scaffoldDarkTheme = isDarkMode ? Colors.grey[900] : Colors.grey[50];
 
     return Scaffold(
       appBar: AppBar(
@@ -52,6 +53,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
         ),
         elevation: 0,
       ),
+      backgroundColor: scaffoldDarkTheme,
       body: Center(
         child: Container(
           width: MediaQuery.of(context).size.width,
@@ -380,6 +382,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
         var responseData = json.decode(response.body);
         var status = responseData['status'];
 
+        print(responseData);
         print(response.body);
         if (status == 'success') {
           showSnackBarWithMessage(
