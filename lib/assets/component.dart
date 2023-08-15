@@ -19,14 +19,15 @@ MP_all(double number) {
 ///
 // ToastListener
 SToast(String message, var bgcolor, var Textcolor) {
-  Fluttertoast.showToast(
+  return Fluttertoast.showToast(
+      webShowClose: true,
       msg: message,
-      toastLength: Toast.LENGTH_SHORT,
+      toastLength: Toast.LENGTH_LONG,
       gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
+      timeInSecForIosWeb: 3,
       backgroundColor: bgcolor,
       textColor: Textcolor,
-      fontSize: 16.0);
+      fontSize: 20);
 }
 
 ////////////////////////////////////////////////
@@ -34,15 +35,15 @@ SToast(String message, var bgcolor, var Textcolor) {
 ///
 var bold = FontWeight.bold;
 var normal = FontWeight.normal;
-var w100 = FontWeight.w100;
-var w200 = FontWeight.w200;
-var w300 = FontWeight.w300;
-var w400 = FontWeight.w400;
-var w500 = FontWeight.w500;
-var w600 = FontWeight.w600;
-var w700 = FontWeight.w700;
-var w800 = FontWeight.w800;
-var w900 = FontWeight.w900;
+var thin = FontWeight.w100;
+var extraLight = FontWeight.w200;
+var light = FontWeight.w300;
+var regular = FontWeight.w400;
+var medium = FontWeight.w500;
+var semiBold = FontWeight.w600;
+var bold700 = FontWeight.w700;
+var extraBold = FontWeight.w800;
+var black = FontWeight.w900;
 
 style(var fontFamily, var fontColor, double fontSize, var fontWeight) {
   return TextStyle(
@@ -340,5 +341,17 @@ Future<TimeOfDay?> showCustomTimePicker(BuildContext context) async {
 }
 
 API_ENDPOINT(String path) {
-  return "http://192.168.42.163/DCMS/app/mobile/" + path;
+  return "http://192.168.56.163/DCMS/app/mobile/" + path;
+}
+
+snackbar(var context, Color? backgroundColor, Color? textColor, String message,
+    int duration) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    duration: Duration(seconds: duration),
+    backgroundColor: backgroundColor,
+    content: Text(message,
+        textAlign: TextAlign.center,
+        style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w500, fontSize: 16, color: textColor)),
+  ));
 }

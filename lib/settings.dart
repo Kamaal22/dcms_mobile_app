@@ -66,9 +66,9 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     );
                   }),
-                  _buildSettingsItem('Change Profile Picture', () {
-                    // Implement change profile picture logic
-                  }),
+                  // _buildSettingsItem('Change Profile Picture', () {
+                  //   // Implement change profile picture logic
+                  // }),
                 ],
                 iHeadColor!,
                 backgroundColor!,
@@ -86,14 +86,14 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     );
                   }),
-                  _buildSettingsItem('Password Recovery', () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PasswordRecoveryPage(),
-                      ),
-                    );
-                  }),
+                  // _buildSettingsItem('Password Recovery', () {
+                  //   Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //       builder: (context) => PasswordRecoveryPage(),
+                  //     ),
+                  //   );
+                  // }),
                 ],
                 iHeadColor,
                 backgroundColor,

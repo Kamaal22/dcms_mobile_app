@@ -1,7 +1,12 @@
+import 'dart:convert';
+
+import 'package:dcms_mobile_app/assets/component.dart';
 import 'package:dcms_mobile_app/index.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class ChangePasswordPage extends StatefulWidget {
   @override
@@ -16,6 +21,17 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       TextEditingController();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  // SnackBar messageSnackBar(
+  //     Color? backgroundColor, Color? textColor, String message, int duration) {
+  //   return SnackBar(
+  //     duration: Duration(seconds: duration),
+  //     backgroundColor: backgroundColor,
+  //     content: Text(message,
+  //         textAlign: TextAlign.center,
+  //         style: GoogleFonts.poppins(
+  //             fontWeight: FontWeight.w500, fontSize: 16, color: textColor)),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -47,9 +63,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40),
-          child: Card(
-            color: containerColor,
-            // borderRadius: BorderRadius.circular(10),
+          child: Container(
+            decoration: BoxDecoration(
+                color: containerColor, borderRadius: BorderRadius.circular(10)),
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(10),
               child: Form(
@@ -58,51 +74,53 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     TextFormField(
-                      style: GoogleFonts.poppins(color: textColor),
+                      style: GoogleFonts.poppins(color: iHeadColor),
                       controller: _currentPasswordController,
                       obscureText: true,
                       decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                        labelText: 'Current Password',
-                        labelStyle:
-                            GoogleFonts.nunito(color: textColor, fontSize: 18),
-                        focusColor: backgroundColor,
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          borderSide: BorderSide(width: 2, color: textColor!),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          borderSide: BorderSide(width: 1, color: textColor),
-                        ),
-                      ),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                          labelText: 'Current Password',
+                          labelStyle: GoogleFonts.poppins(
+                              color: iHeadColor, fontSize: 18),
+                          focusColor: backgroundColor,
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            borderSide:
+                                BorderSide(width: 2, color: iHeadColor!),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            borderSide: BorderSide(width: 1, color: iHeadColor),
+                          )),
                       validator: (value) {
                         if (value!.isEmpty) {
-                          return 'Please enter your current password';
+                          snackbar(context, Colors.red[50], Colors.red[800],
+                              "Please enter your current password", 2);
+                          // return 'Please enter your current password';
                         }
                         // Add additional validation logic here if needed
                         return null;
                       },
                     ),
-                    SizedBox(height: 12),
+                    SizedBox(height: 30),
                     TextFormField(
+                      style: GoogleFonts.poppins(color: iHeadColor),
                       controller: _newPasswordController,
                       obscureText: true,
                       decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                        labelText: 'New Password',
-                        labelStyle:
-                            GoogleFonts.nunito(color: textColor, fontSize: 18),
-                        focusColor: backgroundColor,
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          borderSide: BorderSide(width: 2, color: textColor),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          borderSide: BorderSide(width: 1, color: textColor),
-                        ),
-                      ),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                          labelText: 'New Password',
+                          labelStyle: GoogleFonts.poppins(
+                              color: iHeadColor, fontSize: 18),
+                          // focusColor: backgroundColor,
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            borderSide: BorderSide(width: 2, color: iHeadColor),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            borderSide: BorderSide(width: 1, color: iHeadColor),
+                          )),
                       validator: (value) {
                         if (value!.isEmpty) {
                           return 'Please enter a new password';
@@ -111,36 +129,39 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 12),
+                    SizedBox(height: 20),
                     TextFormField(
+                      style: GoogleFonts.poppins(color: iHeadColor),
                       controller: _confirmNewPasswordController,
                       obscureText: true,
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.symmetric(horizontal: 10),
                         labelText: 'Confirm New Password',
-                        labelStyle:
-                            GoogleFonts.nunito(color: textColor, fontSize: 18),
+                        labelStyle: GoogleFonts.poppins(
+                            color: iHeadColor, fontSize: 18),
                         focusColor: backgroundColor,
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(10)),
-                          borderSide: BorderSide(width: 2, color: textColor),
+                          borderSide: BorderSide(width: 2, color: iHeadColor),
                         ),
-                        border: OutlineInputBorder(
+                        enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(10)),
-                          borderSide: BorderSide(width: 1, color: textColor),
+                          borderSide: BorderSide(width: 1, color: iHeadColor),
                         ),
                       ),
                       validator: (value) {
                         if (value!.isEmpty) {
-                          return 'Please confirm your new password';
+                          snackbar(context, Colors.red[50], Colors.red[800],
+                              "Please confirm your new password", 2);
                         }
                         if (value != _newPasswordController.text) {
-                          return 'Passwords do not match';
+                          snackbar(context, Colors.red[50], Colors.red[800],
+                              "New passwords don't match", 2);
                         }
                         return null;
                       },
                     ),
-                    SizedBox(height: 24),
+                    SizedBox(height: 30),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                           backgroundColor: elevatedButtonColor,
@@ -166,28 +187,55 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     );
   }
 
-  void _changePassword() {
+  Future<void> _changePassword() async {
     if (_formKey.currentState!.validate()) {
       // Perform password change logic here
       String currentPassword = _currentPasswordController.text;
       String newPassword = _newPasswordController.text;
+      String confirmPassword = _confirmNewPasswordController.text;
 
-      // Add your logic for password change API call or database update
+      try {
+        final response = await http.post(
+          Uri.parse(API_ENDPOINT("patient/changePass.php")),
+          body: {
+            'current_pass': currentPassword.trim().toString(),
+            'new_pass': newPassword.trim().toString()
+          },
+        );
 
-      // Show a success message to the user
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Success'),
-          content: Text('Password changed successfully.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('OK'),
-            ),
-          ],
-        ),
-      );
+        if (response.statusCode == 200) {
+          print(response.body);
+          var jsonData = jsonDecode(response.body);
+
+          if (jsonData['status'] == 'success') {
+            print(jsonData['status']);
+            CupertinoAlertDialog(
+              title: Text('Success'),
+              content: Text('Password changed successfully.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          } else if (jsonData['status'] == 'errorPass') {
+            snackbar(context, Colors.red[50], Colors.red[800],
+                "Incorrect Current Password ", 2);
+          } else if (jsonData['status'] == 'error') {
+            snackbar(context, Colors.red[50], Colors.red[800],
+                "Error: " + jsonData, 2);
+          }
+        } else {
+          print(response.body);
+          snackbar(context, Colors.red[50], Colors.red[800],
+              "Error: " + response.body.toString(), 2);
+        }
+      } catch (e) {
+        print(e.toString());
+        snackbar(context, Colors.red[50], Colors.red[800],
+            "Error: " + e.toString(), 2);
+      }
     }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:dcms_mobile_app/assets/component.dart';
 import 'package:dcms_mobile_app/index.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -179,7 +180,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.110.163/DCMS/app/mobile/test.php'),
+        Uri.parse(API_ENDPOINT("test.php")),
         body: {'feedback': feedback},
       );
 

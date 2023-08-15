@@ -181,34 +181,38 @@ class _AppointmentPageState extends State<AppointmentPage> {
     }
   }
 
-  Future<void> initialize(BuildContext context) async {
-    print("this is being initialized in the initial state");
-    final cachedAppointments = await getAppointmentsFromCache();
-    if (cachedAppointments.isNotEmpty) {
-      setState(() {
-        appointments = cachedAppointments;
-      });
-    }
+  // Future<void> initialize(BuildContext context) async {
+  //   print("this is being initialized in the initial state");
+  //   final cachedAppointments = await getAppointmentsFromCache();
+  //   if (cachedAppointments.isNotEmpty) {
+  //     setState(() {
+  //       appointments = cachedAppointments;
+  //     });
+  //   }
 
-    final isConnected = await checkNetConn();
-    if (isConnected) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          // content: Text("No internet connection. Can't fetch appointments."),
-          content: Text("This data is from the server"),
-        ),
-      );
-      await fetchAppointments(context);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          // content: Text("No internet connection. Can't fetch appointments."),
-          content: Text("This data is from the cache"),
-        ),
-      );
-      await getAppointmentsFromCache();
-    }
-  }
+  //   final isConnected = await checkNetConn();
+  //   if (isConnected) {
+  //     setState(() async {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           // content: Text("No internet connection. Can't fetch appointments."),
+  //           content: Text("This data is from the server"),
+  //         ),
+  //       );
+  //       await fetchAppointments(context);
+  //     });
+  //   } else {
+  //     setState(() async {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           // content: Text("No internet connection. Can't fetch appointments."),
+  //           content: Text("This data is from the cache"),
+  //         ),
+  //       );
+  //       await getAppointmentsFromCache();
+  //     });
+  //   }
+  // }
 
   late bool _isDarkMode = false;
 
@@ -222,17 +226,53 @@ class _AppointmentPageState extends State<AppointmentPage> {
         isLoading = false;
       });
     });
-    Future.delayed(Duration.zero, () async {
-      patient_id = await getPatientId();
-      initialize(context as BuildContext);
-      // _isDarkMode =
-      //     Provider.of<ThemeProvider>(context as BuildContext, listen: false)
-      //         .isDarkMode;
-    });
+    // Future.delayed(Duration.zero, () async {
+    //   patient_id = await getPatientId();
+    //   initialize(context as BuildContext);
+    //   // _isDarkMode =
+    //   //     Provider.of<ThemeProvider>(context as BuildContext, listen: false)
+    //   //         .isDarkMode;
+    // });
   }
 
   @override
   Widget build(BuildContext context) {
+    // setState(() {
+    //   Future.delayed(Duration.zero, () async {
+    //     patient_id = await getPatientId();
+    //     initialize(context);
+    //   });
+    // });
+    // print("this is being initialized in the initial state");
+    // final cachedAppointments = await getAppointmentsFromCache();
+    // if (cachedAppointments.isNotEmpty) {
+    //   setState(() {
+    //     appointments = cachedAppointments;
+    //   });
+    // }
+
+    // final isConnected =  checkNetConn();
+    // if (await isConnected) {
+    //   setState(() async {
+    //     ScaffoldMessenger.of(context).showSnackBar(
+    //       SnackBar(
+    //         // content: Text("No internet connection. Can't fetch appointments."),
+    //         content: Text("This data is from the server"),
+    //       ),
+    //     );
+    //     await fetchAppointments(context);
+    //   });
+    // } else {
+    //   setState(() async {
+    //     ScaffoldMessenger.of(context).showSnackBar(
+    //       SnackBar(
+    //         // content: Text("No internet connection. Can't fetch appointments."),
+    //         content: Text("This data is from the cache"),
+    //       ),
+    //     );
+    //     await getAppointmentsFromCache();
+    //   });
+    // }
     final themeProvider = Provider.of<ThemeProvider>(context, listen: true);
     final isDarkMode = themeProvider.isDarkMode;
 
