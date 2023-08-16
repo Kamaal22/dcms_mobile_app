@@ -53,17 +53,19 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           await showSuccessAnimation();
           navigateToIndexPage();
         } else {
-          showSnackBar('Invalid username or password.');
+          snackbar(context, Colors.red[50], Colors.red[800],
+              "Invalid username or password.", 2);
         }
       } else {
-        showSnackBar('An error occurred during login.');
+        snackbar(context, Colors.red[50], Colors.red[800],
+            "An error occurred during login.", 2);
       }
     } on TimeoutException {
-      showSnackBar('Request timeout. Please try again later.');
+      snackbar(context, Colors.red[50], Colors.red[800],
+          "Request timeout. Please try again later.", 2);
     } catch (e) {
       print(e.toString());
-      showSnackBar('An unexpected error occurred. Please try again later.' +
-          e.toString());
+      snackbar(context, Colors.red[50], Colors.red[800], e.toString(), 2);
     } finally {
       setState(() {
         isLoading = false;
@@ -86,16 +88,16 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   Future<void> saveResponseInSharedPreferences(
       Map<String, dynamic> data) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setInt('patient_id', data['patient_id']);
-    prefs.setString('first_name', data['first_name']);
-    prefs.setString('middle_name', data['middle_name']);
-    prefs.setString('last_name', data['last_name']);
-    prefs.setString('birth_date', data['birth_date']);
-    prefs.setString('gender', data['gender']);
-    prefs.setString('phone_number', data['phone_number']);
-    prefs.setString('address', data['address']);
-    prefs.setString('username', data['username']);
-    prefs.setString('password', data['password']);
+    prefs.setString('patient_id', data['patient_id'].toString());
+    prefs.setString('first_name', data['first_name'].toString());
+    prefs.setString('middle_name', data['middle_name'].toString());
+    prefs.setString('last_name', data['last_name'].toString());
+    prefs.setString('birth_date', data['birth_date'].toString());
+    prefs.setString('gender', data['gender'].toString());
+    prefs.setString('phone_number', data['phone_number'].toString());
+    prefs.setString('address', data['address'].toString());
+    prefs.setString('username', data['username'].toString());
+    prefs.setString('password', data['password'].toString());
   }
 
   void navigateToIndexPage() {

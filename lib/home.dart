@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<String> getPatientId() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    int? storedPatientID = pref.getInt('patient_id');
+    String? storedPatientID = pref.getString('patient_id');
     return storedPatientID.toString();
   }
 

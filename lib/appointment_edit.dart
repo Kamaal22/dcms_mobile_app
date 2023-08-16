@@ -13,7 +13,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppointmentEditPage extends StatefulWidget {
   final String appointmentId;
-  final int patientId;
+  final String patientId;
   final String appointmentDate;
   final String appointmentTime;
   final String appointmentType;

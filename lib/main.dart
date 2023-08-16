@@ -32,6 +32,7 @@ class MyApp extends StatelessWidget {
           themeAnimationDuration: Duration.zero,
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
+              // useMaterial3: true,
               textTheme: GoogleFonts.poppinsTextTheme(),
               colorScheme: ColorScheme.light(
                   primary: scaffoldDarkTheme!, background: scaffoldDarkTheme)),

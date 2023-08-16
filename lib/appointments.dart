@@ -44,11 +44,27 @@ class _AppointmentPageState extends State<AppointmentPage> {
 
   Future<void> saveAppointmentsToCache(List<Appointment> appointments) async {
     final db = await DatabaseHelper.instance.database;
-    await db.delete(AppointmentTable);
 
     final batch = db.batch();
     for (final appointment in appointments) {
-      batch.insert(AppointmentTable, appointment.toJson());
+      final existingAppointment = await db.query(
+        AppointmentTable,
+        where: 'appointment_id = ?',
+        whereArgs: [appointment.appointmentId],
+      );
+
+      if (existingAppointment.isNotEmpty) {
+        // Update existing appointment if needed
+        batch.update(
+          AppointmentTable,
+          appointment.toJson(),
+          where: 'appointment_id = ?',
+          whereArgs: [appointment.appointmentId],
+        );
+      } else {
+        // Insert new appointment
+        batch.insert(AppointmentTable, appointment.toJson());
+      }
     }
     await batch.commit();
   }
@@ -58,12 +74,6 @@ class _AppointmentPageState extends State<AppointmentPage> {
     final result = await db.query(AppointmentTable);
 
     return result.map((json) => Appointment.fromJson(json)).toList();
-  }
-
-  Future<String> getPatientId() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    int? storedPatientID = pref.getInt('patient_id');
-    return storedPatientID.toString();
   }
 
   Future<bool> checkNetConn() async {
@@ -77,166 +87,102 @@ class _AppointmentPageState extends State<AppointmentPage> {
     }
   }
 
-  Future<void> fetchAppointments(BuildContext context) async {
+  Future<void> fetchAppointments() async {
     final isConnected = await checkNetConn();
-    // bool isLoading = false;
-
-    setState(() {
-      isLoading = true;
-    });
 
     if (!isConnected) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              textAlign: TextAlign.center,
-              "No Internet Connection. Getting appointments from cache...",
-              style: GoogleFonts.syne()),
-        ),
-      );
-      setState(() {
+      snackbar(context, Colors.red[50], Colors.red[800],
+          "No Internet Connection. Getting appointments from cache...", 2);
+      setState(() async {
         isLoading = false;
+        appointments = await getAppointmentsFromCache();
       });
-      appointments = await getAppointmentsFromCache();
       return;
     }
 
     try {
       final response = await http.post(
         Uri.parse(API_ENDPOINT('appointment/getAppt.php')),
-        body: {'patient_id': patient_id.toString()},
+        body: {'patient_id': patient_id},
       ).timeout(Duration(seconds: 10));
       setState(() {
         isLoading = true;
       });
       if (response.statusCode == 200) {
-        print(response.body);
+        // print(response.body);
         final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
         if (jsonData['status'] == 'success') {
-          List<Appointment> fetchedAppointments = [];
-          for (var data in jsonData['data']) {
-            fetchedAppointments.add(Appointment.fromJson(data));
+          final appointmentsData = jsonData['data'] as List;
+
+          List<Appointment> appointments = []; // Initialize an empty list
+
+          for (final appointmentData in appointmentsData) {
+            appointments.add(Appointment(
+              appointmentId: appointmentData['appointment_id'] ?? "",
+              patient: appointmentData['patient'] ?? "",
+              patientId: appointmentData['patient_id'] ?? "",
+              dentist: appointmentData['dentist'] ?? "",
+              employeeId: appointmentData['employee_id'] ?? "",
+              date: appointmentData['date'] ?? "",
+              time: appointmentData['time'] ?? "",
+              note: appointmentData['note'] ?? "",
+              type: appointmentData['type'] ?? "",
+              status: appointmentData['status'] ?? "",
+            ));
           }
 
-          if (fetchedAppointments.isNotEmpty) {
-            setState(() {
-              isLoading = false;
-              appointments = fetchedAppointments;
-            });
-
-            await saveAppointmentsToCache(appointments);
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("No appointments found."),
-              ),
-            );
-          }
-        } else {
-          final cachedAppointments = await getAppointmentsFromCache();
-          if (cachedAppointments.isNotEmpty) {
-            setState(() {
-              appointments = cachedAppointments;
-            });
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content:
-                    Text("Error fetching appointments: ${jsonData['data']}"),
-              ),
-            );
-          }
-        }
-      } else {
-        setState(() {
-          isLoading = true;
-        });
-        final cachedAppointments = await getAppointmentsFromCache();
-        if (cachedAppointments.isNotEmpty) {
           setState(() {
             isLoading = false;
-            appointments = cachedAppointments;
+            this.appointments =
+                appointments; // Update the state with the list of appointments
           });
+
+          saveAppointmentsToCache(appointments);
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("API Error - statusCode = ${response.statusCode}"),
-            ),
+          print(jsonData['message']);
+          snackbar(
+            context,
+            Colors.red[50],
+            Colors.red[800],
+            jsonData['message'],
+            2,
           );
         }
+      } else {
+        print(
+            response.statusCode.toString() + " : " + response.body.toString());
+        snackbar(context, Colors.red[50], Colors.red[800], response.body, 2);
       }
     } catch (e) {
-      final cachedAppointments = await getAppointmentsFromCache();
-      if (cachedAppointments.isNotEmpty) {
-        setState(() {
-          appointments = cachedAppointments;
-        });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Error fetching appointments: ${e.toString()}"),
-          ),
-        );
-      }
+      print(e);
+      snackbar(context, Colors.red[50], Colors.red[800], e.toString(), 2);
     }
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
-  // Future<void> initialize(BuildContext context) async {
-  //   print("this is being initialized in the initial state");
-  //   final cachedAppointments = await getAppointmentsFromCache();
-  //   if (cachedAppointments.isNotEmpty) {
-  //     setState(() {
-  //       appointments = cachedAppointments;
-  //     });
-  //   }
-
-  //   final isConnected = await checkNetConn();
-  //   if (isConnected) {
-  //     setState(() async {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           // content: Text("No internet connection. Can't fetch appointments."),
-  //           content: Text("This data is from the server"),
-  //         ),
-  //       );
-  //       await fetchAppointments(context);
-  //     });
-  //   } else {
-  //     setState(() async {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           // content: Text("No internet connection. Can't fetch appointments."),
-  //           content: Text("This data is from the cache"),
-  //         ),
-  //       );
-  //       await getAppointmentsFromCache();
-  //     });
-  //   }
-  // }
-
-  late bool _isDarkMode = false;
+  Future<String> getPatientId() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String? storedPatientID = pref.getString('patient_id');
+    return storedPatientID.toString();
+  }
 
   @override
   void initState() {
     super.initState();
-    // fetchAppointments(context);
-    print("this is the initial state");
-    Future.delayed(Duration(seconds: 10), () {
-      setState(() {
-        isLoading = false;
-      });
-    });
-    // Future.delayed(Duration.zero, () async {
-    //   patient_id = await getPatientId();
-    //   initialize(context as BuildContext);
-    //   // _isDarkMode =
-    //   //     Provider.of<ThemeProvider>(context as BuildContext, listen: false)
-    //   //         .isDarkMode;
-    // });
+    patient_id = getPatientId().toString();
+
+    // Call fetchAppointments here to load data when the page is first created
+    fetchAppointments();
   }
 
   @override
   Widget build(BuildContext context) {
+    // setState(() {
+    //   fetchAppointments(context);
+    // });
     // setState(() {
     //   Future.delayed(Duration.zero, () async {
     //     patient_id = await getPatientId();
@@ -303,7 +249,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
                 ),
               ),
               IconButton(
-                onPressed: () => fetchAppointments(context),
+                onPressed: () => fetchAppointments(),
                 color: textColor,
                 icon: Icon(Icons.refresh_rounded),
               ),
@@ -312,79 +258,84 @@ class _AppointmentPageState extends State<AppointmentPage> {
         ),
         elevation: 0,
       ),
-      body: isLoading
-          ? Container(
-              color: backgroundColor,
-              child: Center(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(backgroundColor: iHeadColor),
-                    SizedBox(height: 20),
-                    Text("Loading...",
-                        style:
-                            GoogleFonts.syne(fontSize: 22, color: iHeadColor))
-                  ],
-                ),
-              ),
-            )
-          : Column(
-              children: [
-                SizedBox(height: 30),
-                Expanded(
-                  child: ListView(
-                    children: [
-                      _buildAppointmentsSection(
-                        context,
-                        appointments
-                            .where((appointment) =>
-                                appointment.status == 'Pending')
-                            .toList(),
-                        Icons.pending_rounded,
-                        "Pending Appointments",
-                        iHeadColor!,
-                      ),
-                      _buildAppointmentsSection(
-                        context,
-                        appointments
-                            .where((appointment) =>
-                                appointment.status == 'Approved')
-                            .toList(),
-                        Icons.approval_rounded,
-                        "Approved Appointments",
-                        iHeadColor,
-                      ),
-                      _buildAppointmentsSection(
-                        context,
-                        appointments
-                            .where((appointment) =>
-                                appointment.status == 'Cancelled')
-                            .toList(),
-                        Icons.event_busy_rounded,
-                        "Cancelled Appointments",
-                        iHeadColor,
-                        showPopupMenu: false,
-                      ),
-                      _buildAppointmentsSection(
-                        context,
-                        appointments
-                            .where((appointment) =>
-                                appointment.status == 'Completed')
-                            .toList(),
-                        Icons.check_circle_rounded,
-                        "Completed Appointments",
-                        iHeadColor,
-                        showPopupMenu: false,
-                      ),
-                      SizedBox(
-                        height: 200,
-                      )
-                    ],
+      body: RefreshIndicator(
+          onRefresh: () async {
+            // Call fetchAppointments when the user triggers a refresh
+            await fetchAppointments();
+          },
+          child: isLoading
+              ? Container(
+                  color: backgroundColor,
+                  child: Center(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(backgroundColor: iHeadColor),
+                        SizedBox(height: 20),
+                        Text("Loading...",
+                            style: GoogleFonts.syne(
+                                fontSize: 22, color: iHeadColor))
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
+                )
+              : Column(
+                  children: [
+                    SizedBox(height: 30),
+                    Expanded(
+                      child: ListView(
+                        children: [
+                          _buildAppointmentsSection(
+                            context,
+                            appointments
+                                .where((appointment) =>
+                                    appointment.status == 'Pending')
+                                .toList(),
+                            Icons.pending_rounded,
+                            "Pending Appointments",
+                            iHeadColor!,
+                          ),
+                          _buildAppointmentsSection(
+                            context,
+                            appointments
+                                .where((appointment) =>
+                                    appointment.status == 'Approved')
+                                .toList(),
+                            Icons.approval_rounded,
+                            "Approved Appointments",
+                            iHeadColor,
+                          ),
+                          _buildAppointmentsSection(
+                            context,
+                            appointments
+                                .where((appointment) =>
+                                    appointment.status == 'Cancelled')
+                                .toList(),
+                            Icons.event_busy_rounded,
+                            "Cancelled Appointments",
+                            iHeadColor,
+                            showPopupMenu: false,
+                          ),
+                          _buildAppointmentsSection(
+                            context,
+                            appointments
+                                .where((appointment) =>
+                                    appointment.status == 'Completed')
+                                .toList(),
+                            Icons.check_circle_rounded,
+                            "Completed Appointments",
+                            iHeadColor,
+                            showPopupMenu: false,
+                          ),
+                          SizedBox(
+                            height: 200,
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                )),
     );
   }
 
@@ -527,7 +478,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
               children: [
                 Text('type: ${appointment.type}',
                     style: GoogleFonts.actor(fontSize: 16, color: textColor)),
-                Text('Dentist: ${appointment.dentist}',
+                Text('Dentist:' + appointment.dentist ?? "",
                     style: GoogleFonts.actor(fontSize: 16, color: textColor)),
                 Text('Patient: ${appointment.patient}',
                     style: GoogleFonts.actor(
@@ -622,11 +573,11 @@ class _AppointmentPageState extends State<AppointmentPage> {
 }
 
 class Appointment {
-  int appointmentId;
+  String appointmentId;
   String patient;
-  int patientId;
+  String patientId;
   String dentist;
-  int employeeId;
+  String employeeId;
   String date;
   String time;
   String note;
@@ -648,16 +599,16 @@ class Appointment {
 
   factory Appointment.fromJson(Map<String, dynamic> json) {
     return Appointment(
-      appointmentId: int.parse(json['appointment_id'].toString()),
-      patient: json['patient'] as String,
-      patientId: int.parse(json['patient_id'].toString()),
-      dentist: json['dentist'] as String,
-      employeeId: int.parse(json['employee_id'].toString()),
-      date: json['date'] as String? ?? '',
-      time: json['time'] as String? ?? '',
-      note: json['note'] as String? ?? '',
-      type: json['type'] as String? ?? '',
-      status: json['status'] as String? ?? '',
+      appointmentId: json['appointment_id'].toString() ?? "",
+      patient: json['patient'].toString() ?? "",
+      patientId: json['patient_id'].toString() ?? "",
+      dentist: json['dentist'].toString() ?? "",
+      employeeId: json['employee_id'].toString() ?? "",
+      date: json['date'].toString() ?? "",
+      time: json['time'].toString() ?? "",
+      note: json['note'] ?? '',
+      type: json['type'].toString() ?? "",
+      status: json['status'].toString() ?? "",
     );
   }
 
@@ -815,16 +766,16 @@ class DatabaseHelper {
   Future<void> _createDB(Database db, int version) async {
     await db.execute('''
       CREATE TABLE $AppointmentTable(
-        appointment_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        patient TEXT NOT NULL,
-        patient_id INTEGER NOT NULL,
-        dentist TEXT NOT NULL,
-        employee_id INTEGER NOT NULL,
-        date TEXT NOT NULL,
-        time TEXT NOT NULL,
+        appointment_id TEXT,
+        patient TEXT,
+        patient_id TEXT,
+        dentist TEXT,
+        employee_id TEXT,
+        date TEXT,
+        time TEXT,
         note TEXT,
-        type TEXT NOT NULL,
-        status TEXT NOT NULL
+        type TEXT,
+        status TEXT
       )
     ''');
   }

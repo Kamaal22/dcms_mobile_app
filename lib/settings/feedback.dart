@@ -163,20 +163,8 @@ class _FeedbackPageState extends State<FeedbackPage> {
   }
 
   void _sendFeedback(String feedback) async {
-    final themeProvider = Provider.of<ThemeProvider>(context, listen: true);
-    final isDarkMode = themeProvider.isDarkMode;
-
-    SnackBar messageSnackBar(Color? backgroundColor, Color? textColor,
-        String message, int duration) {
-      return SnackBar(
-        duration: Duration(seconds: duration),
-        backgroundColor: backgroundColor,
-        content: Text(message,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w500, fontSize: 18, color: textColor)),
-      );
-    }
+    // final themeProvider = Provider.of<ThemeProvider>(context, listen: true);
+    // final isDarkMode = themeProvider.isDarkMode;
 
     try {
       final response = await http.post(
@@ -186,13 +174,12 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
       if (response.statusCode == 200) {
         _feedbackController.clear();
-        ScaffoldMessenger.of(context).showSnackBar((messageSnackBar(
-            Colors.green[50],
-            Colors.green[800],
-            'Feedback submitted successfully! Thank you!',
-            2)));
+        snackbar(context, Colors.green[50], Colors.green[800],
+            "Feedback submitted successfully! Thank you!", 2);
       } else {
-        throw Exception('Failed to submit feedback.');
+        // throw Exception('Failed to submit feedback.');
+        snackbar(context, Colors.red[50], Colors.red[800],
+            "Failed to submit feedback.", 2);
       }
     } catch (e) {
       print(e.toString());

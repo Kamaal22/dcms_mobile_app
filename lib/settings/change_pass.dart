@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   @override
@@ -206,9 +207,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         if (response.statusCode == 200) {
           print(response.body);
           var jsonData = jsonDecode(response.body);
-
           if (jsonData['status'] == 'success') {
-            print(jsonData['status']);
+            print(jsonData);
+            final prefs = await SharedPreferences.getInstance();
+            prefs.setInt('password', jsonData['newPass']);
             CupertinoAlertDialog(
               title: Text('Success'),
               content: Text('Password changed successfully.'),
@@ -228,8 +230,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           }
         } else {
           print(response.body);
-          snackbar(context, Colors.red[50], Colors.red[800],
-              "Error: " + response.body.toString(), 2);
+          var data = jsonDecode(response.body);
+          snackbar(
+              context, Colors.red[50], Colors.red[800], data['message'], 2);
         }
       } catch (e) {
         print(e.toString());

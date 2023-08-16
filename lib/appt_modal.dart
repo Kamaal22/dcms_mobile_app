@@ -109,6 +109,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
               Expanded(
                 child: Form(
                   child: ListView(
+                    physics: NeverScrollableScrollPhysics(),
                     padding: EdgeInsets.symmetric(horizontal: 10),
                     children: [
                       SizedBox(height: 20),
