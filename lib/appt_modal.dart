@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'index.dart';
 
@@ -19,6 +20,12 @@ class _AppointmentModelState extends State<AppointmentModel> {
   TimeOfDay? time;
   TextEditingController note = TextEditingController();
   late bool isDarkMode = false;
+  String patient_id = '';
+
+  getPatientId() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    patient_id = pref.getString('patient_id')!;
+  }
 
   @override
   void initState() {
@@ -26,6 +33,7 @@ class _AppointmentModelState extends State<AppointmentModel> {
     isDarkMode;
     date = DateTime.now();
     time = TimeOfDay.now();
+    getPatientId();
   }
 
   @override
@@ -34,6 +42,8 @@ class _AppointmentModelState extends State<AppointmentModel> {
 
     setState(() {
       themeProvider;
+      getPatientId();
+      print("Patient ID = " + patient_id.toString());
     });
     final isDarkMode =
         Provider.of<ThemeProvider>(context, listen: true).isDarkMode;
@@ -308,8 +318,8 @@ class _AppointmentModelState extends State<AppointmentModel> {
                           ),
                           contentPadding: EdgeInsets.symmetric(
                               horizontal: 10, vertical: 10),
-                          labelText: "Add note",
-                          labelStyle: GoogleFonts.nunito(),
+                          labelText: "Add Description",
+                          labelStyle: GoogleFonts.poppins(color: textColor),
                           alignLabelWithHint: true,
                         ),
                       ),
@@ -363,20 +373,17 @@ class _AppointmentModelState extends State<AppointmentModel> {
   Future<void> submitForm() async {
     var dateFormatted = DateFormat('yyyy-MM-dd').format(date!);
     var timeFormatted = time!.format(context);
-    var appointment = {
-      'type': 'Online',
-      'status': 'Pending',
-      'date': dateFormatted,
-      'time': timeFormatted,
-      'patient_id': '1',
-      'employee_id': 'null',
-      'note': note.text.trim().toString(),
-    };
 
     try {
       var response = await http.post(
         Uri.parse(API_ENDPOINT("appointment/submit_appt.php")),
-        body: appointment,
+        body: {
+          'date': dateFormatted,
+          'time': timeFormatted,
+          'patient_id': patient_id.toString(),
+          'employee_id': 'null',
+          'note': note.text.trim().toString(),
+        },
       );
 
       if (response.statusCode == 200 && response.body.isNotEmpty) {
@@ -394,18 +401,18 @@ class _AppointmentModelState extends State<AppointmentModel> {
             note.clear();
           });
         } else if (status == 'errorT') {
-          showSnackBarWithMessage(
-              'Time has already been appointed.', Colors.red);
+          snackbar(context, Colors.red[50], Colors.red[800],
+              "Time has already been appointed", 2);
         } else {
-          showSnackBarWithMessage(
-              'Failed to create appointment!' + responseData, Colors.red);
+          snackbar(context, Colors.red[50], Colors.red[800],
+              "Failed to create appointment!", 2);
         }
       } else {
-        showSnackBarWithMessage(
-            'Failed to create appointment: ${response.body}', Colors.red);
+        snackbar(context, Colors.red[50], Colors.red[800],
+            "Failed to create appointment: ${response.body}", 2);
       }
     } catch (error) {
-      showSnackBarWithMessage('Error: $error', Colors.red);
+      snackbar(context, Colors.red[50], Colors.red[800], "Error: $error", 2);
     }
   }
 

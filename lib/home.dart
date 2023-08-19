@@ -369,7 +369,7 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 subtitle: Text(
                                   upcomingAppointments[index]['patient']! +
-                                      "\n" +
+                                      "\n\n" +
                                       upcomingAppointments[index]['note']!,
                                   style: GoogleFonts.syne(),
                                 ),

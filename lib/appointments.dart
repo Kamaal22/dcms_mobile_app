@@ -163,16 +163,15 @@ class _AppointmentPageState extends State<AppointmentPage> {
     });
   }
 
-  Future<String> getPatientId() async {
+  getPatientId() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    String? storedPatientID = pref.getString('patient_id');
-    return storedPatientID.toString();
+    patient_id = pref.getString('patient_id')!;
   }
 
   @override
   void initState() {
     super.initState();
-    patient_id = getPatientId().toString();
+    getPatientId();
 
     // Call fetchAppointments here to load data when the page is first created
     fetchAppointments();
@@ -180,45 +179,6 @@ class _AppointmentPageState extends State<AppointmentPage> {
 
   @override
   Widget build(BuildContext context) {
-    // setState(() {
-    //   fetchAppointments(context);
-    // });
-    // setState(() {
-    //   Future.delayed(Duration.zero, () async {
-    //     patient_id = await getPatientId();
-    //     initialize(context);
-    //   });
-    // });
-    // print("this is being initialized in the initial state");
-    // final cachedAppointments = await getAppointmentsFromCache();
-    // if (cachedAppointments.isNotEmpty) {
-    //   setState(() {
-    //     appointments = cachedAppointments;
-    //   });
-    // }
-
-    // final isConnected =  checkNetConn();
-    // if (await isConnected) {
-    //   setState(() async {
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //       SnackBar(
-    //         // content: Text("No internet connection. Can't fetch appointments."),
-    //         content: Text("This data is from the server"),
-    //       ),
-    //     );
-    //     await fetchAppointments(context);
-    //   });
-    // } else {
-    //   setState(() async {
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //       SnackBar(
-    //         // content: Text("No internet connection. Can't fetch appointments."),
-    //         content: Text("This data is from the cache"),
-    //       ),
-    //     );
-    //     await getAppointmentsFromCache();
-    //   });
-    // }
     final themeProvider = Provider.of<ThemeProvider>(context, listen: true);
     final isDarkMode = themeProvider.isDarkMode;
 
@@ -227,6 +187,11 @@ class _AppointmentPageState extends State<AppointmentPage> {
     final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.grey[100];
     final scaffoldDarkTheme = isDarkMode ? Colors.grey[900] : Colors.grey[50];
 
+    setState(() {
+      getPatientId();
+      print("Patient ID = " + patient_id.toString());
+      fetchAppointments();
+    });
     Future.delayed(Duration(seconds: 10), () {
       setState(() {
         isLoading = false;
