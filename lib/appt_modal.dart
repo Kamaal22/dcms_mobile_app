@@ -40,11 +40,11 @@ class _AppointmentModelState extends State<AppointmentModel> {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: true);
 
-    setState(() {
-      themeProvider;
-      getPatientId();
-      print("Patient ID = " + patient_id.toString());
-    });
+    // setState(() {
+    //   themeProvider;
+    //   getPatientId();
+    //   print("Patient ID = " + patient_id.toString());
+    // });
     final isDarkMode =
         Provider.of<ThemeProvider>(context, listen: true).isDarkMode;
     final textColor = isDarkMode ? Colors.white : Colors.blue[700];
@@ -372,7 +372,10 @@ class _AppointmentModelState extends State<AppointmentModel> {
 
   Future<void> submitForm() async {
     var dateFormatted = DateFormat('yyyy-MM-dd').format(date!);
-    var timeFormatted = time!.format(context);
+    var hour = time!.hour.toString().padLeft(2, '0');
+    var minute = time!.minute.toString().padLeft(2, '0');
+    var second = '00'; // Adding seconds as '00'
+    var timeFormatted = '$hour:$minute:$second';
 
     try {
       var response = await http.post(
@@ -386,6 +389,10 @@ class _AppointmentModelState extends State<AppointmentModel> {
         },
       );
 
+      print("The date Is:" + dateFormatted.toString());
+      print("The time Is:" + timeFormatted.toString());
+      print("The description Is:" + note.text.toString());
+
       if (response.statusCode == 200 && response.body.isNotEmpty) {
         var responseData = json.decode(response.body);
         var status = responseData['status'];
@@ -393,8 +400,8 @@ class _AppointmentModelState extends State<AppointmentModel> {
         print(responseData);
         print(response.body);
         if (status == 'success') {
-          showSnackBarWithMessage(
-              'Appointment created successfully', Colors.green);
+          snackbar(context, Colors.green[50], Colors.green[800],
+              "Appointment created succesfully", 2);
           setState(() {
             date = DateTime.now();
             time = TimeOfDay.now();
@@ -414,18 +421,5 @@ class _AppointmentModelState extends State<AppointmentModel> {
     } catch (error) {
       snackbar(context, Colors.red[50], Colors.red[800], "Error: $error", 2);
     }
-  }
-
-  void showSnackBarWithMessage(String message, Color backgroundColor) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.poppins(),
-        ),
-        backgroundColor: backgroundColor,
-      ),
-    );
   }
 }

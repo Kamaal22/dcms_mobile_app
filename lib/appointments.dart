@@ -187,11 +187,14 @@ class _AppointmentPageState extends State<AppointmentPage> {
     final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.grey[100];
     final scaffoldDarkTheme = isDarkMode ? Colors.grey[900] : Colors.grey[50];
 
-    setState(() {
-      getPatientId();
-      print("Patient ID = " + patient_id.toString());
-      fetchAppointments();
-    });
+    // Future.delayed(Duration(seconds: 10), () {
+    //   setState(() {
+    //     getPatientId();
+    //     print("Patient ID = " + patient_id.toString());
+    //     fetchAppointments();
+    //   });
+    // });
+
     Future.delayed(Duration(seconds: 10), () {
       setState(() {
         isLoading = false;

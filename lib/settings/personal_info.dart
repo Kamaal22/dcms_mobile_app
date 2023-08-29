@@ -37,7 +37,7 @@ class ProfileSettingsPage extends StatefulWidget {
 }
 
 class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
-  int id = 1;
+  String? id;
   String firstName = '';
   String middleName = '';
   String lastName = '';
@@ -59,7 +59,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   Future<void> getPatientInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    id = prefs.getInt('patient_id')!;
+    id = prefs.getString('patient_id')!;
     firstName = prefs.getString('first_name')!;
     middleName = prefs.getString('middle_name')!;
     lastName = prefs.getString('last_name')!;
@@ -179,10 +179,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         _firstNameController = TextEditingController(text: firstName);
         _middleNameController = TextEditingController(text: middleName);
         _lastNameController = TextEditingController(text: lastName);
-        _birthDateController = TextEditingController(
-            text: DateFormat('dd-MMM-yyyy')
-                .format(DateTime.parse(birthDate))
-                .toString());
+        _birthDateController =
+            TextEditingController(text: birthDate.toString());
 
         _phoneController = TextEditingController(text: phoneNumber);
         _addressController = TextEditingController(text: address);

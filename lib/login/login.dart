@@ -207,10 +207,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10),
                 child: TextField(
+                  style: TextStyle(color: inputColor),
                   controller: passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
-                    focusColor: inputColor,
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                       borderSide: BorderSide(width: 2, color: inputColor),
@@ -241,8 +241,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                     child: isLoading
                         ? CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Colors.amber,
-                            backgroundColor: Colors.amber[900],
+                            color: Colors.blue[50],
+                            backgroundColor: Colors.blue[800],
                           )
                         : Text(
                             "Sign In",
