@@ -111,10 +111,10 @@ class _FeedbackPageState extends State<FeedbackPage> {
               borderRadius: BorderRadius.all(Radius.circular(10)),
               borderSide: BorderSide(width: 2, color: textColor!),
             ),
-            // border: InputBorder(
-            // borderRadius: BorderRadius.all(Radius.circular(10)),
-            // borderSide: BorderSide(width: 4, color: Colors.white),
-            // ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              borderSide: BorderSide(width: 2, color: textColor),
+            ),
             suffixIcon: IconButton(
               icon: Icon(
                 Icons.clear,
@@ -134,17 +134,11 @@ class _FeedbackPageState extends State<FeedbackPage> {
             if (feedback.length >= 10) {
               _sendFeedback(feedback);
             } else if (feedback.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar((messageSnackBar(
-                  Colors.red[50],
-                  Colors.red[800],
-                  "Please enter your feedback!",
-                  2)));
+              snackbar(context, Colors.red[50], Colors.red[800],
+                  "Please enter your feedback!", 2);
             } else {
-              ScaffoldMessenger.of(context).showSnackBar((messageSnackBar(
-                  Colors.red[50],
-                  Colors.red[800],
-                  'Feedback must be at least 10 characters.',
-                  2)));
+              snackbar(context, Colors.red[50], Colors.red[800],
+                  "Feedback must be at least 10 characters.", 2);
             }
           },
           style: ElevatedButton.styleFrom(
@@ -168,7 +162,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
     try {
       final response = await http.post(
-        Uri.parse(API_ENDPOINT("test.php")),
+        Uri.parse(API_ENDPOINT("feedback/feedback.php")),
         body: {'feedback': feedback},
       );
 

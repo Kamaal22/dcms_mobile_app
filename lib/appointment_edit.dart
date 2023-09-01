@@ -87,8 +87,8 @@ class _AppointmentEditPageState extends State<AppointmentEditPage> {
         print('Response Body: ${response.body}');
         print('Response Data: $responseData');
         if (status == 'success') {
-          showSnackBarWithMessage(
-              'Appointment updated successfully', Colors.green);
+          snackbar(context, Colors.green[50], Colors.green[800],
+              "Appointment updated successfully", 2);
           setState(() {
             date = DateTime.now();
             time = TimeOfDay.now();
@@ -96,37 +96,21 @@ class _AppointmentEditPageState extends State<AppointmentEditPage> {
           });
           Navigator.pop(context);
         } else if (status == 'errorT') {
-          showSnackBarWithMessage(
-              'Time has already been appointed. Select another time!',
-              Colors.red);
+          snackbar(context, Colors.red[50], Colors.red[800],
+              "Time has already been appointed. Select another time!", 2);
         } else {
-          showSnackBarWithMessage(
-              'Failed to update appointment!' + responseData.toString(),
-              Colors.red);
+          snackbar(context, Colors.red[50], Colors.red[800],
+              "Failed to update appointment!" + responseData.toString(), 2);
         }
       } else {
         var responseData = json.decode(response.body);
-        showSnackBarWithMessage(
-            'Failed to update appointment: ' + responseData.toString(),
-            Colors.red);
+        snackbar(context, Colors.red[50], Colors.red[800],
+            "Failed to update appointment: " + responseData.toString(), 2);
       }
     } catch (error) {
       print('Response Body: ${response.body}'); // Debugging
-      showSnackBarWithMessage('Error: $error', Colors.red);
+      snackbar(context, Colors.red[50], Colors.red[800], "Error: $error", 2);
     }
-  }
-
-  void showSnackBarWithMessage(String message, Color backgroundColor) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.poppins(),
-        ),
-        backgroundColor: backgroundColor,
-      ),
-    );
   }
 
   @override
@@ -415,7 +399,7 @@ class _AppointmentEditPageState extends State<AppointmentEditPage> {
                           ),
                           contentPadding: EdgeInsets.symmetric(
                               horizontal: 10, vertical: 10),
-                          labelText: "Add note",
+                          labelText: "Add Description",
                           labelStyle: GoogleFonts.nunito(),
                           alignLabelWithHint: true,
                         ),

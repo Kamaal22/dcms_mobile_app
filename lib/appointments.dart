@@ -91,12 +91,12 @@ class _AppointmentPageState extends State<AppointmentPage> {
     final isConnected = await checkNetConn();
 
     if (!isConnected) {
-      snackbar(context, Colors.red[50], Colors.red[800],
-          "No Internet Connection. Getting appointments from cache...", 2);
-      setState(() async {
-        isLoading = false;
-        appointments = await getAppointmentsFromCache();
-      });
+      // snackbar(context, Colors.red[50], Colors.red[800],
+      //     "No Internet Connection. Getting appointments from cache...", 2);
+      // setState(() async {
+      isLoading = false;
+      appointments = await getAppointmentsFromCache();
+      // });
       return;
     }
 
@@ -187,13 +187,12 @@ class _AppointmentPageState extends State<AppointmentPage> {
     final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.grey[100];
     final scaffoldDarkTheme = isDarkMode ? Colors.grey[900] : Colors.grey[50];
 
-    // Future.delayed(Duration(seconds: 10), () {
-    //   setState(() {
-    //     getPatientId();
-    //     print("Patient ID = " + patient_id.toString());
-    //     fetchAppointments();
-    //   });
-    // });
+    Future.delayed(Duration(seconds: 20), () {
+      setState(() {
+        getPatientId();
+        fetchAppointments();
+      });
+    });
 
     Future.delayed(Duration(seconds: 10), () {
       setState(() {
@@ -265,15 +264,15 @@ class _AppointmentPageState extends State<AppointmentPage> {
                             iHeadColor!,
                           ),
                           _buildAppointmentsSection(
-                            context,
-                            appointments
-                                .where((appointment) =>
-                                    appointment.status == 'Approved')
-                                .toList(),
-                            Icons.approval_rounded,
-                            "Approved Appointments",
-                            iHeadColor,
-                          ),
+                              context,
+                              appointments
+                                  .where((appointment) =>
+                                      appointment.status == 'Approved')
+                                  .toList(),
+                              Icons.approval_rounded,
+                              "Approved Appointments",
+                              iHeadColor,
+                              showPopupMenu: false),
                           _buildAppointmentsSection(
                             context,
                             appointments

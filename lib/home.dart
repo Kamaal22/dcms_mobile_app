@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:dcms_mobile_app/appointment_edit.dart';
 import 'package:dcms_mobile_app/assets/component.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +8,6 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'index.dart';
 import 'package:dcms_mobile_app/appointments.dart';
@@ -32,20 +30,23 @@ class _HomePageState extends State<HomePage> {
     return storedPatientID.toString();
   }
 
-  Future<void> fetchInitialData() async {
-    patient_id = await getPatientId();
-    isDarkMode;
-    fetchUpcomingAppointments(); // Fetch data when the widget is initialized
-  }
-
   Future<void> fetchUpcomingAppointments() async {
+    final isConnected = await checkNetConn();
+
+    if (!isConnected) {
+      // snackbar(context, Colors.red[50], Colors.red[800],
+      //     "No Internet Connection...", 2);
+      print("No Internet Connection...");
+      return;
+    }
+
     final response = await http.post(
       Uri.parse(API_ENDPOINT("appointment/fetch_upcoming.php")),
       body: {'patient_id': patient_id.toString()},
-    );
+    ).timeout(Duration(seconds: 10));
 
     if (response.statusCode == 200) {
-      print(response.body);
+      // print(response.body);
       final data = json.decode(response.body) as Map<String, dynamic>;
       if (data['status'] == 'success') {
         setState(() {
@@ -55,14 +56,13 @@ class _HomePageState extends State<HomePage> {
       } else {
         // Handle error case
         print('Error: ${data['data']}');
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(data['data'] ?? "")));
+        snackbar(
+            context, Colors.red[50], Colors.red[800], data['data'] ?? "", 2);
       }
     } else {
       final data = json.decode(response.body) as Map<String, dynamic>;
       print('Error fetching data: ${data['data']}');
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(textAlign: TextAlign.center, data['message'])));
+      snackbar(context, Colors.red[50], Colors.red[800], data['message'], 2);
     }
   }
 
@@ -79,6 +79,17 @@ class _HomePageState extends State<HomePage> {
       'patient': item['patient'].toString(),
       'note': item['note'] ?? " ",
     };
+  }
+
+  Future<void> fetchInitialData() async {
+    patient_id = await getPatientId();
+    isDarkMode;
+    Future.delayed(Duration(seconds: 10), () {
+      setState(() {
+        print("Fetching upcoming appointments...");
+        fetchUpcomingAppointments();
+      });
+    });
   }
 
   @override
@@ -107,9 +118,9 @@ class _HomePageState extends State<HomePage> {
     if (await canLaunchUrlString(phoneUri.toString())) {
       await launchUrlString(phoneUri.toString());
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not launch the phone app')),
-      );
+      snackbar(
+          context, Colors.red[50], Colors.red[800], "Something went wrong!", 2);
+      print("Coudn't launch phone app");
     }
   }
 
@@ -123,9 +134,9 @@ class _HomePageState extends State<HomePage> {
     if (await canLaunchUrlString(emailUri.toString())) {
       await launchUrlString(emailUri.toString());
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not launch the email app')),
-      );
+      snackbar(
+          context, Colors.red[50], Colors.red[800], "Something went wrong!", 2);
+      print("Coudn't launch email app");
     }
   }
 
@@ -176,6 +187,14 @@ class _HomePageState extends State<HomePage> {
     final elevatedButtonColor = isDarkMode ? Colors.white : Colors.blue[800];
     final elevTextColor = isDarkMode ? Colors.grey[800] : Colors.white;
     final scaffoldDarkTheme = isDarkMode ? Colors.grey[900] : Colors.grey[50];
+
+// fetch the appointments after every five seconds
+    Future.delayed(Duration(seconds: 10), () {
+      setState(() {
+        print("Fetching upcoming appointments...");
+        fetchUpcomingAppointments();
+      });
+    });
 
     return Scaffold(
       appBar: AppBar(
